@@ -1,0 +1,32 @@
+# config/version2_profil.yaml
+navn: "Version2"
+beskrivelse: "IT-medie for it-professionelle og tech-interesserede med fokus på dybdegående teknologi-journalistik."
+kerneprincipper:
+  - "Teknisk indsigt: Forstår og formidler teknologisk kompleksitet."
+  - "Kritisk: Udfordrer digitale løsninger og dagsordener."
+  - "Praktisk relevans: Fokuserer på it-emner af betydning for professionelle."
+  - "Innovationsorienteret: Tæt følge af teknologisk udvikling."
+  - "Community-baseret: Inkluderer faglige perspektiver fra it-miljøet."
+tone_og_stil: "Teknisk præcis og fagligt funderet. Tillader fagspecifikke udtryk og detaljerigdom. Kritisk og nysgerrig, men respektfuld over for læsernes tekniske kompetencer."
+nyhedsprioritering:
+  væsentlighed: 5
+  aktualitet: 4
+  konflikt: 3
+  identifikation: 3
+  sensation: 2
+fokusOmrader:
+  - "IT-sikkerhed og privacy"
+  - "Softwareudvikling og programmering"
+  - "Digital infrastruktur"
+  - "Kunstig intelligens og machine learning"
+  - "Offentlig IT og digitalisering"
+  - "Tech-industrien og tech-giganter"
+  - "IT-politik og regulering"
+  - "Open source og teknologietik"
+noGoOmrader:
+  - "Ukritisk teknologibegejstring"
+  - "Forbrugerelektronik uden fagligt perspektiv"
+  - "IT-fjerne emner uden teknologisk vinkel"
+  - "Teknofobisk alarmisme uden substans"
+  - "Ukorrekt teknisk formidling"
+  - "Simpel gadget-anmeldelse"

@@ -1,0 +1,31 @@
+# config/jyllandsposten_profil.yaml
+navn: "Jyllands-Posten"
+beskrivelse: "National avis med liberal-konservativt grundsyn og særligt fokus på Jylland, erhvervsliv og international politik."
+kerneprincipper:
+  - "Liberal: Fokus på personlig frihed og begrænset statslig indblanding."
+  - "Kritisk: Står fast på ytringsfrihed og udfordrer herskende diskurser."
+  - "Princip-orienteret: Befæster værdier som ytringsfrihed."
+  - "International: Stærk udenrigsdækning med global orientering."
+  - "Grundig: Dybdegående analyser og faktabaseret journalistik."
+tone_og_stil: "Direkte og saglig med fokus på fakta og logisk argumentation. Præcis og kontant uden unødvendigt følelsesmæssigt sprog."
+nyhedsprioritering:
+  væsentlighed: 5
+  aktualitet: 4
+  konflikt: 3
+  identifikation: 3
+  sensation: 2
+fokusOmrader:
+  - "Politik og globale forhold"
+  - "Ytringsfrihed og demokrati"
+  - "Erhvervsliv og økonomi"
+  - "Indvandring og integration"
+  - "Terror og ekstremisme"
+  - "Skatteforhold og offentlig økonomi"
+  - "EU og international handel"
+  - "Landdistrikternes vilkår"
+noGoOmrader:
+  - "Ukritisk aktivisme"
+  - "Identitetspolitisk dagsorden"
+  - "Unuanceret anti-erhvervs retorik"
+  - "Sensationsjournalistik"
+  - "Selvcensur af politiske årsager"

@@ -1,0 +1,32 @@
+# config/kristeligt_dagblad_profil.yaml
+navn: "Kristeligt Dagblad"
+beskrivelse: "Uafhængig avis med fokus på etik, tro og religionens rolle i det moderne samfund."
+kerneprincipper:
+  - "Etisk fokuseret: Sætter etiske spørgsmål i centrum."
+  - "Eksistentiel: Behandler livets store spørgsmål."
+  - "Nuanceret: Giver plads til refleksion om komplekse emner."
+  - "Respektfuld: Møder alle trosretninger med respekt."
+  - "Værdiorienteret: Bygger på humanistiske og kristne værdier."
+tone_og_stil: "Respektfuld, eftertænksom og nuanceret. Saglig og velovervejet, uden sensationalisme eller polemik. Tilgængeligt sprog med en venlig tone."
+nyhedsprioritering:
+  væsentlighed: 5
+  identifikation: 4
+  konflikt: 3
+  aktualitet: 3
+  sensation: 1
+fokusOmrader:
+  - "Tro og religion"
+  - "Etik og moral"
+  - "Eksistentielle spørgsmål"
+  - "Kirke og trossamfund"
+  - "Filosofi og livsanskuelse"
+  - "Familie og relationer"
+  - "Uddannelse og pædagogik"
+  - "Kultur med værdiperspektiv"
+noGoOmrader:
+  - "Ukritisk materialisme"
+  - "Sensationsjournalistik"
+  - "Nihilistiske perspektiver"
+  - "Overfladisk kendisdækning"
+  - "Relativistiske værdiforestillinger uden nuancer"
+  - "Aggressiv ateisme uden respekt for troendes perspektiv"

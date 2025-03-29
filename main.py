@@ -8,6 +8,7 @@ import asyncio
 import json
 import sys
 import yaml
+import logging
 from argparse import Namespace
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -17,6 +18,18 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+# Configure root logger
+logging.basicConfig(
+    filename='vinkeljernet.log',
+    filemode='w',  # 'w' to overwrite, 'a' to append
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Test logging
+logging.debug("Logging initialized")
+logging.info("Vinkeljernet starting up")
 
 # Import configuration components
 try:
@@ -109,6 +122,12 @@ def parse_arguments() -> Namespace:
         "--reset-circuits",
         action="store_true",
         help="Nulstil alle circuit breakers til lukket tilstand"
+    )
+    
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Aktiver debug tilstand med ekstra output"
     )
     
     return parser.parse_args()
@@ -278,7 +297,7 @@ async def main_async() -> None:
     ) as progress:
         task = progress.add_task("Filtering", total=None)
         try:
-            ranked_angles = filter_and_rank_angles(angles, profile, 5)
+            ranked_angles = safe_process_angles(angles, profile, 5)
             progress.update(task, completed=True)
         except Exception as e:
             progress.update(task, completed=True)
@@ -356,6 +375,32 @@ async def main_async() -> None:
             console.print(f"[yellow]Tjek om stien eksisterer og om du har skriverettigheder.[/yellow]")
         except Exception as e:
             console.print(f"\n[bold red]Uventet fejl ved skrivning til fil:[/bold red] {e}")
+    
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+        print(f"[DEBUG] Loaded profile data: {profile.dict()}")
+        print(f"[DEBUG] Topic information: {topic_info[:200]}...")
+
+
+def safe_process_angles(angles, profile, num_angles=5):
+    """Process angles with robust error handling"""
+    try:
+        return filter_and_rank_angles(angles, profile, num_angles)
+    except AttributeError as e:
+        if "object has no attribute" in str(e):
+            print(f"Fejl ved filtrering af vinkler: {e}")
+            
+            # Try to identify and suggest fix for the missing attribute
+            attr_name = str(e).split("'")[-2] if "'" in str(e) else "unknown"
+            print(f"Profilen mangler attributten '{attr_name}'. " +
+                  f"Tjek at din profilfil indeholder dette felt.")
+            
+            print("Forsøger at fortsætte med ufiltrerede vinkler...")
+            return sorted(angles, key=lambda x: len(x.get("nyhedskriterier", [])), reverse=True)[:num_angles]
+    except Exception as e:
+        print(f"Fejl ved filtrering af vinkler: {e}")
+        print("Forsøger at fortsætte med ufiltrerede vinkler...")
+        return angles[:num_angles]
 
 
 def main() -> None:

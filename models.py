@@ -16,56 +16,16 @@ class RedaktionelDNA(BaseModel):
     This class validates that the profile contains all required fields
     and that they are of the correct type.
     """
-    kerneprincipper: List[Dict[str, str]] = Field(
-        ..., 
-        description="Liste af kerneprincipper, hvor hvert princip er et dict med en nøgle (princippets navn) og en værdi (beskrivelse)"
-    )
-    tone_og_stil: str = Field(
-        ..., 
-        description="Beskrivelse af mediets tone og stil"
-    )
-    nyhedsprioritering: Dict[str, int] = Field(
-        ..., 
-        description="Mapping mellem nyhedskriterier og deres prioriteringer (vægte)"
-    )
-    fokusområder: List[str] = Field(
-        ..., 
-        description="Liste af emneområder, som mediet fokuserer på"
-    )
-    nogo_områder: List[str] = Field(
-        ..., 
-        description="Liste af emner og vinkler, som mediet vil undgå"
-    )
-    
-    @field_validator('kerneprincipper')
-    @classmethod
-    def validate_kerneprincipper(cls, value):
-        """Validate that each item in kerneprincipper is a dict with a single key-value pair."""
-        if not isinstance(value, list):
-            raise ValueError("Kerneprincipper skal være en liste")
-        
-        for item in value:
-            if not isinstance(item, dict):
-                raise ValueError(f"Hvert kerneprincip skal være et dictionary, fik {type(item)}")
-            if len(item) != 1:
-                raise ValueError(f"Hvert kerneprincip skal have præcis ét nøgle-værdi par, fik {len(item)}")
-            
-            key = list(item.keys())[0]
-            if not isinstance(key, str):
-                raise ValueError(f"Kerneprincipnøglen skal være en streng, fik {type(key)}")
-            if not isinstance(item[key], str):
-                raise ValueError(f"Kerneprincipværdien skal være en streng, fik {type(item[key])}")
-        
-        return value
-    
-    @validator('nyhedsprioritering')
-    def validate_nyhedsprioritering(cls, value):
-        """Validate that nyhedsprioritering has string keys and integer values."""
-        if not all(isinstance(k, str) for k in value.keys()):
-            raise ValueError("Alle nøgler i nyhedsprioritering skal være strenge")
-        if not all(isinstance(v, int) for v in value.values()):
-            raise ValueError("Alle værdier i nyhedsprioritering skal være heltal")
-        return value
+    navn: str
+    beskrivelse: str
+    kerneprincipper: List[str]
+    tone_og_stil: str  # Must be defined as a string
+    nyhedsprioritering: Dict[str, int]
+    fokusOmrader: List[str]
+    noGoOmrader: List[str] = []
+
+    class Config:
+        populate_by_name = True  # (For pydantic v2 compatibility)
 
 
 class VinkelForslag(BaseModel):

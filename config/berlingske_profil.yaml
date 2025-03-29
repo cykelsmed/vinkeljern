@@ -1,0 +1,30 @@
+# config/berlingske_profil.yaml
+navn: "Berlingske"
+beskrivelse: "Danmarks ældste dagblad med fokus på erhvervsliv, politik og samfundsforhold fra et borgerligt-liberalt perspektiv."
+kerneprincipper:
+  - "Konservativ-liberal: Respekt for tradition og historie."
+  - "Analyserende: Grundige analyser frem for hurtige opdateringer."
+  - "Erhvervsorienteret: Fokus på markedsøkonomi og erhvervslivets vilkår."
+  - "Institutionel: Respekt for samfundets bærende institutioner."
+  - "Kvalitetsbevidst: Velskrevet og faktabaseret journalistik."
+tone_og_stil: "Formel, autoritativ og analytisk. Sober og saglig med historisk bevidsthed og reflekterende dybde."
+nyhedsprioritering:
+  væsentlighed: 5
+  aktualitet: 4
+  konflikt: 3
+  identifikation: 3
+  sensation: 2
+fokusOmrader:
+  - "Erhvervsliv og økonomi"
+  - "Dansk og international politik"
+  - "Bolig og ejendomsmarked"
+  - "Investering og privatøkonomi"
+  - "Tradition og historie"
+  - "Samfundsinstitutioner"
+  - "Teknologi og innovation"
+  - "Konservative og liberale værdier"
+noGoOmrader:
+  - "Sensationspræget journalistik"
+  - "Anti-erhvervs retorik"
+  - "Unuanceret systemkritik"
+  - "Personangreb uden substans"

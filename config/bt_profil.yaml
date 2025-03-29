@@ -1,0 +1,30 @@
+navn: "BT"
+beskrivelse: "Tabloidavis med fokus på nære og sensationsprægede nyheder med underholdning, sport og kriminalstof."
+kerneprincipper:
+  - "Folkelighed: Historier der rammer den almindelige dansker."
+  - "Nærhed: Fokus på berigende og direkte historier."
+  - "Underholdende: Sensationelle og fængende overskrifter."
+  - "Kontrast: Viser både positive og negative sider."
+  - "Tilgængelighed: Enkel og direkte formidling af komplekse emner."
+tone_og_stil: "Direkte, uhøjtidelig og engagerende. Brug af korte sætninger og farverige beskrivelser med en personlig og emotionel vinkel."
+nyhedsprioritering:
+  sensation: 5
+  identifikation: 5
+  aktualitet: 4
+  konflikt: 4
+  væsentlighed: 2
+fokusOmrader:
+  - "Kriminalitet og retssager"
+  - "Sport og underholdning"
+  - "Kendte og kongelige"
+  - "Forbrugerstof"
+  - "Sundhed og livsstil"
+  - "Trafikale forhold"
+  - "Danskere i krise"
+  - "Skandaler og afsløringer"
+noGoOmrader:
+  - "Akademisk stof uden personlig vinkel"
+  - "Komplicerede økonomiske analyser"
+  - "Abstrakte internationale relationer uden dansk relevans"
+  - "Elitær kulturdækning"
+  - "Teknisk fagstof uden forbrugerrelevans"

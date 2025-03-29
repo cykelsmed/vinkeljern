@@ -76,8 +76,9 @@ async def create_secure_api_session(
     import aiohttp
     from aiohttp import TCPConnector, ClientTimeout
     
-    # Configure SSL context
-    ssl_context = ssl.create_default_context()
+    # Always use Python's built-in CA certificates
+    import certifi
+    ssl_context = ssl.create_default_context(cafile=certifi.where())
     
     if dev_mode:
         warnings.warn(
@@ -93,7 +94,7 @@ async def create_secure_api_session(
     # Create connector with SSL context
     connector = TCPConnector(ssl=ssl_context)
     
-    # Create session without the problematic retry options
+    # Create session
     return aiohttp.ClientSession(
         connector=connector,
         timeout=timeout_config
@@ -121,24 +122,35 @@ async def fetch_topic_information(topic: str, dev_mode: bool = False) -> Optiona
     """
     if not PERPLEXITY_API_KEY:
         raise APIKeyMissingError("Perplexity API nøgle mangler. Sørg for at have en PERPLEXITY_API_KEY i din .env fil.")
+    
+    # Debug API key (mask most of it)
+    key_preview = PERPLEXITY_API_KEY[:6] + "..." + PERPLEXITY_API_KEY[-4:] if len(PERPLEXITY_API_KEY) > 10 else "Invalid key format"
+    log_info(f"Using Perplexity API key starting with {key_preview}")
 
     log_info(f"Indhenter information om emnet \"{topic}\" via Perplexity...")
     rprint(f"[blue]Indhenter information om emnet \"{topic}\" via Perplexity...[/blue]")
 
+    # Add this right before making the request:
+    masked_key = PERPLEXITY_API_KEY[:5] + "..." + PERPLEXITY_API_KEY[-3:] if len(PERPLEXITY_API_KEY) > 8 else "INVALID"
+    log_info(f"Using Perplexity API key (masked): {masked_key}")
+    log_info(f"Request URL: {PERPLEXITY_API_URL}")
+
     headers = {
-        'Authorization': f'Bearer {PERPLEXITY_API_KEY}',
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+        "Content-Type": "application/json"
     }
 
     payload = {
-        'model': 'llama-3-sonar-large-32k-online',
-        'messages': [
+        "model": "sonar",  # This is supported in the free tier
+        "messages": [
             {"role": "system", "content": "Du er en professionel journalist, der skal give koncis og faktabaseret information om et aktuelt nyhedsemne. Giv grundige, men velstrukturerede fakta, baggrund og kontekst. Inkluder omhyggeligt datoer, tal og faktuelle detaljer, der er relevante for emnet. Undgå at udelade væsentlig information."},
             {"role": "user", "content": f"Giv mig en grundig, men velstruktureret oversigt over den aktuelle situation vedrørende følgende nyhedsemne: {topic}. Inkluder relevante fakta, baggrund, kontekst og eventuelle nylige udviklinger. Vær præcis og faktabaseret."}
         ],
-        'max_tokens': 1200,
-        'temperature': 0.2
+        "max_tokens": 1000,
+        "temperature": 0.2,
+        "top_p": 0.9,
+        "return_images": False,
+        "return_related_questions": False
     }
 
     try:
@@ -146,6 +158,19 @@ async def fetch_topic_information(topic: str, dev_mode: bool = False) -> Optiona
         async with await create_secure_api_session(dev_mode=dev_mode) as session:
             async with session.post(PERPLEXITY_API_URL, headers=headers, json=payload) as response:
                 if response.status != 200:
+                    error_text = await response.text()
+                    log_error(f"Full error response: {error_text}")
+                    rprint(f"[bold red]Full API error:[/bold red] {error_text}")
+                    
+                    try:
+                        error_json = json.loads(error_text)
+                        error_message = error_json.get('error', {}).get('message', error_text)
+                        log_error(f"API Error message: {error_message}")
+                    except json.JSONDecodeError:
+                        error_message = error_text
+                    
+                    log_error(f"Perplexity API Error: Status {response.status}: {error_message}")
+                    rprint(f"[bold red]Perplexity API Error:[/bold red] Status {response.status}: {error_message}")
                     display_api_response_error(response)
                     return None
                 data = await response.json()

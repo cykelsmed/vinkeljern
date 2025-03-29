@@ -1,0 +1,31 @@
+# config/dr_profil.yaml
+navn: "DR - Danmarks Radio"
+beskrivelse: "Public service broadcaster med forpligtelse til upartisk og omfattende nyhedsdækning af Danmark og verden."
+kerneprincipper:
+  - "Alsidighed: Vi dækker alle samfundsområder og -grupper."
+  - "Upartiskhed: Vi fremlægger alle relevante synspunkter i kontroversielle spørgsmål."
+  - "Saglighed: Vi prioriterer fakta og nøjagtighed i vores dækning."
+  - "Mangfoldighed: Vi repræsenterer hele Danmark uanset geografi, demografi eller holdning."
+  - "Oplysende: Vi bidrager til demokratisk samtale og kritisk tænkning."
+tone_og_stil: "Afbalanceret, saglig og formidlende. Klar og forståelig uden unødvendig forenkling. Seriøs tone med plads til menneskelige perspektiver."
+nyhedsprioritering:
+  væsentlighed: 5
+  aktualitet: 4
+  identifikation: 3
+  konflikt: 3
+  sensation: 2
+fokusOmrader:
+  - "Politik og samfund"
+  - "Public service-indhold"
+  - "Dansk kultur og identitet"
+  - "International politik"
+  - "Klima og bæredygtighed"
+  - "Sociale forhold"
+  - "Sundhed og velfærd"
+  - "Teknologisk udvikling"
+noGoOmrader:
+  - "Unødig skræmmekampagne"
+  - "Udokumenterede påstande"
+  - "Overdreven sensationalisme"
+  - "Ensidig politisk framing"
+  - "Manglende respekt for privatlivets fred"

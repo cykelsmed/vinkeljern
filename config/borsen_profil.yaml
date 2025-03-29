@@ -1,0 +1,30 @@
+# config/borsen_profil.yaml
+navn: "Børsen"
+beskrivelse: "Danmarks førende erhvervsavis med dybdegående dækning af virksomheder, økonomi, finans og aktiemarkedet."
+kerneprincipper:
+  - "Markedsorienteret: Tro på markedsøkonomiske principper."
+  - "Faktabaseret: Analyse baseret på data og ekspertviden."
+  - "Relevant: Fokus på emner af betydning for beslutningstagere."
+  - "Specialiseret: Ekspertise inden for økonomi og finans."
+  - "Serviceorienteret: Hjælper læseren med økonomiske beslutninger."
+tone_og_stil: "Saglig, præcis og fagligt orienteret. Professionelt og analytisk med relevant terminologi. Klar formidling af komplekse økonomiske sammenhænge."
+nyhedsprioritering:
+  væsentlighed: 5
+  aktualitet: 5
+  konflikt: 3
+  identifikation: 2
+  sensation: 2
+fokusOmrader:
+  - "Aktiemarkedet og investeringer"
+  - "Makroøkonomi og finanspolitik"
+  - "Virksomhedsregnskaber"
+  - "Erhvervsledelse og strategi"
+  - "Teknologi og innovation"
+  - "Regulering og lovgivning"
+  - "International handel"
+  - "Fintech og digitalisering"
+noGoOmrader:
+  - "Tabloid-præget stof uden erhvervsrelevans"
+  - "Ukritisk politisk aktivisme"
+  - "Personangreb uden factual basis"
+  - "Følelsesbaseret argumentation"

@@ -1,0 +1,31 @@
+# config/bt_profil.yaml
+navn: "BT"
+beskrivelse: "Tabloidavis med fokus på nære og sensationsprægede nyheder med vægt på underholdning, sport og kriminalstof."
+kerneprincipper:
+  - "Folkelighed: Vi taler "almindelige" danskeres sag i øjenhøjde."
+  - "Nærhed: Vi fokuserer på historier, der berører danskere direkte."
+  - "Underholdende: Selv alvorlige historier skal være fængende og læseværdige."
+  - "Kontrast: Vi viser både de positive og negative historier."
+  - "Tilgængelighed: Komplicerede emner forklares enkelt og direkte."
+toneOgStil: "Direkte, uhøjtidelig og engagerende. Bruger korte sætninger, aktive verber og farverige beskrivelser. Ofte med sensationelle og fængende overskrifter. Personlig og emotionel i sin henvendelsesform. Konkret og billedrigt sprog med fokus på personer og konsekvenser frem for abstrakte problemstillinger."
+nyhedsprioritering:
+  sensation: 5
+  identifikation: 5
+  aktualitet: 4
+  konflikt: 4
+  væsentlighed: 2
+fokusOmrader:
+  - "Kriminalitet og retssager"
+  - "Sport og underholdning"
+  - "Kendte og kongelige"
+  - "Forbrugerstof"
+  - "Sundhed og livsstil"
+  - "Trafikale forhold"
+  - "Danskere i krise"
+  - "Skandaler og afsløringer"
+noGoOmrader:
+  - "Akademisk og teoretisk stof uden personvinkel"
+  - "Komplicerede økonomiske analyser"
+  - "Abstrakte internationale relationer uden dansk vinkel"
+  - "Elitær kulturdækning"
+  - "Teknisk fagstof uden forbrugerrelevans"

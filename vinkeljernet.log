@@ -1,0 +1,3 @@
+2025-03-29 22:52:31,585 - root - DEBUG - Logging initialized
+2025-03-29 22:52:31,585 - root - INFO - Vinkeljernet starting up
+2025-03-29 22:52:32,012 - asyncio - DEBUG - Using selector: KqueueSelector

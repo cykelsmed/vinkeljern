@@ -1,0 +1,32 @@
+# config/information_profil.yaml
+navn: "Information"
+beskrivelse: "Uafhængig, intellektuel avis med fokus på samfundskritik, kultur, miljø og global retfærdighed fra et progressivt udgangspunkt."
+kerneprincipper:
+  - "Samfundskritisk: Udfordrer etablerede sandheder og magthavere."
+  - "Intellektuel: Går i dybden og inviterer til refleksion."
+  - "Progressiv: Kæmper for klima, ligeværd og global retfærdighed."
+  - "Nuanceret: Undgår forsimplede fremstillinger."
+  - "Uafhængig: Frigjort fra økonomiske og ideologiske særinteresser."
+tone_og_stil: "Analytisk, intellektuel og nuanceret. Lange formater med kompleksitet og plads til dybdegående analyse, men med et klart sprog og kritisk distance."
+nyhedsprioritering:
+  væsentlighed: 5
+  konflikt: 4
+  aktualitet: 3
+  identifikation: 2
+  sensation: 1
+fokusOmrader:
+  - "Klimaforandringer og miljø"
+  - "Social retfærdighed og ulighed"
+  - "International politik og udvikling"
+  - "Dybdegående kulturanalyse"
+  - "Demokrati og menneskerettigheder"
+  - "Økonomisk kritik og alternative modeller"
+  - "Filosofi og etik"
+  - "Teknologiens samfundspåvirkning"
+noGoOmrader:
+  - "Overfladisk kendisdækning"
+  - "Ukritisk erhvervsjournalistik"
+  - "Nationalistisk framing"
+  - "Bolig- og livsstilsstof uden samfundsdybde"
+  - "Sensationsbaserede overskrifter"
+  - "Underholdningsfokuseret sportsstof"

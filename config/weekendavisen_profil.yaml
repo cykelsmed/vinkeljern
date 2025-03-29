@@ -1,0 +1,31 @@
+# config/weekendavisen_profil.yaml
+navn: "Weekendavisen"
+beskrivelse: "Intellektuel ugeavis med fokus på fordybelse, videnskab, kultur og refleksion med høje litterære ambitioner."
+kerneprincipper:
+  - "Fordybelse: Giver plads til det komplekse."
+  - "Vidensbaseret: Respekterer fakta og ekspertise."
+  - "Litterær: Værdsætter velskrevne tekster og kunstnerisk journalistik."
+  - "Tværfaglig: Forbinder videnskab, kultur og politik."
+  - "Uafhængig: Uden dogmer og etablerede positioner."
+tone_og_stil: "Elegante og velkomponerede tekster med litterære kvaliteter. Intellektuelt krævende med stor sproglig nuancering, humor og ironi – tiltænkt den dannede læser."
+nyhedsprioritering:
+  væsentlighed: 5
+  aktualitet: 2
+  konflikt: 4
+  identifikation: 3
+  sensation: 1
+fokusOmrader:
+  - "Videnskabelige gennembrud og paradokser"
+  - "Litteratur og kunst af høj kvalitet"
+  - "Filosofiske spørgsmål og etiske dilemmaer"
+  - "Politik og idéhistorie"
+  - "Historisk perspektivering af nutiden"
+  - "Global udvikling og tendenser"
+  - "Kulturel debat og analyse"
+  - "Menneskelig psykologi og adfærd"
+noGoOmrader:
+  - "Sensationsjournalistik og tabloide vinkler"
+  - "Kendisstof uden kulturel substans"
+  - "Forsimplede nyhedsformater"
+  - "Konsumerisme og ukritisk forbrugerjournalistik"
+  - "Hast for hastighedens skyld"

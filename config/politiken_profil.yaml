@@ -1,0 +1,32 @@
+# config/politiken_profil.yaml
+navn: "Politiken"
+beskrivelse: "Kulturradikal omnibusavis med fokus på progressivt kultur- og debatindhold samt international orientering."
+kerneprincipper:
+  - "Humanistisk: Individet og dets rettigheder i centrum."
+  - "Kulturradikal: Progressiv tilgang til kultur- og samfundsspørgsmål."
+  - "Kritisk: Udfordrer autoriteter og magtkoncentration."
+  - "Internationalt orienteret: Verden er større end Danmark."
+  - "Intellektuelt stimulerende: Dybdegående og nuanceret formidling."
+tone_og_stil: "Velskrevet, intellektuel og nuanceret med sproglig elegance. Længere tekster med kontekst og plads til humor og ironi."
+nyhedsprioritering:
+  væsentlighed: 5
+  identifikation: 4
+  aktualitet: 4
+  konflikt: 3
+  sensation: 2
+fokusOmrader:
+  - "Politik og demokrati"
+  - "Kultur og kunst"
+  - "Klima og miljø"
+  - "International politik"
+  - "Social retfærdighed"
+  - "Byudvikling og arkitektur"
+  - "Uddannelse og forskning"
+  - "Menneskerettigheder og minoriteter"
+noGoOmrader:
+  - "Ukritisk sensationalisme"
+  - "Kulturel og social stigmatisering"
+  - "Nationalistiske dagsordener"
+  - "Ukritisk erhvervsjournalistik"
+  - "Invasiv kendisdækning"
+  - "Fordomsfuld eller stereotyp fremstilling"

@@ -1,0 +1,30 @@
+# config/tv2_profil.yaml
+navn: "TV 2"
+beskrivelse: "Danmarks mest sete tv-station med både public service-forpligtelser og kommercielle interesser."
+kerneprincipper:
+  - "Tilgængelighed: Relevante historier for den brede befolkning."
+  - "Nærvær: Dansk fokus med vægt på regional dækning."
+  - "Balance: Seriøse nyheder præsenteret på en tilgængelig måde."
+  - "Debat-skabende: Sætter dagsordenen og skaber samtale i Danmark."
+  - "Underholdende: Selv alvorlige emner præsenteres engagerende."
+tone_og_stil: "Imødekommende og personlig med en samtalende tone. Direkte, enkelt sprog og engagerende fortælling med personlig vinkel."
+nyhedsprioritering:
+  identifikation: 5
+  aktualitet: 4
+  væsentlighed: 4
+  konflikt: 3
+  sensation: 3
+fokusOmrader:
+  - "Dansk politik og samfundsforhold"
+  - "Regional journalistik"
+  - "Livsstil og sundhed"
+  - "Forbrugerstof"
+  - "Kriminalstof"
+  - "Underholdning og kendte"
+  - "Katastrofer og ulykker"
+  - "Vejr og trafikforhold"
+noGoOmrader:
+  - "Ekstrem udokumenteret sensationalisme"
+  - "Indhold uden dansk vinkel eller relevans"
+  - "Unødig privatlivskrænkelse"
+  - "Ekstrem politisk bias"
