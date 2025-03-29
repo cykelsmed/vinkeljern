@@ -5,6 +5,16 @@ This module provides functions to interact with external APIs such as
 Perplexity for information retrieval and OpenAI for generating angles.
 """
 
+# At the top of your file:
+try:
+    import aiohttp
+except ImportError:
+    print("Error: aiohttp package not found. Installing now...")
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "aiohttp==3.9.1"])
+    import aiohttp
+
 import requests
 import sys
 import json
