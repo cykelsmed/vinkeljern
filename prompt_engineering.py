@@ -6,111 +6,136 @@ to generate angles based on topic information and editorial profiles.
 """
 
 import json
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from models import VinkelForslag
 
-def construct_angle_prompt(topic: str, topic_info: str, profile: Dict[str, Any]) -> str:
+def construct_angle_prompt(
+    topic: str, 
+    topic_info: str,
+    principper: str,
+    tone_og_stil: str,
+    fokusområder: str,
+    nyhedskriterier: str,
+    nogo_områder: str
+) -> str:
     """
-    Construct a detailed prompt for angle generation.
+    Construct a prompt for the angle generation API.
     
     Args:
         topic: The news topic
-        topic_info: Information about the topic
-        profile: Dictionary representation of RedaktionelDNA
+        topic_info: Research information about the topic
+        principper: Editorial principles
+        tone_og_stil: Editorial tone and style
+        fokusområder: Focus areas
+        nyhedskriterier: News criteria
+        nogo_områder: No-go areas
         
     Returns:
-        str: Formatted prompt
+        str: The formatted prompt
     """
-    # Format the profile data for easier reading in the prompt
-    principles = "\n".join([f"- {list(p.keys())[0]}: {list(p.values())[0]}" for p in profile["kerneprincipper"]])
-    priorities = "\n".join([f"- {key}: {value}/5" for key, value in profile["nyhedsprioritering"].items()])
-    focus_areas = "\n".join([f"- {area}" for area in profile["fokusområder"]])
-    nogo_areas = "\n".join([f"- {area}" for area in profile["nogo_områder"]])
+    return f"""
+    Du er en erfaren journalist med ekspertise i at udvikle nyhedsvinkler.
     
-    # Construct the prompt
-    prompt = f"""
-OPGAVE: Generér journalistiske vinkler til emnet "{topic}" baseret på den redaktionelle DNA profil beskrevet nedenfor.
-
-## EMNE INFORMATION:
-{topic_info}
-
-## REDAKTIONEL DNA PROFIL:
-
-### Kerneprincipper:
-{principles}
-
-### Nyhedsprioritering:
-{priorities}
-
-### Tone og stil:
-{profile["tone_og_stil"]}
-
-### Fokusområder:
-{focus_areas}
-
-### No-go områder:
-{nogo_areas}
-
-## INSTRUKTIONER:
-1. Generér 10-15 potentielle vinkler på emnet der passer til den redaktionelle profil
-2. Sørg for diversitet i perspektiver (menneskelig, politisk, økonomisk, konsekvens)
-3. Undgå klichéer og standard-vinkler
-4. For hver vinkel, identificér hvilke nyhedskriterier fra profilen der primært opfyldes
-5. Flag eventuelle usikkerheder eller modstridende information i emne-beskrivelsen
-6. Undgå helt vinkler der rammer no-go områderne
-
-## OUTPUT FORMAT:
-Returner din output som en JSON-array af objekter med følgende struktur:
-```
-[
-  {{
-    "overskrift": "Fængende overskrift her",
-    "beskrivelse": "2-3 sætninger der uddyber vinklen",
-    "nyhedskriterier": ["sensation", "identifikation"],  // fra nyhedsprioritering
-    "kriterieScore": 8,  // Samlet score baseret på nyhedsprioriteringsvægte
-    "startSpørgsmål": ["Spørgsmål 1?", "Spørgsmål 2?", "Spørgsmål 3?"],
-    "flags": []  // evt. usikkerheder, kan være tom
-  }},
-  // ... flere vinkler
-]
-```
-
-Svar KUN med JSON-array og ingen andre forklaringer eller text.
-"""
-    return prompt
+    # Nyhedsemne:
+    {topic}
+    
+    # Baggrundsinformation:
+    {topic_info}
+    
+    # Redaktionel DNA-profil:
+    ## Kerneprincipper:
+    {principper}
+    
+    ## Tone og stil:
+    {tone_og_stil}
+    
+    ## Fokusområder:
+    {fokusområder}
+    
+    ## Nyhedskriterier vi prioriterer:
+    {nyhedskriterier}
+    
+    ## No-go områder:
+    {nogo_områder}
+    
+    # Opgave:
+    Generer 8 forskellige vinkler på nyhedsemnet, der passer til vores redaktionelle DNA.
+    For hver vinkel, angiv:
+    1. En præcis overskrift (maks 10 ord)
+    2. En kort beskrivelse af vinklen (2-3 sætninger)
+    3. En begrundelse for hvorfor vinklen passer til vores profil (2-3 sætninger)
+    4. Liste af nyhedskriterier som vinklen rammer (vælg fra: {nyhedskriterier})
+    5. Tre gode startspørgsmål til interviews inden for denne vinkel
+    
+    Dit svar skal være i dette JSON-format:
+    ```json
+    [
+      {{
+        "overskrift": "Overskrift på vinkel",
+        "beskrivelse": "Kort beskrivelse af vinklen",
+        "begrundelse": "Begrundelse for valg af vinkel",
+        "nyhedskriterier": ["kriterium1", "kriterium2"],
+        "startSpørgsmål": ["Spørgsmål 1?", "Spørgsmål 2?", "Spørgsmål 3?"]
+      }},
+      ...flere vinkler...
+    ]
+    ```
+    
+    Vær kreativ og nuanceret, men hold dig til vores redaktionelle DNA. Undgå at foreslå vinkler, der falder under vores no-go områder.
+    """
 
 def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
     """
-    Parse the angles from the LLM response.
+    Parse angles from the API response text.
     
     Args:
-        response_text: The raw response from the LLM
+        response_text: The text response from the API
         
     Returns:
-        List[Dict]: List of parsed angle objects
+        List[Dict]: The parsed angles
     """
-    # Remove any markdown code block indicators
-    cleaned_text = response_text.strip()
-    if cleaned_text.startswith("```json"):
-        cleaned_text = cleaned_text[7:]
-    if cleaned_text.endswith("```"):
-        cleaned_text = cleaned_text[:-3]
-    cleaned_text = cleaned_text.strip()
-    
     try:
-        # Parse the JSON
-        angles = json.loads(cleaned_text)
+        # Try to parse the response as JSON
+        data = json.loads(response_text)
+        angles = []
+        
+        # Handle different response formats
+        if isinstance(data, list):
+            raw_angles = data
+        elif isinstance(data, dict) and "angles" in data:
+            raw_angles = data["angles"]
+        elif isinstance(data, dict) and all(k.isdigit() for k in data.keys() if k):
+            # Sometimes OpenAI returns {"0": {...}, "1": {...}} format
+            raw_angles = [data[k] for k in sorted(data.keys(), key=lambda x: int(x) if x.isdigit() else 0)]
+        else:
+            # If we don't recognize the format, just try to use the whole response
+            raw_angles = [data]
+        
+        # Validate and standardize each angle
+        for raw_angle in raw_angles:
+            try:
+                # Ensure startSpørgsmål is present (it's new)
+                if "startSpørgsmål" not in raw_angle and "startspørgsmål" in raw_angle:
+                    raw_angle["startSpørgsmål"] = raw_angle["startspørgsmål"]
+                elif "startSpørgsmål" not in raw_angle:
+                    raw_angle["startSpørgsmål"] = [
+                        f"Hvordan påvirker {raw_angle.get('overskrift', 'dette emne')} almindelige mennesker?",
+                        "Hvad mener eksperterne om denne problemstilling?"
+                    ]
+                
+                # Validate with Pydantic model
+                validated_angle = VinkelForslag(**raw_angle).dict()
+                angles.append(validated_angle)
+            except Exception as e:
+                # If a single angle fails validation, log it but continue with others
+                print(f"Warning: Skipping invalid angle - {str(e)}")
+                continue
+        
         return angles
-    except json.JSONDecodeError as e:
-        print(f"Error parsing response as JSON: {e}")
-        # Fallback: Try to salvage some content if possible
-        print("Attempting to recover partial content...")
-        try:
-            # Try finding anything that looks like JSON array with objects
-            import re
-            pattern = r'\[\s*\{.*?\}\s*(?:,\s*\{.*?\}\s*)*\]'
-            match = re.search(pattern, cleaned_text, re.DOTALL)
-            if match:
-                return json.loads(match.group(0))
-            return []
-        except Exception:
-            return []
+    
+    except json.JSONDecodeError:
+        print("Error: Response is not valid JSON")
+        return []
+    except Exception as e:
+        print(f"Error parsing angles: {str(e)}")
+        return []

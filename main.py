@@ -3,27 +3,42 @@ Main entry point for the Vinkeljernet application.
 
 This module handles command-line arguments and orchestrates the application flow.
 """
-
 import argparse
-from argparse import Namespace
-import sys
-import yaml
-from pathlib import Path
-from rich import print as rprint
 import asyncio
 import json
+import sys
+import yaml
+from argparse import Namespace
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+
+from rich import print as rprint
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 # Import configuration components
 try:
     from config import OPENAI_API_KEY, PERPLEXITY_API_KEY
-except ValueError as e:
+    # Verify API keys are present
+    if not OPENAI_API_KEY:
+        rprint("[bold red]Fejl:[/bold red] OPENAI_API_KEY mangler i konfigurationen.")
+        rprint("[yellow]Tip:[/yellow] Opret en .env fil med OPENAI_API_KEY=din_nøgle")
+        sys.exit(1)
+    if not PERPLEXITY_API_KEY:
+        rprint("[bold yellow]Advarsel:[/bold yellow] PERPLEXITY_API_KEY mangler i konfigurationen.")
+        rprint("[yellow]Applikationen vil fortsætte, men uden detaljeret baggrundsinformation.[/yellow]")
+except Exception as e:
     rprint(f"[bold red]Fejl ved indlæsning af API nøgler:[/bold red] {e}")
     sys.exit(1)
 
 from config_loader import load_and_validate_profile
 from api_clients import fetch_topic_information, generate_angles
-from angle_processor import filter_and_rank_angles  # Updated import path
+from angle_processor import filter_and_rank_angles
 
+# Initialize console
+console = Console()
 
 def parse_arguments() -> Namespace:
     """
@@ -58,6 +73,44 @@ def parse_arguments() -> Namespace:
         help="Valgfri filsti til at gemme outputtet."
     )
     
+    parser.add_argument(
+        "--dev-mode",
+        action="store_true",
+        help="Kør i udviklingstilstand (deaktiverer SSL-verifikation, usikkert!)"
+    )
+    
+    parser.add_argument(
+        "--clear-cache",
+        action="store_true",
+        help="Ryd cache før programmet kører"
+    )
+    
+    parser.add_argument(
+        "--bypass-cache",
+        action="store_true",
+        help="Ignorer cache og tving friske API kald"
+    )
+    
+    parser.add_argument(
+        "--format",
+        type=str,
+        choices=["json", "markdown", "html"],
+        default="json",
+        help="Format for output (when using --output)"
+    )
+    
+    parser.add_argument(
+        "--show-circuits",
+        action="store_true",
+        help="Vis status for circuit breakers"
+    )
+
+    parser.add_argument(
+        "--reset-circuits",
+        action="store_true",
+        help="Nulstil alle circuit breakers til lukket tilstand"
+    )
+    
     return parser.parse_args()
 
 
@@ -68,81 +121,256 @@ async def main_async() -> None:
     # Parse command-line arguments
     args = parse_arguments()
     
-    # Print start message
-    rprint("[bold blue]Starter Vinkeljernet...[/bold blue]")
+    # Print start message with nice formatting
+    console.print(Panel.fit(
+        "[bold blue]Vinkeljernet[/bold blue] - Journalistisk vinkelgenerator",
+        border_style="blue"
+    ))
     
     # Display received arguments
-    rprint("[bold blue]Vinkeljernet starter med følgende parametre:[/bold blue]")
-    rprint(f"  [green]Nyhedsemne:[/green] {args.emne}")
-    rprint(f"  [green]Profil fil:[/green] {args.profil}")
-    rprint(f"  [green]Output fil:[/green] {args.output if args.output else 'Ingen (viser i terminalen)'}")
+    console.print("[bold blue]Kører med følgende parametre:[/bold blue]")
+    console.print(f"  [green]Nyhedsemne:[/green] {args.emne}")
+    console.print(f"  [green]Profil fil:[/green] {args.profil}")
+    console.print(f"  [green]Output fil:[/green] {args.output if args.output else 'Ingen (viser i terminalen)'}")
+    if args.dev_mode:
+        console.print("  [yellow]⚠️ Udvikler-tilstand aktiveret (usikker SSL)[/yellow]")
     
-    # Confirm API keys are loaded
-    rprint("[green]✓[/green] API nøgler er indlæst")
+    if args.clear_cache:
+        from cache_manager import clear_cache
+        num_cleared = clear_cache()
+        console.print(f"[yellow]Cache ryddet: {num_cleared} filer slettet[/yellow]")
     
-    # Load and validate profile
-    profile_path = Path(args.profil)
-    try:
-        rprint(f"[blue]Indlæser profil fra {profile_path}...[/blue]")
-        profile = load_and_validate_profile(profile_path)
-        rprint("[green]✓[/green] Profil er indlæst og valideret")
+    if args.reset_circuits:
+        from retry_manager import reset_circuit
+        reset_circuit("perplexity_api")
+        reset_circuit("openai_api")
+        console.print("[yellow]Alle circuit breakers nulstillet[/yellow]")
+
+    if args.show_circuits:
+        from retry_manager import get_circuit_stats
+        stats = get_circuit_stats()
         
-        # Display some profile information as confirmation
-        rprint("[blue]Profil information:[/blue]")
-        rprint(f"  [green]Kerneprincipper:[/green]")
-        for p in profile.kerneprincipper:
-            for k, v in p.items():
-                rprint(f"    - {k}: {v}")
-        rprint(f"  [green]Tone og stil:[/green] {profile.tone_og_stil}")
-        rprint(f"  [green]Antal nyhedsprioriteringer:[/green] {len(profile.nyhedsprioritering)}")
-        rprint(f"  [green]Antal fokusområder:[/green] {len(profile.fokusområder)}")
-    
-    except FileNotFoundError as e:
-        rprint(f"[bold red]Fejl:[/bold red] Profil filen blev ikke fundet: {e}")
-        sys.exit(1)
-    except yaml.YAMLError as e:
-        rprint(f"[bold red]Fejl:[/bold red] Kunne ikke læse YAML profil: {e}")
-        sys.exit(1)
-    except (ValueError, TypeError) as e:
-        rprint(f"[bold red]Fejl:[/bold red] Profilvalidering fejlede: {e}")
-        sys.exit(1)
-    
-    # Get information about the topic
-    topic_info = await fetch_topic_information(args.emne)
-    
-    # Generate angles based on the topic and profile
-    angles = generate_angles(args.emne, topic_info, profile)
-    
-    # Filter and rank angles
-    if angles:
-        ranked_angles = filter_and_rank_angles(angles, profile, 5)
+        circuit_table = Table(show_header=True, header_style="bold blue")
+        circuit_table.add_column("API", style="dim")
+        circuit_table.add_column("Tilstand")
+        circuit_table.add_column("Succesfulde kald")
+        circuit_table.add_column("Fejlslagne kald")
+        circuit_table.add_column("Konsekutive fejl")
+        circuit_table.add_column("Antal gentag")
+        circuit_table.add_column("Seneste fejl")
         
-        # Present results
-        rprint("\n[bold blue]🎯 Genererede vinkler:[/bold blue]")
-        for i, angle in enumerate(ranked_angles, 1):
-            rprint(f"\n[bold green]Vinkel {i}:[/bold green]")
-            rprint(f"[bold]{angle['overskrift']}[/bold]")
-            rprint(f"{angle['beskrivelse']}")
-            rprint(f"[dim]Begrundelse: {angle['begrundelse']}[/dim]")
-            rprint(f"[dim]Nyhedskriterier: {', '.join(angle['nyhedskriterier'])}[/dim]")
+        for name, data in stats.items():
+            state_style = "green" if data["state"] == "closed" else "red" if data["state"] == "open" else "yellow"
+            circuit_table.add_row(
+                name,
+                f"[{state_style}]{data['state']}[/{state_style}]",
+                str(data["success_count"]),
+                str(data["failure_count"]),
+                str(data["consecutive_failures"]),
+                str(data["total_retries"]),
+                data["last_failure"] or "Ingen"
+            )
         
-        # Save to output file if specified
-        if args.output:
-            try:
-                with open(args.output, 'w', encoding='utf-8') as outfile:
-                    json.dump(ranked_angles, outfile, ensure_ascii=False, indent=2)
-                rprint(f"\n[green]✓[/green] Resultater gemt i {args.output}")
-            except Exception as e:
-                rprint(f"\n[bold red]Fejl ved skrivning til fil:[/bold red] {e}")
+        console.print("\n[bold blue]Circuit Breaker Status:[/bold blue]")
+        console.print(circuit_table)
+    
+    # Load and validate profile with progress spinner
+    profile = None
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[bold blue]Indlæser redaktionel profil..."),
+        console=console,
+        transient=True
+    ) as progress:
+        task = progress.add_task("Loading", total=None)
+        try:
+            profile_path = Path(args.profil)
+            profile = load_and_validate_profile(profile_path)
+            progress.update(task, completed=True)
+        except FileNotFoundError:
+            progress.update(task, completed=True)
+            console.print(f"[bold red]Fejl:[/bold red] Profil filen '{args.profil}' blev ikke fundet")
+            console.print("[yellow]Tip:[/yellow] Kontroller filstien og prøv igen")
+            sys.exit(1)
+        except yaml.YAMLError as e:
+            progress.update(task, completed=True)
+            console.print(f"[bold red]Fejl:[/bold red] Kunne ikke læse YAML profil: {e}")
+            console.print("[yellow]Tip:[/yellow] Kontrollér at din YAML-fil er korrekt formateret")
+            sys.exit(1)
+        except (ValueError, TypeError) as e:
+            progress.update(task, completed=True)
+            console.print(f"[bold red]Fejl:[/bold red] Profilvalidering fejlede: {e}")
+            console.print("[yellow]Tip:[/yellow] Kontrollér at din profil indeholder alle påkrævede felter")
+            sys.exit(1)
+    
+    # Display profile summary
+    console.print("[green]✓[/green] Profil indlæst og valideret")
+    
+    table = Table(show_header=True, header_style="bold blue")
+    table.add_column("Profil-element", style="dim")
+    table.add_column("Værdi")
+    
+    # Display kerneprincipper
+    principles = []
+    for p in profile.kerneprincipper:
+        for k, v in p.items():
+            principles.append(f"{k}: {v}")
+    
+    table.add_row("Kerneprincipper", "\n".join(principles))
+    table.add_row("Tone og stil", profile.tone_og_stil)
+    table.add_row("Antal nyhedskriterier", str(len(profile.nyhedsprioritering)))
+    table.add_row("Antal fokusområder", str(len(profile.fokusområder)))
+    table.add_row("Antal no-go områder", str(len(profile.nogo_områder)))
+    
+    console.print(table)
+    
+    # Get information about the topic with progress spinner
+    topic_info = None
+    with Progress(
+        SpinnerColumn(),
+        TextColumn(f"[bold blue]Henter information om \"{args.emne}\"..."),
+        console=console,
+        transient=True
+    ) as progress:
+        task = progress.add_task("Researching", total=None)
+        topic_info = await fetch_topic_information(args.emne, dev_mode=args.dev_mode, bypass_cache=args.bypass_cache)
+        progress.update(task, completed=True)
+    
+    if topic_info:
+        console.print("[green]✓[/green] Baggrundsinformation indhentet")
     else:
-        rprint("[bold red]Ingen vinkler blev genereret.[/bold red]")
+        console.print("[yellow]⚠️ Kunne ikke indhente detaljeret baggrundsinformation[/yellow]")
+        console.print("[yellow]  Fortsætter med begrænset kontekst[/yellow]")
+        # Set a minimal fallback for topic_info
+        topic_info = f"Emnet handler om {args.emne}. Ingen yderligere baggrundsinformation tilgængelig."
+    
+    # Generate angles with progress spinner
+    angles = None
+    with Progress(
+        SpinnerColumn(),
+        TextColumn(f"[bold blue]Genererer vinkler..."),
+        console=console,
+        transient=True
+    ) as progress:
+        task = progress.add_task("Generating", total=None)
+        angles = generate_angles(args.emne, topic_info, profile, bypass_cache=args.bypass_cache)
+        progress.update(task, completed=True)
+    
+    # Check if we have any angles
+    if not angles:
+        console.print("[bold red]Ingen vinkler kunne genereres.[/bold red]")
+        console.print("[yellow]Mulige årsager:[/yellow]")
+        console.print("  - API-fejl ved forbindelse til OpenAI")
+        console.print("  - Emnet er for specifikt eller ukendt")
+        console.print("  - Profilen er for restriktiv")
+        console.print("[yellow]Prøv et andet emne eller kontrollér API-nøglen.[/yellow]")
+        sys.exit(1)
+    
+    console.print(f"[green]✓[/green] Genereret {len(angles)} råvinkler")
+    
+    # Filter and rank angles with progress spinner
+    ranked_angles = None
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[bold blue]Filtrerer og rangerer vinkler..."),
+        console=console,
+        transient=True
+    ) as progress:
+        task = progress.add_task("Filtering", total=None)
+        try:
+            ranked_angles = filter_and_rank_angles(angles, profile, 5)
+            progress.update(task, completed=True)
+        except Exception as e:
+            progress.update(task, completed=True)
+            console.print(f"[bold red]Fejl ved filtrering af vinkler:[/bold red] {e}")
+            console.print("[yellow]Forsøger at fortsætte med ufiltrerede vinkler...[/yellow]")
+            # Fallback: use the first 5 angles or all if less than 5
+            ranked_angles = angles[:min(5, len(angles))]
+    
+    if not ranked_angles:
+        console.print("[bold red]Ingen vinkler tilbage efter filtrering.[/bold red]")
+        console.print("[yellow]Emnet matcher muligvis ikke mediets profil, eller alle genererede vinkler rammer no-go områder.[/yellow]")
+        sys.exit(1)
+    
+    console.print(f"[green]✓[/green] Rangeret og filtreret til {len(ranked_angles)} vinkler")
+    
+    # Present results with nice formatting
+    console.print("\n[bold blue]🎯 Anbefalede vinkler:[/bold blue]")
+    for i, angle in enumerate(ranked_angles, 1):
+        # Handle potentially missing keys with .get()
+        headline = angle.get('overskrift', 'Ingen overskrift')
+        description = angle.get('beskrivelse', 'Ingen beskrivelse')
+        rationale = angle.get('begrundelse', 'Ingen begrundelse')
+        criteria = angle.get('nyhedskriterier', [])
+        questions = angle.get('startSpørgsmål', [])
+        score = angle.get('kriterieScore', 'N/A')
+        
+        # Create panel for each angle
+        panel_content = [
+            f"[bold white]{headline}[/bold white]",
+            f"\n{description}",
+            f"\n[dim blue]Begrundelse:[/dim blue] [dim]{rationale}[/dim]",
+            f"\n[dim blue]Nyhedskriterier:[/dim blue] [dim]{', '.join(criteria)}[/dim]"
+        ]
+        
+        # Add start questions if available
+        if questions:
+            panel_content.append(f"\n[dim blue]Startspørgsmål:[/dim blue]")
+            for q in questions:
+                panel_content.append(f"[dim]• {q}[/dim]")
+        
+        if score != 'N/A':
+            panel_content.append(f"\n[dim blue]Score:[/dim blue] [dim]{score}[/dim]")
+        
+        console.print(Panel(
+            "\n".join(panel_content),
+            title=f"[bold green]Vinkel {i}[/bold green]",
+            border_style="green",
+            expand=False
+        ))
+    
+    # Save to output file if specified
+    if args.output:
+        try:
+            from formatters import format_angles
+            
+            # Extract profile name from the path
+            profile_name = Path(args.profil).stem
+            
+            format_angles(
+                ranked_angles, 
+                format_type=args.format,
+                profile_name=profile_name,
+                topic=args.emne,
+                output_path=args.output
+            )
+            
+            console.print(f"\n[green]✓[/green] Resultater gemt i {args.output} ({args.format} format)")
+        except ImportError:
+            # Fallback to JSON if formatter module not available
+            with open(args.output, 'w', encoding='utf-8') as outfile:
+                json.dump(ranked_angles, outfile, ensure_ascii=False, indent=2)
+            console.print(f"\n[green]✓[/green] Resultater gemt i {args.output} (JSON format)")
+        except IOError as e:
+            console.print(f"\n[bold red]Fejl ved skrivning til fil:[/bold red] {e}")
+            console.print(f"[yellow]Tjek om stien eksisterer og om du har skriverettigheder.[/yellow]")
+        except Exception as e:
+            console.print(f"\n[bold red]Uventet fejl ved skrivning til fil:[/bold red] {e}")
 
 
 def main() -> None:
     """
     Main function that orchestrates the application flow.
     """
-    asyncio.run(main_async())
+    try:
+        asyncio.run(main_async())
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Program afbrudt af bruger.[/yellow]")
+        sys.exit(0)
+    except Exception as e:
+        console.print(f"\n[bold red]Uventet fejl:[/bold red] {e}")
+        console.print("[yellow]Dette er sandsynligvis en bug i programmet. Indsend venligst en fejlrapport.[/yellow]")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
