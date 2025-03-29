@@ -14,7 +14,7 @@ from langchain.llms import OpenAI
 from rich import print as rprint
 from pydantic import BaseModel, Field
 
-from .api_clients import fetch_perplexity_info
+from api_clients import fetch_topic_information
 from .models import RedaktionelDNA
 
 
@@ -52,7 +52,7 @@ async def get_topic_information(topic: str) -> Optional[str]:
     Vær objektiv og omfattende. Angiv primære kilder til slut.
     """
     
-    information = fetch_perplexity_info(enhanced_query)
+    information = fetch_topic_information(enhanced_query)
     
     if not information:
         rprint("[red]Kunne ikke indhente information om emnet fra Perplexity API.[/red]")

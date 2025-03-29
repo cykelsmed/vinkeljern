@@ -10,6 +10,8 @@ import sys
 import yaml
 from pathlib import Path
 from rich import print as rprint
+import asyncio
+import json
 
 # Import configuration components
 try:
@@ -19,6 +21,8 @@ except ValueError as e:
     sys.exit(1)
 
 from config_loader import load_and_validate_profile
+from api_clients import fetch_topic_information, generate_angles
+from angle_processor import filter_and_rank_angles  # Updated import path
 
 
 def parse_arguments() -> Namespace:
@@ -57,9 +61,9 @@ def parse_arguments() -> Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
+async def main_async() -> None:
     """
-    Main function that orchestrates the application flow.
+    Asynchronous main function that orchestrates the application flow.
     """
     # Parse command-line arguments
     args = parse_arguments()
@@ -103,10 +107,42 @@ def main() -> None:
         rprint(f"[bold red]Fejl:[/bold red] Profilvalidering fejlede: {e}")
         sys.exit(1)
     
-    # Placeholders for next steps
-    rprint("[blue]TODO: Indhent information om emnet...[/blue]")
-    rprint("[blue]TODO: Generer vinkler baseret på emne og profil...[/blue]")
-    rprint("[blue]TODO: Præsenter resultater...[/blue]")
+    # Get information about the topic
+    topic_info = await fetch_topic_information(args.emne)
+    
+    # Generate angles based on the topic and profile
+    angles = generate_angles(args.emne, topic_info, profile)
+    
+    # Filter and rank angles
+    if angles:
+        ranked_angles = filter_and_rank_angles(angles, profile, 5)
+        
+        # Present results
+        rprint("\n[bold blue]🎯 Genererede vinkler:[/bold blue]")
+        for i, angle in enumerate(ranked_angles, 1):
+            rprint(f"\n[bold green]Vinkel {i}:[/bold green]")
+            rprint(f"[bold]{angle['overskrift']}[/bold]")
+            rprint(f"{angle['beskrivelse']}")
+            rprint(f"[dim]Begrundelse: {angle['begrundelse']}[/dim]")
+            rprint(f"[dim]Nyhedskriterier: {', '.join(angle['nyhedskriterier'])}[/dim]")
+        
+        # Save to output file if specified
+        if args.output:
+            try:
+                with open(args.output, 'w', encoding='utf-8') as outfile:
+                    json.dump(ranked_angles, outfile, ensure_ascii=False, indent=2)
+                rprint(f"\n[green]✓[/green] Resultater gemt i {args.output}")
+            except Exception as e:
+                rprint(f"\n[bold red]Fejl ved skrivning til fil:[/bold red] {e}")
+    else:
+        rprint("[bold red]Ingen vinkler blev genereret.[/bold red]")
+
+
+def main() -> None:
+    """
+    Main function that orchestrates the application flow.
+    """
+    asyncio.run(main_async())
 
 
 if __name__ == "__main__":
