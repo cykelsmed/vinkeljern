@@ -1,0 +1,14 @@
+# Core AI and orchestration
+langchain==0.1.6
+openai==1.12.0
+
+# Data handling and validation
+pydantic==2.5.3
+PyYAML==6.0.1
+
+# HTTP and API interaction
+requests==2.31.0
+python-dotenv==1.0.0
+
+# CLI formatting and display
+rich==13.7.0

@@ -1,0 +1,47 @@
+# config/ekstrabladet_profil.yaml
+# Redaktionel DNA Profil - Simuleret Ekstra Bladet Stil
+
+# Kerneværdier der driver journalistikken
+kerneprincipper:
+  - Afslørende: Vi graver efter sandheden, især når den er ubehagelig for magthaverne ("Tør hvor andre tier").
+  - Folkelig relevans: Historier skal ramme og betyde noget for almindelige danskere.
+  - Kritisk og konfrontatorisk: Vi stiller de ubehagelige spørgsmål og udfordrer magt og systemer.
+  - Konsekvens-orienteret: Fokus på følgerne af begivenheder for enkeltpersoner ("Den lille mands kamp").
+  - Hurtighed og Aktualitet: Først med det vigtigste, det mest opsigtsvækkende, lige nu.
+
+# Vægtning af nyhedskriterier (1 = lavest, 5 = højest)
+# Maksimal vægt på det sensationelle, konfliktfyldte og det læserne kan identificere sig med.
+nyhedsprioritering:
+  sensation: 5       # Det uventede, chokerende, bizarre, "WOW"-faktor.
+  identifikation: 5  # Følelser, genkendelige problemer, "det ku' være mig".
+  konflikt: 5        # Strid, uenighed, magtkampe, vindere/tabere, os mod dem.
+  aktualitet: 5      # Breaking news, lige nu, seneste udvikling.
+  væsentlighed: 3    # Samfundsmæssig betydning (ses ofte gennem konflikt/konsekvens/sensation).
+
+# Beskrivelse af sprogbrug og stilistik
+tone_og_stil: > # Brug > for multiline string uden ekstra linjeskift
+  Direkte, skarp, kontant og letforståelig tone. Usminket sprog.
+  Bruger stærke følelsesladede ord, korte sætninger og fængende, ofte provokerende overskrifter.
+  Altid på "læsernes side" mod "systemet" eller "eliten".
+  Undgår akademisk eller teknisk jargon. Klart og i øjenhøjde.
+
+# Emner eller områder der har særlig interesse eller prioritet
+fokusområder:
+  - Politik (især magtmisbrug, skandaler, hykleri, personkonflikter, frås)
+  - Kriminalitet (rocker/bande, personfarlig, økonomisk svindel, drab, justitsmord)
+  - Kendte & Underholdning (sladder, skandaler, drama, nedture, konflikter)
+  - Sport (drama, skandaler, store sejre/nederlag, transfer-spekulationer)
+  - Forbrug & Hverdagsliv (snyd, urimeligheder, prisstigninger, fejlbehæftede varer, bureaukrati)
+  - Menneskelige skæbner (uretfærdighed, kamp mod systemet, tragedier, heltehistorier mod odds)
+  - Afsløringer (svigt i det offentlige, skjulte aftaler, dobbeltmoral)
+  - Sex og grænseoverskridende adfærd (med offentlig interesse)
+
+# Emner, vinkler eller tilgange der aktivt skal undgås
+nogo_områder:
+  - Ukritisk hyldest af magthavere, institutioner eller store virksomheder.
+  - Abstrakte, teoretiske diskussioner uden klar menneskelig vinkel eller konflikt.
+  - Lange, nuancerede analyser uden en klar "skurk" eller et klart "offer".
+  - Pressemeddelelser og PR-materiale gengivet uden kritisk bearbejdning.
+  - Emner opfattet som "elitære" eller uden bred folkelig appel (medmindre der er skandale).
+  - Spekulationer om privatpersoners privatliv uden klar og dokumenterbar offentlig interesse.
+  - Komplekst, teknisk stof uden en sensationel eller menneskelig krog.
