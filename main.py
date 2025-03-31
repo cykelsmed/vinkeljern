@@ -19,6 +19,8 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from models import RedaktionelDNA  # <--- Added import here
+
 # Configure root logger
 logging.basicConfig(
     filename='vinkeljernet.log',
@@ -230,16 +232,12 @@ async def main_async() -> None:
     table.add_column("Værdi")
     
     # Display kerneprincipper
-    principles = []
-    for p in profile.kerneprincipper:
-        for k, v in p.items():
-            principles.append(f"{k}: {v}")
-    
-    table.add_row("Kerneprincipper", "\n".join(principles))
+    principles = "\n".join([f"- {p}" for p in profile.kerneprincipper])
+    table.add_row("Kerneprincipper", principles)
     table.add_row("Tone og stil", profile.tone_og_stil)
     table.add_row("Antal nyhedskriterier", str(len(profile.nyhedsprioritering)))
-    table.add_row("Antal fokusområder", str(len(profile.fokusområder)))
-    table.add_row("Antal no-go områder", str(len(profile.nogo_områder)))
+    table.add_row("Antal fokusområder", str(len(profile.fokusOmrader)))     # Updated attribute name
+    table.add_row("Antal no-go områder", str(len(profile.noGoOmrader)))         # Updated attribute name
     
     console.print(table)
     
@@ -382,24 +380,32 @@ async def main_async() -> None:
         print(f"[DEBUG] Topic information: {topic_info[:200]}...")
 
 
-def safe_process_angles(angles, profile, num_angles=5):
-    """Process angles with robust error handling"""
+def safe_process_angles(angles: List[Dict[str, Any]], profile: RedaktionelDNA, num_angles: int = 5) -> List[Dict[str, Any]]:
+    """
+    Process angles with robust error handling.
+
+    Tries to filter and rank angles using filter_and_rank_angles. If an AttributeError
+    is raised (for example, a missing attribute), prints a friendly error message and
+    falls back to a simple sort based on the number of news criteria in each angle.
+    
+    Args:
+        angles: List of angle dictionaries.
+        profile: Editorial DNA profile.
+        num_angles: Number of angles to return.
+        
+    Returns:
+        A list of angles.
+    """
     try:
         return filter_and_rank_angles(angles, profile, num_angles)
     except AttributeError as e:
-        if "object has no attribute" in str(e):
-            print(f"Fejl ved filtrering af vinkler: {e}")
-            
-            # Try to identify and suggest fix for the missing attribute
-            attr_name = str(e).split("'")[-2] if "'" in str(e) else "unknown"
-            print(f"Profilen mangler attributten '{attr_name}'. " +
-                  f"Tjek at din profilfil indeholder dette felt.")
-            
-            print("Forsøger at fortsætte med ufiltrerede vinkler...")
-            return sorted(angles, key=lambda x: len(x.get("nyhedskriterier", [])), reverse=True)[:num_angles]
+        print(f"AttributeError during filtering: {e}")
+        print("Falling back to simple sort of angles based on the count of news criteria.")
+        sorted_angles = sorted(angles, key=lambda x: len(x.get("nyhedskriterier", [])), reverse=True)
+        return sorted_angles[:num_angles]
     except Exception as e:
-        print(f"Fejl ved filtrering af vinkler: {e}")
-        print("Forsøger at fortsætte med ufiltrerede vinkler...")
+        print(f"Unexpected error during filtering: {e}")
+        print("Falling back to unfiltered angle list.")
         return angles[:num_angles]
 
 

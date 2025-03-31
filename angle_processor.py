@@ -93,18 +93,28 @@ def calculate_angle_score(angle: Dict[str, Any], profile: RedaktionelDNA) -> flo
 
 def calculate_angle_relevance(angle: Dict[str, Any], profile: RedaktionelDNA) -> float:
     """
-    Example function that uses profile.tone_og_stil.
-    It used to iterate over toneOgStil, which was incorrect, since it's a string.
+    Calculate a relevance score for a news angle based on the profile's tone and style.
+    
+    Note: The field 'tone_og_stil' in the profile is a plain string describing the tone and style,
+    and it must not be treated as a dictionary.
     """
     score = 0.0
-    # Instead of iterating over toneOgStil as a dict, simply use the string value.
-    if profile.tone_og_stil:
+    try:
+        # Get the tone text as a lowercase string.
         tone_text = profile.tone_og_stil.lower()
-        # For example, if the angle's description contains part of the tone,
-        # add a small bonus
-        if tone_text in angle.get("beskrivelse", "").lower():
+        # Get the angle's description as a text.
+        angle_text = angle.get("beskrivelse", "").lower()
+        
+        # Simple example: add to the score if the profile's tone is mentioned in the angle description.
+        if tone_text in angle_text:
             score += 1.0
-    return score
+            
+        # Additional relevance calculation logic can be added here
+        
+        return score
+    except Exception as e:
+        print(f"Error in calculate_angle_relevance: {e}")
+        return 0.0
 
 def ensure_diverse_angles(ranked_angles: List[Dict[str, Any]], num_angles: int) -> List[Dict[str, Any]]:
     """

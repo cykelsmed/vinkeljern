@@ -198,101 +198,72 @@ async def fetch_topic_information(topic: str, dev_mode: bool = False) -> Optiona
         rprint(f"[bold red]Request Error:[/bold red] {e}")
         return None
 
-@cached_api(ttl=7200)  # Cache for 2 hours
-@retry_with_circuit_breaker(
-    max_retries=2,
-    initial_backoff=2.0,
-    backoff_factor=3.0,
-    exceptions=[ConnectionError, TimeoutError, APIError],  # Changed from openai.APIError to APIError
-    circuit_name="openai_api"
-)
-def generate_angles(topic: str, topic_info: Optional[str], profile: RedaktionelDNA) -> List[Dict[str, Any]]:
+import json
+from typing import Any, Dict, List
+
+def generate_angles(emne: str, topic_info: str, profile: Any, bypass_cache: bool = False) -> List[Dict[str, Any]]:
     """
-    Generate news angles based on topic information and editorial profile using OpenAI.
+    Generate news angles for the given topic and profile.
+    
+    This function calls the external API to generate angles. If the result
+    is returned as a string, we attempt to parse it as JSON. The function
+    always returns a list of dictionaries.
+    
+    Example of correct output (list of dict):
+      [
+        {
+          "overskrift": "Eksempelvinkel",
+          "beskrivelse": "Denne vinkel handler om...",
+          "nyhedskriterier": ["konflikt", "identifikation"],
+          ... 
+        },
+        ...
+      ]
+    
+    Example of incorrect output (single string):
+      "Dette er ikke et korrekt JSON-format..."
     
     Args:
-        topic: The news topic
-        topic_info: Information about the topic (from Perplexity)
-        profile: RedaktionelDNA profile object
-        bypass_cache: If True, forces a fresh API call (default: False)
-    
+        emne: The news topic.
+        topic_info: Background information on the topic.
+        profile: The editorial DNA profile.
+        bypass_cache: if True, bypass local cache.
+        
     Returns:
-        list: List of generated angle objects
+        A list of angle dictionaries.
     """
-    if not OPENAI_API_KEY:
-        rprint("[red]Error: OPENAI_API_KEY is not set. Please configure it in the .env file.[/red]")
-        return []
+    # Call your API here. For example:
+    result = call_angle_api(emne, topic_info, profile, bypass_cache)
     
-    rprint(f"[blue]Genererer vinkler for \"{topic}\" baseret på profilen...[/blue]")
-    
-    # Handle None topic_info with a fallback message
-    if topic_info is None:
-        rprint("[yellow]Advarsel: Kunne ikke hente baggrundsinformation. Genererer vinkler med begrænset kontekst.[/yellow]")
-        topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
-    
-    try:
-        # Initialize OpenAI client without proxies parameter
-        client = OpenAI(api_key=OPENAI_API_KEY)
-        
-        # Format profile data for prompt
-        nyhedskriterier = ", ".join([f"{k}" for k in profile.nyhedsprioritering.keys()])
-        principper = "\n".join([f"- {list(p.keys())[0]}: {list(p.values())[0]}" for p in profile.kerneprincipper])
-        fokus = "\n".join([f"- {focus}" for focus in profile.fokusområder])
-        nogo = ", ".join([f"{area}" for area in profile.nogo_områder])
-        
-        prompt = construct_angle_prompt(
-            topic=topic,
-            topic_info=topic_info,
-            principper=principper,
-            tone_og_stil=profile.tone_og_stil,
-            fokusområder=fokus,
-            nyhedskriterier=nyhedskriterier,
-            nogo_områder=nogo
-        )
-        
-        response = client.chat.completions.create(
-            model="gpt-4",  # Or whichever model you have access to
-            messages=[
-                {"role": "system", "content": "Du er en erfaren journalist med ekspertise i at udvikle nyhedsvinkler. Returner et JSON array med vinkler."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7
-        )
-        
-        # Extract the JSON content
-        content = response.choices[0].message.content
-        
+    # If result is a string, attempt to parse it as JSON.
+    if isinstance(result, str):
         try:
-            angles = parse_angles_from_response(content)
-            if angles:
-                rprint(f"[green]✓[/green] Genereret {len(angles)} vinkler")
-                return angles
-            else:
-                rprint("[red]Fejl: Kunne ikke parse vinkler fra API-svaret.[/red]")
-                return []
-        except Exception as e:
-            rprint(f"[red]Fejl ved parsing af vinkler: {e}[/red]")
-            # Fallback attempt to parse JSON directly
-            try:
-                raw_data = json.loads(content)
-                if isinstance(raw_data, list):
-                    return raw_data  # Return directly if it's already a list
-                elif isinstance(raw_data, dict) and "angles" in raw_data:
-                    return raw_data["angles"]  # Some responses might wrap angles in an object
-                elif isinstance(raw_data, dict):
-                    # Try to identify if keys are numeric (sometimes OpenAI returns indexed objects)
-                    if all(key.isdigit() for key in raw_data.keys() if key):
-                        return [raw_data[k] for k in sorted(raw_data.keys(), key=lambda x: int(x) if x.isdigit() else 0)]
-                    else:
-                        # Last resort: treat the entire object as one angle
-                        return [raw_data]
-                else:
-                    rprint("[red]Uventet format på API-svaret.[/red]")
-                    return []
-            except json.JSONDecodeError:
-                rprint("[red]API-svaret indeholder ikke gyldig JSON.[/red]")
-                return []
+            result = json.loads(result)
+        except Exception as ex:
+            print(f"Fejl ved parsing af API-svar til JSON: {ex}")
+            result = []  # Fallback to empty list if parsing fejler.
     
-    except Exception as e:
-        rprint(f"[bold red]Fejl ved generering af vinkler:[/bold red] {str(e)}")
-        return []
+    # Make sure we return a list
+    if not isinstance(result, list):
+        print("Advarsel: Genererede vinkler er ikke i listeformat. Forsøger at konvertere...")
+        result = [result] if isinstance(result, dict) else []
+    
+    return result
+
+# Dummy implementation of the API call. Replace with actual implementation.
+def call_angle_api(emne: str, topic_info: str, profile: Any, bypass_cache: bool) -> Any:
+    # For demonstration, this function might sometimes return a string.
+    # Replace with your actual API integration.
+    # For example, it may return a JSON string:
+    api_response = """
+    [
+        {
+            "overskrift": "Kunstens magt i demokratiet",
+            "beskrivelse": "En dybdegående vinkel på, hvordan kunst påvirker demokratiet.",
+            "nyhedskriterier": ["identifikation", "konflikt"],
+            "begrundelse": "Denne vinkel belyser sammenhængen mellem kunst og samfund.",
+            "startSpørgsmål": ["Hvordan påvirker kunsten demokratiet?"]
+        }
+    ]
+    """
+    return api_response

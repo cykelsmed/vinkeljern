@@ -11,15 +11,22 @@ from pydantic import BaseModel, Field, validator, field_validator
 
 class RedaktionelDNA(BaseModel):
     """
-    Model for representing an editorial DNA profile.
-    
-    This class validates that the profile contains all required fields
-    and that they are of the correct type.
+    Editorial DNA profile model.
+
+    Fields:
+      - navn: The name of the profile.
+      - beskrivelse: A description of the profile.
+      - kerneprincipper: List of core principles.
+      - tone_og_stil: A plain string describing the tone and style.
+                     NOTE: This field is a string and MUST NOT be treated as a dictionary.
+      - nyhedsprioritering: A dictionary mapping news criteria to their priority weights.
+      - fokusOmrader: List of focus areas.
+      - noGoOmrader: List of no-go areas.
     """
     navn: str
     beskrivelse: str
     kerneprincipper: List[str]
-    tone_og_stil: str  # Must be defined as a string
+    tone_og_stil: str  # This field is explicitly a string (not a dict)
     nyhedsprioritering: Dict[str, int]
     fokusOmrader: List[str]
     noGoOmrader: List[str] = []

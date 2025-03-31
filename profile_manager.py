@@ -268,9 +268,4 @@ class ProfileManager:
 def print_profile_details(profile: RedaktionelDNA):
     print("Profil:", profile.navn)
     print("Beskrivelse:", profile.beskrivelse)
-    # Instead of iterating over tone_og_stil like a dict,
-    # simply print it directly:
     print("Tone og stil:", profile.tone_og_stil)
-    # If you need to iterate over nyhedsprioritering (a dict) use:
-    for criterion, weight in profile.nyhedsprioritering.items():
-        print(f"- {criterion}: {weight}")

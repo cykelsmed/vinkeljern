@@ -1,3 +1,7 @@
-2025-03-29 22:52:31,585 - root - DEBUG - Logging initialized
-2025-03-29 22:52:31,585 - root - INFO - Vinkeljernet starting up
-2025-03-29 22:52:32,012 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-03-31 23:34:43,733 - root - DEBUG - Logging initialized
+2025-03-31 23:34:43,733 - root - INFO - Vinkeljernet starting up
+2025-03-31 23:34:45,099 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-03-31 23:34:45,108 - vinkeljernet - INFO - Using Perplexity API key starting with pplx-U...mkop
+2025-03-31 23:34:45,108 - vinkeljernet - INFO - Indhenter information om emnet "Prisstigning på dagligvarer rammer danske familier hårdt" via Perplexity...
+2025-03-31 23:34:45,108 - vinkeljernet - INFO - Using Perplexity API key (masked): pplx-...kop
+2025-03-31 23:34:45,108 - vinkeljernet - INFO - Request URL: https://api.perplexity.ai/chat/completions
