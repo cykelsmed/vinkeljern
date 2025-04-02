@@ -184,6 +184,12 @@ def cached_api(ttl: int = DEFAULT_TTL,
             # Extract bypass_cache parameter and remove it from kwargs if present
             if "bypass_cache" in kwargs:
                 bypass_cache = kwargs.pop("bypass_cache")
+            
+            # Remove any 'proxies' parameter from kwargs if present
+            # This is to prevent errors with the newer OpenAI client which doesn't accept this parameter
+            if "proxies" in kwargs:
+                print(f"DEBUG - cache_manager found and removed 'proxies' parameter: {kwargs['proxies']}")
+                kwargs.pop("proxies")
                 
             # Generate cache key
             cache_key = get_cache_key(func.__name__, args, kwargs)
@@ -209,6 +215,12 @@ def cached_api(ttl: int = DEFAULT_TTL,
             # Extract bypass_cache parameter and remove it from kwargs if present
             if "bypass_cache" in kwargs:
                 bypass_cache = kwargs.pop("bypass_cache")
+            
+            # Remove any 'proxies' parameter from kwargs if present
+            # This is to prevent errors with the newer OpenAI client which doesn't accept this parameter
+            if "proxies" in kwargs:
+                print(f"DEBUG - cache_manager found and removed 'proxies' parameter: {kwargs['proxies']}")
+                kwargs.pop("proxies")
                 
             # Generate cache key
             cache_key = get_cache_key(func.__name__, args, kwargs)

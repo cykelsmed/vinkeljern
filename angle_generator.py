@@ -5,6 +5,7 @@ This module handles the core functionality of generating news angles
 based on topic information and editorial DNA profiles.
 """
 
+import os
 import json
 from typing import List, Dict, Any, Optional
 from langchain.chains import LLMChain
@@ -15,7 +16,7 @@ from rich import print as rprint
 from pydantic import BaseModel, Field
 
 from api_clients import fetch_topic_information
-from .models import RedaktionelDNA
+from models import RedaktionelDNA
 
 
 class VinkelForslag(BaseModel):
@@ -213,10 +214,15 @@ async def generate_angles(topic: str, profile: RedaktionelDNA) -> Optional[List[
     # Format kerneprincipper for prompt
     kerneprincipper_str = ", ".join([list(p.keys())[0] for p in profile.kerneprincipper])
     
-    # Create the LLM chain
-    prompt = create_prompt_template()
-    llm = OpenAI(temperature=0.7)
-    chain = LLMChain(llm=llm, prompt=prompt)
+    # DEAKTIVERET: Langchain har kompatibilitetsproblemer med nyeste OpenAI API
+    # Dette vil kræve en opdatering af Langchain
+    # I stedet for at bruge Langchain, bruger vi direkte OpenAI API i api_clients.py
+    
+    # Fortæl brugeren at vi ikke understøtter denne metode længere
+    raise ValueError(
+        "Angle generator modulet er ikke længere kompatibelt med nyeste version af OpenAI API. "
+        "Brug venligst main.py med de anbefalede kommandoer i stedet."
+    )
     
     # Prepare the inputs
     inputs = {

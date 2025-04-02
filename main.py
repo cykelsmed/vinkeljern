@@ -270,7 +270,75 @@ async def main_async() -> None:
         transient=True
     ) as progress:
         task = progress.add_task("Generating", total=None)
-        angles = generate_angles(args.emne, topic_info, profile, bypass_cache=args.bypass_cache)
+        
+        # Direct OpenAI API call to bypass any decorators that might inject 'proxies'
+        try:
+            # Import directly to ensure we're using the correct version
+            import os
+            import sys
+            from prompt_engineering import construct_angle_prompt, parse_angles_from_response
+            
+            # Check if OpenAI is already in sys.modules and print info
+            print("DEBUG - Checking for OpenAI module:")
+            for module_name in sys.modules:
+                if "openai" in module_name.lower():
+                    print(f"DEBUG - Found '{module_name}' in sys.modules")
+            
+            # Force reload of the OpenAI module to get a clean version
+            if "openai" in sys.modules:
+                print("DEBUG - Removing openai from sys.modules")
+                del sys.modules["openai"]
+                
+            # Import the clean version
+            from openai import OpenAI
+            
+            # Get the API key directly from environment
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OpenAI API-nøgle mangler i miljøvariablerne")
+            
+            # Create minimal client with just the API key
+            print("DEBUG - Creating OpenAI client with ONLY api_key parameter")
+            print(f"DEBUG - OpenAI module path: {sys.modules['openai'].__file__}")
+            client = OpenAI(api_key=api_key)
+            print("DEBUG - Successfully created OpenAI client")
+            
+            # Convert profile into strings for prompt construction
+            principper = "\n".join([f"- {p}" for p in profile.kerneprincipper])
+            nyhedskriterier = "\n".join([f"- {k}: {v}" for k, v in profile.nyhedsprioritering.items()])
+            fokusomrader = "\n".join([f"- {f}" for f in profile.fokusOmrader])
+            nogo_omrader = "\n".join([f"- {n}" for n in profile.noGoOmrader]) if profile.noGoOmrader else "Ingen"
+            
+            # Create the prompt
+            prompt = construct_angle_prompt(
+                args.emne,
+                topic_info,
+                principper,
+                profile.tone_og_stil,
+                fokusomrader,
+                nyhedskriterier,
+                nogo_omrader
+            )
+            
+            # Call the OpenAI API directly with minimal parameters
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=2500
+            )
+            
+            # Extract and parse the response
+            response_text = response.choices[0].message.content
+            angles = parse_angles_from_response(response_text)
+        except Exception as e:
+            console.print(f"[bold red]Error during direct API call:[/bold red] {e}")
+            # Fall back to the regular function for logging purposes
+            angles = generate_angles(args.emne, topic_info, profile, bypass_cache=args.bypass_cache)
+        
         progress.update(task, completed=True)
     
     # Check if we have any angles
@@ -418,6 +486,10 @@ def main() -> None:
     except KeyboardInterrupt:
         console.print("\n[yellow]Program afbrudt af bruger.[/yellow]")
         sys.exit(0)
+    except ValueError as e:
+        # Håndter ValueError separat, da disse ofte er forventede fejl
+        console.print(f"\n[bold red]Fejl:[/bold red] {e}")
+        sys.exit(1)
     except Exception as e:
         console.print(f"\n[bold red]Uventet fejl:[/bold red] {e}")
         console.print("[yellow]Dette er sandsynligvis en bug i programmet. Indsend venligst en fejlrapport.[/yellow]")

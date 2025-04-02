@@ -70,21 +70,21 @@ class VinkelForslag(BaseModel):
         description="Beregnet score baseret på matchende nyhedskriterier"
     )
     
-    @validator('overskrift')
+    @field_validator('overskrift')
     def validate_overskrift(cls, value):
         """Validate headline length."""
         if len(value) > 100:
             raise ValueError("Overskriften er for lang (maks. 100 tegn)")
         return value
     
-    @validator('beskrivelse')
+    @field_validator('beskrivelse')
     def validate_beskrivelse(cls, value):
         """Validate description length."""
         if len(value) > 500:
             raise ValueError("Beskrivelsen er for lang (maks. 500 tegn)")
         return value
     
-    @validator('nyhedskriterier')
+    @field_validator('nyhedskriterier')
     def validate_nyhedskriterier(cls, value):
         """Validate that nyhedskriterier is not empty."""
         if not value:

@@ -198,16 +198,13 @@ async def fetch_topic_information(topic: str, dev_mode: bool = False) -> Optiona
         rprint(f"[bold red]Request Error:[/bold red] {e}")
         return None
 
-import json
-from typing import Any, Dict, List
-
 def generate_angles(emne: str, topic_info: str, profile: Any, bypass_cache: bool = False) -> List[Dict[str, Any]]:
     """
     Generate news angles for the given topic and profile.
     
-    This function calls the external API to generate angles. If the result
-    is returned as a string, we attempt to parse it as JSON. The function
-    always returns a list of dictionaries.
+    This function directly handles OpenAI API calls to generate angles due to issues
+    with the decorators adding unsupported parameters. It processes the response
+    and returns a list of structured angle dictionaries.
     
     Example of correct output (list of dict):
       [
@@ -220,50 +217,160 @@ def generate_angles(emne: str, topic_info: str, profile: Any, bypass_cache: bool
         ...
       ]
     
-    Example of incorrect output (single string):
-      "Dette er ikke et korrekt JSON-format..."
-    
     Args:
         emne: The news topic.
         topic_info: Background information on the topic.
         profile: The editorial DNA profile.
-        bypass_cache: if True, bypass local cache.
+        bypass_cache: if True, bypass local cache (not used in this implementation).
         
     Returns:
         A list of angle dictionaries.
+        
+    Raises:
+        ValueError: If angles cannot be generated
     """
-    # Call your API here. For example:
-    result = call_angle_api(emne, topic_info, profile, bypass_cache)
+    # Check for API key
+    if not OPENAI_API_KEY:
+        raise ValueError(
+            "OpenAI API-nøgle mangler. Sørg for at have en OPENAI_API_KEY i din .env fil."
+        )
     
-    # If result is a string, attempt to parse it as JSON.
-    if isinstance(result, str):
-        try:
-            result = json.loads(result)
-        except Exception as ex:
-            print(f"Fejl ved parsing af API-svar til JSON: {ex}")
-            result = []  # Fallback to empty list if parsing fejler.
-    
-    # Make sure we return a list
-    if not isinstance(result, list):
-        print("Advarsel: Genererede vinkler er ikke i listeformat. Forsøger at konvertere...")
-        result = [result] if isinstance(result, dict) else []
-    
-    return result
+    try:
+        # Import directly to ensure we're using the most recent version
+        from openai import OpenAI
+        
+        # Create a simple client with just the API key
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        
+        # Convert profile into strings for prompt construction
+        principper = "\n".join([f"- {p}" for p in profile.kerneprincipper])
+        nyhedskriterier = "\n".join([f"- {k}: {v}" for k, v in profile.nyhedsprioritering.items()])
+        fokusomrader = "\n".join([f"- {f}" for f in profile.fokusOmrader])
+        nogo_omrader = "\n".join([f"- {n}" for n in profile.noGoOmrader]) if profile.noGoOmrader else "Ingen"
+        
+        # Create the prompt
+        prompt = construct_angle_prompt(
+            emne,
+            topic_info,
+            principper,
+            profile.tone_og_stil,
+            fokusomrader,
+            nyhedskriterier,
+            nogo_omrader
+        )
+        
+        # Log the request
+        log_info(f"Sender anmodning til OpenAI API for emnet '{emne}'")
+        
+        # Call the OpenAI API with minimal parameters
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=2500
+        )
+        
+        # Extract and parse the response
+        response_text = response.choices[0].message.content
+        angles = parse_angles_from_response(response_text)
+        
+        # Log success
+        log_info(f"Genereret {len(angles)} vinkler succesfuldt")
+        
+        # Make sure we return a list
+        if not isinstance(angles, list):
+            if isinstance(angles, dict):
+                # Single angle in dict format
+                return [angles]
+            else:
+                log_error(f"Uventet format: {type(angles)}")
+                raise ValueError(f"Uventet format: {type(angles)}. Forventede en liste eller dict.")
+        
+        return angles
+        
+    except Exception as e:
+        log_error(f"Uventet fejl ved generering af vinkler: {e}")
+        raise ValueError(
+            f"Uventet fejl ved generering af vinkler: {e}. "
+            "Kontakt venligst support hvis problemet fortsætter."
+        )
 
-# Dummy implementation of the API call. Replace with actual implementation.
-def call_angle_api(emne: str, topic_info: str, profile: Any, bypass_cache: bool) -> Any:
-    # For demonstration, this function might sometimes return a string.
-    # Replace with your actual API integration.
-    # For example, it may return a JSON string:
-    api_response = """
-    [
-        {
-            "overskrift": "Kunstens magt i demokratiet",
-            "beskrivelse": "En dybdegående vinkel på, hvordan kunst påvirker demokratiet.",
-            "nyhedskriterier": ["identifikation", "konflikt"],
-            "begrundelse": "Denne vinkel belyser sammenhængen mellem kunst og samfund.",
-            "startSpørgsmål": ["Hvordan påvirker kunsten demokratiet?"]
-        }
-    ]
+# Temporarily removed decorators to debug the issue
+def call_angle_api(emne: str, topic_info: str, profile: Any, bypass_cache: bool = False) -> Any:
     """
-    return api_response
+    Call the OpenAI API to generate news angles based on the topic and editorial profile.
+    
+    Args:
+        emne: The news topic
+        topic_info: Background information on the topic
+        profile: The editorial DNA profile
+        bypass_cache: If True, bypass local cache
+        
+    Returns:
+        Generated angles or raises an exception if API call fails
+    """
+    if not OPENAI_API_KEY:
+        raise ValueError(
+            "OpenAI API-nøgle mangler. Sørg for at have en OPENAI_API_KEY i din .env fil."
+        )
+    
+    try:
+        # Import directly to ensure we're using the most recent version
+        from openai import OpenAI
+        
+        # Use minimal client initialization
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        
+        log_info("DEBUG - Creating OpenAI client with only api_key parameter")
+        
+        # Convert profile into strings for prompt construction
+        principper = "\n".join([f"- {p}" for p in profile.kerneprincipper])
+        nyhedskriterier = "\n".join([f"- {k}: {v}" for k, v in profile.nyhedsprioritering.items()])
+        fokusomrader = "\n".join([f"- {f}" for f in profile.fokusOmrader])
+        nogo_omrader = "\n".join([f"- {n}" for n in profile.noGoOmrader]) if profile.noGoOmrader else "Ingen"
+        
+        # Create the prompt
+        prompt = construct_angle_prompt(
+            emne,
+            topic_info,
+            principper,
+            profile.tone_og_stil,
+            fokusomrader,
+            nyhedskriterier,
+            nogo_omrader
+        )
+        
+        # Log the request (sanitized for privacy)
+        log_info(f"Sender anmodning til OpenAI API for emnet '{emne}'")
+        
+        # Call the OpenAI API with minimal parameters
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=2500
+        )
+        
+        # Extract the response text
+        response_text = response.choices[0].message.content
+        
+        # Parse the angles from the response
+        angles = parse_angles_from_response(response_text)
+        
+        # Log success
+        log_info(f"Genereret {len(angles)} vinkler succesfuldt")
+        
+        return angles
+        
+    except Exception as e:
+        log_error(f"Uventet fejl ved generering af vinkler: {e}")
+        raise ValueError(
+            f"Uventet fejl ved generering af vinkler: {e}. "
+            "Kontakt venligst support hvis problemet fortsætter."
+        )

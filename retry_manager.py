@@ -248,6 +248,10 @@ def retry_with_circuit_breaker(
             circuit = registry.get_breaker(circuit_name)
             retries = 0
             
+            # Remove 'proxies' parameter if present to avoid errors with newer OpenAI API
+            if 'proxies' in kwargs:
+                kwargs.pop('proxies')
+            
             while True:
                 # Check if circuit allows the request
                 if not circuit.allow_request():
@@ -256,6 +260,14 @@ def retry_with_circuit_breaker(
                     raise CircuitOpenError(error_msg)
                 
                 try:
+                    # DEBUG: Log the kwargs before calling the function
+                    logger.info(f"DEBUG - retry_manager sync_wrapper kwargs: {kwargs}")
+                    
+                    # Ensure 'proxies' parameter is not in kwargs
+                    if 'proxies' in kwargs:
+                        logger.warning(f"DEBUG - Found and removed 'proxies' in sync_wrapper: {kwargs['proxies']}")
+                        kwargs.pop('proxies')
+                    
                     result = func(*args, **kwargs)
                     circuit.record_success()
                     return result
@@ -293,6 +305,10 @@ def retry_with_circuit_breaker(
             circuit = registry.get_breaker(circuit_name)
             retries = 0
             
+            # Remove 'proxies' parameter if present to avoid errors with newer OpenAI API
+            if 'proxies' in kwargs:
+                kwargs.pop('proxies')
+            
             while True:
                 # Check if circuit allows the request
                 if not circuit.allow_request():
@@ -301,6 +317,14 @@ def retry_with_circuit_breaker(
                     raise CircuitOpenError(error_msg)
                 
                 try:
+                    # DEBUG: Log the kwargs before calling the function
+                    logger.info(f"DEBUG - retry_manager async_wrapper kwargs: {kwargs}")
+                    
+                    # Ensure 'proxies' parameter is not in kwargs
+                    if 'proxies' in kwargs:
+                        logger.warning(f"DEBUG - Found and removed 'proxies' in async_wrapper: {kwargs['proxies']}")
+                        kwargs.pop('proxies')
+                    
                     result = await func(*args, **kwargs)
                     circuit.record_success()
                     return result
