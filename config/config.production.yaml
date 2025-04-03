@@ -1,0 +1,60 @@
+# Production environment configuration
+env: production
+debug: false
+version: "0.1.0"
+
+# API configurations
+api:
+  openai:
+    # API key should be in environment variables
+    model: "gpt-4"
+    max_tokens: 1000
+    temperature: 0.7
+    timeout: 90  # Longer timeout for production
+  
+  anthropic:
+    # API key should be in environment variables
+    api_url: "https://api.anthropic.com/v1/messages"
+    model: "claude-3-opus-20240229"
+    max_tokens: 1000
+    temperature: 0.7
+    timeout: 90
+  
+  perplexity:
+    # API key should be in environment variables
+    api_url: "https://api.perplexity.ai/chat/completions"
+    model: "sonar"
+    max_tokens: 1000
+    temperature: 0.2
+    timeout: 90
+
+# Cache settings
+cache:
+  enabled: true
+  ttl: 7200  # 2 hours in seconds
+  directory: "/var/cache/vinkeljernet"
+  max_size_mb: 500
+
+# Logging configuration
+logging:
+  level: "WARNING"  # Only WARNING and above in production
+  file: "/var/log/vinkeljernet/vinkeljernet.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console: false  # No console output in production
+
+# Application settings
+app:
+  interface: "web"  # Web interface only in production
+  default_profile: "dr_profil"
+  profile_directory: "/etc/vinkeljernet/profiles"
+  results_directory: "/var/www/vinkeljernet/results"
+  default_output_format: "html"
+  num_angles: 5
+
+# Extra settings
+extra:
+  production:
+    enable_metrics: true
+    monitoring_url: "https://monitoring.example.com/api/metrics"
+    backup_frequency: "daily"
+    ssl_verify: true
