@@ -4,11 +4,12 @@ openai==1.12.0
 
 # Data handling and validation
 pydantic==2.5.3
-PyYAML==6.0.1
+PyYAML>=5.4
 
 # HTTP and API interaction
-requests==2.31.0
+requests>=2.25
 python-dotenv==1.0.0
 
 # CLI formatting and display
-rich==13.7.0
+rich>=10.0
+prompt_toolkit>=3.0

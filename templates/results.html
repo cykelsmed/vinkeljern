@@ -1,0 +1,75 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Vinkler for {{ topic }} | Vinkeljernet{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">Vinkler for: {{ topic }}</h1>
+            <p class="text-muted">Profil: {{ profile_name }}</p>
+            
+            <div class="mb-4">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-arrow-left"></i> Ny søgning
+                </a>
+                <a href="{{ url_for('download', format='text') }}" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-file-text"></i> Download som tekst
+                </a>
+                <a href="{{ url_for('download', format='pdf') }}" class="btn btn-outline-danger">
+                    <i class="bi bi-file-pdf"></i> Download som PDF
+                </a>
+            </div>
+            
+            {% for angle in angles %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">{{ angle.overskrift }}</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ angle.beskrivelse }}</p>
+                    
+                    <div class="mb-3">
+                        <h5>Begrundelse:</h5>
+                        <p class="text-muted">{{ angle.begrundelse }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h5>Nyhedskriterier:</h5>
+                        <div class="d-flex flex-wrap">
+                            {% for kriterium in angle.nyhedskriterier %}
+                                <span class="badge bg-secondary me-2 mb-2">{{ kriterium }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    {% if angle.startSpørgsmål %}
+                    <div class="mb-3">
+                        <h5>Startspørgsmål:</h5>
+                        <ul class="list-group">
+                            {% for question in angle.startSpørgsmål %}
+                                <li class="list-group-item">{{ question }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if angle.kildeForslagInfo %}
+                    <div class="mb-3">
+                        <h5>Kildeforslag:</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                {{ angle.kildeForslagInfo | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+            

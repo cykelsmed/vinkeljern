@@ -1,0 +1,50 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Vinkeljernet - Journalistisk vinkelgenerator{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Vinkeljernet</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-4">
+                        Generer kreative og relevante nyhedsvinkler baseret på redaktionelle DNA-profiler.
+                    </p>
+                    
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-danger">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" action="{{ url_for('index') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.topic.label(class="form-label") }}
+                            {{ form.topic(class="form-control", placeholder="F.eks. klimaforandringer, blockchain, teknologipolitik...") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.profile.label(class="form-label") }}
+                            {{ form.profile(class="form-select") }}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+            
