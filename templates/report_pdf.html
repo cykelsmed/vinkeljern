@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ topic }} - Vinkeljernet Rapport</title>
+    <style>
+        @page {
+            margin: 2cm;
+            @bottom-right {
+                content: "Side " counter(page) " af " counter(pages);
+                font-size: 9pt;
+            }
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            line-height: 1.4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            font-size: 10pt;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 1cm;
+            padding-bottom: 0.5cm;
+            border-bottom: 1px solid #ccc;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 18pt;
+            margin-bottom: 0.2cm;
+        }
+        h2 {
+            color: #3498db;
+            font-size: 14pt;
+            margin-top: 1cm;
+            margin-bottom: 0.5cm;
+            page-break-after: avoid;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.2cm;
+        }
+        h3 {
+            color: #2980b9;
+            font-size: 12pt;
+            margin-top: 0.5cm;
+            margin-bottom: 0.3cm;
+            page-break-after: avoid;
+        }
+        .meta-info {
+            color: #7f8c8d;
+            font-size: 9pt;
+            background-color: #f9f9f9;
+            padding: 0.5cm;
+            border: 1px solid #eee;
+            margin-bottom: 1cm;
+        }
+        .section {
+            margin-bottom: 1cm;
+            page-break-inside: avoid;
+        }
+        .bg-info {
+            background-color: #f8f9ff;
+            padding: 0.5cm;
+            border-left: 4px solid #3498db;
+        }
+        .bg-success {
+            background-color: #f8fff9;
+            padding: 0.5cm;
+            border-left: 4px solid #2ecc71;
+        }
+        .bg-secondary {
+            background-color: #f9f9f9;
+            padding: 0.5cm;
+            border-left: 4px solid #95a5a6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1cm 0;
+            page-break-inside: auto;
+        }
+        thead {
+            display: table-header-group;
+        }
+        tr {
+            page-break-inside: avoid;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+            padding: 0.2cm;
+            border-bottom: 1pt solid #ddd;
+            font-weight: bold;
+        }
+        td {
+            padding: 0.2cm;
+            border-bottom: 1pt solid #eee;
+        }
+        .angle-box {
+            margin-bottom: 0.8cm;
+            padding: 0.5cm;
+            background-color: #f8f9fa;
+            border-left: 4px solid #2ecc71;
+            page-break-inside: avoid;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.1cm 0.3cm;
+            margin-right: 0.2cm;
+            margin-bottom: 0.1cm;
+            font-size: 8pt;
+            background-color: #95a5a6;
+            color: white;
+            border-radius: 3px;
+        }
+        .small {
+            font-size: 9pt;
+        }
+        .text-muted {
+            color: #7f8c8d;
+        }
+        .source {
+            font-size: 8pt;
+            color: #7f8c8d;
+            text-align: right;
+            margin-top: 0.2cm;
+        }
+        ul, ol {
+            padding-left: 0.5cm;
+            margin: 0.3cm 0;
+        }
+        li {
+            margin-bottom: 0.1cm;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        .footer {
+            margin-top: 1cm;
+            padding-top: 0.3cm;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 8pt;
+            color: #7f8c8d;
+        }
+        .label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Vinkeljernet Rapport</h1>
+            <p>Journalistiske vinkelforslag</p>
+        </div>
+
+        <!-- Metadata -->
+        <div class="meta-info">
+            <p><span class="label">Emne:</span> {{ topic }}</p>
+            <p><span class="label">Profil:</span> {{ profile_name }}</p>
+            <p><span class="label">Genereret:</span> {{ generated_at }}</p>
+            {% if generated_at != last_updated %}
+            <p><span class="label">Sidst opdateret:</span> {{ last_updated }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Baggrundsinformation -->
+        {% if background_info %}
+        <div class="section bg-info">
+            <h2>Baggrundsinformation</h2>
+            <div>{{ background_info|safe|replace('\n', '<br>') }}</div>
+            <div class="source">Kilde: Perplexity AI</div>
+        </div>
+        {% endif %}
+
+        <!-- Redaktionelle overvejelser -->
+        {% if editorial_considerations %}
+        <div class="section bg-success">
+            <h2>Redaktionelle overvejelser</h2>
+            <div>{{ editorial_considerations|safe|replace('\n', '<br>') }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Kildeforslag -->
+        {% if source_suggestions %}
+        <div class="section bg-secondary">
+            <h2>Relevante kilder og ressourcer</h2>
+            <div>{{ source_suggestions|safe }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Vinkeloversigt -->
+        <div class="page-break"></div>
+        <h2>Oversigt over genererede vinkler</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 70%;">Overskrift</th>
+                    <th style="width: 25%;">Nyhedskriterier</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for angle in angles %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <strong>{{ angle.get('overskrift', 'Ingen overskrift') }}</strong><br>
+                        <span class="small text-muted">{{ angle.get('beskrivelse', 'Ingen beskrivelse')|truncate(100) }}</span>
+                    </td>
+                    <td>
+                        {% for kriterium in angle.get('nyhedskriterier', []) %}
+                        <span class="badge">{{ kriterium }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Detaljeret beskrivelse af vinkler -->
+        <div class="page-break"></div>
+        <h2>Detaljeret beskrivelse af vinkler</h2>
+        
+        {% for angle in angles %}
+        <div class="angle-box">
+            <h3>{{ loop.index }}. {{ angle.get('overskrift', 'Ingen overskrift') }}</h3>
+            
+            <p><span class="label">Beskrivelse:</span><br>
+            {{ angle.get('beskrivelse', 'Ingen beskrivelse') }}</p>
+            
+            {% if angle.get('begrundelse') %}
+            <p><span class="label">Begrundelse:</span><br>
+            {{ angle.get('begrundelse') }}</p>
+            {% endif %}
+            
+            {% if angle.get('nyhedskriterier') %}
+            <p><span class="label">Nyhedskriterier:</span><br>
+                {% for kriterium in angle.get('nyhedskriterier', []) %}
+                <span class="badge">{{ kriterium }}</span>
+                {% endfor %}
+            </p>
+            {% endif %}
+            
+            {% if angle.get('startSpørgsmål') %}
+            <p><span class="label">Startspørgsmål:</span></p>
+            <ul>
+                {% for sporgsmaal in angle.get('startSpørgsmål', []) %}
+                <li>{{ sporgsmaal }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% if not loop.last %}<hr>{% endif %}
+        {% endfor %}
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>Genereret med Vinkeljernet {{ generated_at }}</p>
+            <p class="small">
+                {% if metadata.has_detailed_background %}Indeholder detaljeret baggrundsinformation{% endif %}
+                {% if metadata.has_editorial_considerations %} • Indeholder redaktionelle overvejelser{% endif %}
+            </p>
+        </div>
+    </div>
+</body>
+</html>

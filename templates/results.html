@@ -8,11 +8,30 @@
     <div class="row justify-content-center">
         <div class="col-md-10">
             <h1 class="mb-4">Vinkler for: {{ topic }}</h1>
-            <p class="text-muted">Profil: {{ profile_name }}</p>
+            <p class="text-muted">
+    Profil: {{ profile_name }}
+    {% if generated_at %}
+    <span class="ms-3 small" title="Genereret: {{ generated_at }}">
+        <i class="bi bi-clock"></i>
+        {% if data_age < 0.042 %}
+            For mindre end en time siden
+        {% elif data_age < 1 %}
+            For {{ (data_age * 24)|int }} timer siden
+        {% elif data_age < 2 %}
+            For 1 dag siden
+        {% else %}
+            For {{ data_age|int }} dage siden
+        {% endif %}
+    </span>
+    {% endif %}
+</p>
             
             <div class="mb-4">
                 <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-2">
                     <i class="bi bi-arrow-left"></i> Ny søgning
+                </a>
+                <a href="{{ url_for('detailed_report') }}" class="btn btn-outline-success me-2">
+                    <i class="bi bi-file-earmark-text"></i> Grundig rapport
                 </a>
                 <a href="{{ url_for('download', format='text') }}" class="btn btn-outline-primary me-2">
                     <i class="bi bi-file-text"></i> Download som tekst
@@ -20,6 +39,30 @@
                 <a href="{{ url_for('download', format='pdf') }}" class="btn btn-outline-danger">
                     <i class="bi bi-file-pdf"></i> Download som PDF
                 </a>
+            </div>
+            
+            <!-- Baggrundsinformation -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Baggrundsinformation om {{ topic }}</h2>
+                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#baggrundInfo" aria-expanded="false" aria-controls="baggrundInfo">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="baggrundInfo">
+                    <div class="card-body">
+                        {% if background_info %}
+                            <p>{{ background_info | safe | nl2br }}</p>
+                        {% else %}
+                            <p class="text-muted">Ingen detaljeret baggrundsinformation tilgængelig for dette emne.</p>
+                        {% endif %}
+                        
+                        <div class="text-end">
+                            <small class="text-muted">Kilde: Perplexity AI</small>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             {% for angle in angles %}

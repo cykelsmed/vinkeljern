@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Grundig Rapport: {{ topic }} | Vinkeljernet{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-1">Grundig rapport</h1>
+            <h2 class="h3 mb-2 text-muted">{{ topic }}</h2>
+            <p class="mb-4 small text-muted">
+                Profil: {{ profile_name }}
+                {% if generated_at %}
+                <span class="ms-3" title="Genereret: {{ generated_at }}">
+                    <i class="bi bi-clock"></i>
+                    {% if data_age < 0.042 %}
+                        For mindre end en time siden
+                    {% elif data_age < 1 %}
+                        For {{ (data_age * 24)|int }} timer siden
+                    {% elif data_age < 2 %}
+                        For 1 dag siden
+                    {% else %}
+                        For {{ data_age|int }} dage siden
+                    {% endif %}
+                </span>
+                {% endif %}
+                
+                {% if last_updated and last_updated != generated_at %}
+                <span class="ms-3" title="Opdateret: {{ last_updated }}">
+                    <i class="bi bi-arrow-clockwise"></i> Opdateret 
+                    {% set update_age = updated_data_age %}
+                    {% if update_age < 0.042 %}
+                        for mindre end en time siden
+                    {% elif update_age < 1 %}
+                        for {{ (update_age * 24)|int }} timer siden
+                    {% elif update_age < 2 %}
+                        for 1 dag siden
+                    {% else %}
+                        for {{ update_age|int }} dage siden
+                    {% endif %}
+                </span>
+                {% endif %}
+            </p>
+            
+            <div class="mb-4">
+                <a href="{{ url_for('generate') }}" class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-arrow-left"></i> Tilbage til vinkler
+                </a>
+                <a href="{{ url_for('download', format='text') }}" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-file-text"></i> Download som tekst
+                </a>
+                {% if pdf_error %}
+                <div class="alert alert-warning p-2 mb-2 d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span>PDF-generering fejlede: {{ pdf_error }}. <a href="#" class="btn btn-sm btn-warning ms-3" id="dismissPdfError">Fjern</a></span>
+                </div>
+                {% endif %}
+                <a href="{{ url_for('download_report') }}" class="btn btn-outline-danger me-2" id="downloadFullReport">
+                    <i class="bi bi-file-pdf"></i> Download fuld rapport
+                </a>
+                <a href="{{ url_for('download', format='pdf') }}" class="btn btn-outline-danger" id="downloadShortReport">
+                    <i class="bi bi-file-pdf"></i> Download kun vinkler
+                </a>
+            </div>
+            
+            <!-- Baggrundsinformation -->
+            <div class="card mb-5">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">Detaljeret baggrundsinformation</h2>
+                    <div>
+                        {% if has_background_info_error %}
+                            <span class="badge bg-warning text-dark">Fejlede</span>
+                        {% endif %}
+                        <a href="{{ url_for('regenerate_background') }}" class="btn btn-sm btn-light ms-2" title="Opdater baggrundsinformation">
+                            <i class="bi bi-arrow-clockwise"></i> Opdater
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if background_info %}
+                        <div class="bg-light p-3 rounded">
+                            {{ background_info | safe | nl2br }}
+                        </div>
+                        <div class="text-end mt-3">
+                            <small class="text-muted">Kilde: Perplexity AI</small>
+                        </div>
+                    {% elif has_background_info_error %}
+                        <div class="alert alert-warning">
+                            <h5><i class="bi bi-exclamation-triangle"></i> Fejl ved hentning af baggrundsinformation</h5>
+                            <p>Der opstod en fejl ved forsøget på at hente detaljeret baggrundsinformation fra Perplexity. Dette kan skyldes problemer med forbindelsen til Perplexity API'et eller en timeout.</p>
+                            <p>Du kan prøve at opdatere informationen ved at klikke på knappen ovenfor.</p>
+                            <p class="text-muted small">Fejlbesked: {{ background_info_error }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Henter detaljeret baggrundsinformation...</p>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"></div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Kildeforslag -->
+            {% if source_suggestions %}
+            <div class="card mb-5">
+                <div class="card-header bg-secondary text-white">
+                    <h2 class="h4 mb-0">Relevante kilder og ressourcer</h2>
+                </div>
+                <div class="card-body">
+                    <div class="bg-light p-3 rounded">
+                        {{ source_suggestions | safe }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Redaktionelle overvejelser -->
+            <div class="card mb-5">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">Redaktionelle overvejelser</h2>
+                    <div>
+                        {% if has_editorial_considerations_error %}
+                            <span class="badge bg-warning text-dark">Fejlede</span>
+                        {% endif %}
+                        <a href="{{ url_for('regenerate_considerations') }}" class="btn btn-sm btn-light ms-2" title="Regenerer redaktionelle overvejelser">
+                            <i class="bi bi-arrow-clockwise"></i> Regenerer
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if editorial_considerations %}
+                        <div class="bg-light p-3 rounded">
+                            {{ editorial_considerations | safe | nl2br }}
+                        </div>
+                    {% elif has_editorial_considerations_error %}
+                        <div class="alert alert-warning">
+                            <h5><i class="bi bi-exclamation-triangle"></i> Fejl ved generering af redaktionelle overvejelser</h5>
+                            <p>Der opstod en fejl ved forsøget på at generere redaktionelle overvejelser. Dette kan skyldes problemer med forbindelsen til AI-tjenesten eller en timeout.</p>
+                            <p>Du kan prøve at regenerere ved at klikke på knappen ovenfor.</p>
+                            <p class="text-muted small">Fejlbesked: {{ editorial_considerations_error }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Generating redaktionelle overvejelser...</p>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Vinkeloversigt -->
+            <div class="card mb-5">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">Genererede vinkler</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Overskrift</th>
+                                    <th>Nyhedskriterier</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for angle in angles %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>
+                                        <strong>{{ angle.overskrift }}</strong>
+                                        <p class="small text-muted mb-0">{{ angle.beskrivelse }}</p>
+                                    </td>
+                                    <td>
+                                        {% for kriterium in angle.nyhedskriterier %}
+                                            <span class="badge bg-secondary me-1">{{ kriterium }}</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
