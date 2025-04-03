@@ -109,13 +109,15 @@ async def create_secure_api_session(
     circuit_name="perplexity_api"
 )
 @safe_execute_async(fallback_return=None)
-async def fetch_topic_information(topic: str, dev_mode: bool = False) -> Optional[str]:
+async def fetch_topic_information(topic: str, dev_mode: bool = False, bypass_cache: bool = False, progress_callback=None) -> Optional[str]:
     """
     Fetch information about a topic using the Perplexity API asynchronously.
     
     Args:
         topic: The news topic to fetch information about
         dev_mode: If True, disables SSL verification (development only!)
+        bypass_cache: If True, ignore cached results
+        progress_callback: Optional callback function to report progress (0-100)
         
     Returns:
         Optional[str]: The information retrieved or None if failed
@@ -134,6 +136,10 @@ async def fetch_topic_information(topic: str, dev_mode: bool = False) -> Optiona
     masked_key = PERPLEXITY_API_KEY[:5] + "..." + PERPLEXITY_API_KEY[-3:] if len(PERPLEXITY_API_KEY) > 8 else "INVALID"
     log_info(f"Using Perplexity API key (masked): {masked_key}")
     log_info(f"Request URL: {PERPLEXITY_API_URL}")
+    
+    # Update progress if callback provided
+    if progress_callback:
+        await progress_callback(25)
 
     headers = {
         "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
@@ -156,7 +162,15 @@ async def fetch_topic_information(topic: str, dev_mode: bool = False) -> Optiona
     try:
         # Use our secure session creation function
         async with await create_secure_api_session(dev_mode=dev_mode) as session:
+            # Update progress before making the request
+            if progress_callback:
+                await progress_callback(40)
+                
             async with session.post(PERPLEXITY_API_URL, headers=headers, json=payload) as response:
+                # Update progress after receiving response
+                if progress_callback:
+                    await progress_callback(75)
+                    
                 if response.status != 200:
                     error_text = await response.text()
                     log_error(f"Full error response: {error_text}")
@@ -173,9 +187,21 @@ async def fetch_topic_information(topic: str, dev_mode: bool = False) -> Optiona
                     rprint(f"[bold red]Perplexity API Error:[/bold red] Status {response.status}: {error_message}")
                     display_api_response_error(response)
                     return None
+                
                 data = await response.json()
+                
+                # Update progress after parsing response
+                if progress_callback:
+                    await progress_callback(90)
+                    
                 try:
-                    return data['choices'][0]['message']['content']
+                    result = data['choices'][0]['message']['content']
+                    
+                    # Final progress update
+                    if progress_callback:
+                        await progress_callback(100)
+                        
+                    return result
                 except (KeyError, IndexError):
                     log_warning("Unexpected response format from Perplexity API.")
                     rprint("[yellow]Warning: Unexpected response format from Perplexity API.[/yellow]")

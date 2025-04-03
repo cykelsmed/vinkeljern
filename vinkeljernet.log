@@ -1,12 +1,12 @@
-2025-04-03 14:46:59,854 - root - DEBUG - Logging initialized
-2025-04-03 14:46:59,854 - root - INFO - Vinkeljernet starting up
-2025-04-03 14:47:00,276 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-04-03 14:47:00,283 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'dev_mode': False}
-2025-04-03 14:47:00,283 - vinkeljernet - INFO - Using Perplexity API key starting with pplx-U...mkop
-2025-04-03 14:47:00,283 - vinkeljernet - INFO - Indhenter information om emnet "klimaforandringer" via Perplexity...
-2025-04-03 14:47:00,283 - vinkeljernet - INFO - Using Perplexity API key (masked): pplx-...kop
-2025-04-03 14:47:00,283 - vinkeljernet - INFO - Request URL: https://api.perplexity.ai/chat/completions
-2025-04-03 14:47:14,571 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.anthropic.com:443
-2025-04-03 14:48:30,821 - urllib3.connectionpool - DEBUG - https://api.anthropic.com:443 "POST /v1/messages HTTP/1.1" 200 None
-2025-04-03 14:48:30,828 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.anthropic.com:443
-2025-04-03 14:48:34,127 - urllib3.connectionpool - DEBUG - https://api.anthropic.com:443 "POST /v1/messages HTTP/1.1" 200 None
+2025-04-03 15:51:22,245 - root - DEBUG - Logging initialized
+2025-04-03 15:51:22,245 - root - INFO - Vinkeljernet starting up
+2025-04-03 15:51:22,577 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-04-03 15:51:22,585 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'dev_mode': False, 'progress_callback': <function main_async.<locals>.progress_callback at 0x106279c60>}
+2025-04-03 15:51:22,585 - vinkeljernet - INFO - Using Perplexity API key starting with pplx-U...mkop
+2025-04-03 15:51:22,585 - vinkeljernet - INFO - Indhenter information om emnet "blockchain" via Perplexity...
+2025-04-03 15:51:22,585 - vinkeljernet - INFO - Using Perplexity API key (masked): pplx-...kop
+2025-04-03 15:51:22,585 - vinkeljernet - INFO - Request URL: https://api.perplexity.ai/chat/completions
+2025-04-03 15:51:51,843 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.anthropic.com:443
+2025-04-03 15:53:09,521 - urllib3.connectionpool - DEBUG - https://api.anthropic.com:443 "POST /v1/messages HTTP/1.1" 200 None
+2025-04-03 15:53:09,541 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.anthropic.com:443
+2025-04-03 15:53:12,155 - urllib3.connectionpool - DEBUG - https://api.anthropic.com:443 "POST /v1/messages HTTP/1.1" 200 None
