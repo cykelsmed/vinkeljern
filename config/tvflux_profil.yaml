@@ -14,7 +14,7 @@ nyhedsprioritering:
   aktualitet: 4
   konflikt: 3
   sensation: 5
-  væsentlighed: 2
+  væsentlighed: k
 
 fokusområder:
   - "popkultur"
