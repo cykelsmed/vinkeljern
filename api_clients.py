@@ -19,7 +19,7 @@ import requests
 import sys
 import json
 from rich import print as rprint
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple, Callable
 from openai import OpenAI
 
 # Try to import from newer style API structure, fall back to older style if needed
@@ -61,6 +61,208 @@ class SecurityWarning(Warning):
     pass
 
 PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions'
+
+@cached_api(ttl=7200)  # Cache for 2 hours
+@retry_with_circuit_breaker(
+    max_retries=2,
+    initial_backoff=1.0,
+    backoff_factor=2.0,
+    exceptions=[requests.RequestException, asyncio.TimeoutError, ConnectionError],
+    circuit_name="perplexity_source_suggestions"
+)
+@safe_execute_async(fallback_return=None)
+async def generate_expert_source_suggestions(
+    topic: str, 
+    angle_headline: str, 
+    angle_description: str, 
+    dev_mode: bool = False,
+    bypass_cache: bool = False,
+    progress_callback: Optional[Callable[[int], None]] = None
+) -> Optional[Dict[str, Any]]:
+    """
+    Generate expert and source suggestions for a specific news angle.
+    
+    Args:
+        topic: The main news topic
+        angle_headline: The headline of the specific angle
+        angle_description: Description of the angle
+        dev_mode: If True, disables SSL verification (development only!)
+        bypass_cache: If True, ignore cached results
+        progress_callback: Optional callback function to report progress (0-100)
+        
+    Returns:
+        Optional[Dict]: Dictionary with experts and sources or None if failed
+          Format: {
+            "experts": [{"name": str, "title": str, "organization": str, "expertise": str}],
+            "sources": [{"name": str, "type": str, "description": str, "url": str}],
+            "statistics": [{"description": str, "source": str, "relevance": str}]
+          }
+    """
+    if not PERPLEXITY_API_KEY:
+        raise APIKeyMissingError("Perplexity API nøgle mangler. Sørg for at have en PERPLEXITY_API_KEY i din .env fil.")
+    
+    log_info(f"Genererer ekspertforslag til vinkel: \"{angle_headline}\"")
+    
+    # Update progress if callback provided
+    if progress_callback:
+        await progress_callback(10)
+
+    # Construct the prompt for expert source suggestions
+    prompt = f"""
+    For nyhedsemnet "{topic}" med den specifikke vinkel:
+    
+    Overskrift: {angle_headline}
+    Beskrivelse: {angle_description}
+    
+    Giv forslag til følgende tre kategorier (streng formateret som JSON):
+    
+    1. EKSPERTER: Find 2-3 danske eksperter der kunne interviewes om vinklen. For hver ekspert, angiv:
+       - navn (fuldt navn)
+       - titel (f.eks. "Professor i økonomi")
+       - organisation (deres universitet, forskningsinstitution, virksomhed, etc.)
+       - ekspertise (kort beskrivelse af deres faglige relevans for vinklen)
+    
+    2. KILDER: Identificer 2-3 relevante rapporter, undersøgelser eller andre kilder til at underbygge vinklen. For hver kilde, angiv:
+       - navn (titel på kilden)
+       - type (rapport, undersøgelse, database, osv.)
+       - beskrivelse (1-2 sætninger om hvad kilden indeholder relevant for vinklen)
+       - url (hvis du kender et specifikt link, ellers "N/A")
+    
+    3. STATISTIK: Foreslå 1-2 statistikker eller datakilder som kunne underbygge vinklen:
+       - beskrivelse (hvad statistikken viser)
+       - kilde (hvor data kommer fra)
+       - relevans (1 sætning om hvorfor denne statistik er relevant for vinklen)
+    
+    Returner svaret formateret som et JSON objekt med ovenstående felter. Vær meget specifikk og konkret, undgå vage eller generiske forslag. Giv kun realistiske, faktiske eksperter og kilder (ikke fiktion).
+    
+    Eksempel på JSON-format (her skal du erstatte med faktisk indhold baseret på vinkel og emne):
+    
+    ```json
+    {
+      "eksperter": [
+        {
+          "navn": "Peter Jensen",
+          "titel": "Professor i klimaforandringer",
+          "organisation": "Københavns Universitet",
+          "ekspertise": "Fokus på havniveaustigninger og kystområder"
+        }
+      ],
+      "kilder": [
+        {
+          "navn": "DMI's klimarapport 2023",
+          "type": "Årsrapport",
+          "beskrivelse": "Detaljeret analyse af klimaændringer i Danmark",
+          "url": "N/A"
+        }
+      ],
+      "statistik": [
+        {
+          "beskrivelse": "Havniveaustigning langs danske kyster 2010-2023",
+          "kilde": "Danmarks Statistik",
+          "relevans": "Dokumenterer den accelererende stigning i havniveau"
+        }
+      ]
+    }
+    ```
+    
+    Vær sikker på at eksperterne er relevante for det specifikke vinkel, ikke kun for det overordnede emne. Returner KUN det rene JSON-objekt uden forklaringer eller indledende tekst.
+    """
+
+    headers = {
+        "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    # Create a system prompt that emphasizes factual, concrete suggestions
+    system_prompt = """Du er en researcher for en dansk journalist, der skal foreslå reelle, faktiske eksperter, kilder og statistikker til en kommende artikel. 
+    Dine forslag skal være:
+    1. Konkrete og specifikke - ikke vage eller generelle
+    2. Faktuelle - brug kun reelle eksperter og organisationer der faktisk eksisterer i Danmark
+    3. Relevante - præcist målrettet vinklen og ikke kun det overordnede emne
+    4. Forskellige - undgå overlap i de foreslåede eksperter/kilder
+    5. Formateret præcist som JSON uden yderligere forklaringer
+    
+    Hvis du er i tvivl om en ekspert, kilde eller statistik, så prioritér kvalitet frem for kvantitet. Hellere færre, men meget relevante forslag."""
+
+    payload = {
+        "model": "sonar",  # Using the model with the most updated information 
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": 800,
+        "temperature": 0.2,  # Low temperature for factual responses
+        "top_p": 0.9,
+        "return_images": False,
+        "return_related_questions": False
+    }
+
+    # Update progress
+    if progress_callback:
+        await progress_callback(30)
+
+    try:
+        # Use our secure session creation function
+        async with await create_secure_api_session(dev_mode=dev_mode) as session:
+            async with session.post(PERPLEXITY_API_URL, headers=headers, json=payload) as response:
+                # Update progress
+                if progress_callback:
+                    await progress_callback(70)
+                
+                if response.status != 200:
+                    error_text = await response.text()
+                    log_error(f"Perplexity API Error for expert suggestions: {response.status}: {error_text[:200]}")
+                    return None
+                
+                data = await response.json()
+                
+                # Update progress
+                if progress_callback:
+                    await progress_callback(90)
+                
+                try:
+                    result = data['choices'][0]['message']['content']
+                    
+                    # Extract just the JSON part from the response
+                    import re
+                    
+                    # Try to find JSON content within code blocks
+                    json_match = re.search(r'```json\s*(.*?)\s*```', result, re.DOTALL)
+                    if json_match:
+                        json_str = json_match.group(1)
+                    else:
+                        # If no code block, try to find content that looks like JSON
+                        json_str = re.search(r'(\{.*\})', result, re.DOTALL)
+                        if json_str:
+                            json_str = json_str.group(1)
+                        else:
+                            # Just use the whole content as last resort
+                            json_str = result
+                    
+                    # Parse the JSON string
+                    parsed_data = json.loads(json_str)
+                    
+                    # Normalize field names to English for consistency in the code
+                    normalized_data = {
+                        "experts": parsed_data.get("eksperter", []),
+                        "sources": parsed_data.get("kilder", []),
+                        "statistics": parsed_data.get("statistik", [])
+                    }
+                    
+                    # Final progress update
+                    if progress_callback:
+                        await progress_callback(100)
+                    
+                    return normalized_data
+                    
+                except (KeyError, IndexError, json.JSONDecodeError) as e:
+                    log_warning(f"Failed to parse expert suggestions: {str(e)}")
+                    log_warning(f"Raw response: {result[:200]}...")
+                    return None
+                    
+    except Exception as e:
+        log_error(f"Error generating expert suggestions: {str(e)}")
+        return None
 
 async def create_secure_api_session(
     dev_mode: bool = False,
@@ -224,59 +426,32 @@ async def fetch_topic_information(topic: str, dev_mode: bool = False, bypass_cac
         rprint(f"[bold red]Request Error:[/bold red] {e}")
         return None
 
-def generate_angles(emne: str, topic_info: str, profile: Any, bypass_cache: bool = False) -> List[Dict[str, Any]]:
+async def generate_angles(
+    topic: str,
+    topic_info: str,
+    profile: RedaktionelDNA,
+    bypass_cache: bool = False
+) -> List[Dict[str, Any]]:
     """
-    Generate news angles for the given topic and profile.
-    
-    This function directly handles OpenAI API calls to generate angles due to issues
-    with the decorators adding unsupported parameters. It processes the response
-    and returns a list of structured angle dictionaries.
-    
-    Example of correct output (list of dict):
-      [
-        {
-          "overskrift": "Eksempelvinkel",
-          "beskrivelse": "Denne vinkel handler om...",
-          "nyhedskriterier": ["konflikt", "identifikation"],
-          ... 
-        },
-        ...
-      ]
-    
-    Args:
-        emne: The news topic.
-        topic_info: Background information on the topic.
-        profile: The editorial DNA profile.
-        bypass_cache: if True, bypass local cache (not used in this implementation).
-        
-    Returns:
-        A list of angle dictionaries.
-        
-    Raises:
-        ValueError: If angles cannot be generated
+    Genererer nyhedsvinkler baseret på emne, baggrundsinformation og profil.
     """
-    # Check for API key
     if not OPENAI_API_KEY:
         raise ValueError(
             "OpenAI API-nøgle mangler. Sørg for at have en OPENAI_API_KEY i din .env fil."
         )
     
     try:
-        # Import directly to ensure we're using the most recent version
         from openai import OpenAI
         
-        # Create a simple client with just the API key
         client = OpenAI(api_key=OPENAI_API_KEY)
         
-        # Convert profile into strings for prompt construction
         principper = "\n".join([f"- {p}" for p in profile.kerneprincipper])
         nyhedskriterier = "\n".join([f"- {k}: {v}" for k, v in profile.nyhedsprioritering.items()])
         fokusomrader = "\n".join([f"- {f}" for f in profile.fokusOmrader])
         nogo_omrader = "\n".join([f"- {n}" for n in profile.noGoOmrader]) if profile.noGoOmrader else "Ingen"
         
-        # Create the prompt
         prompt = construct_angle_prompt(
-            emne,
+            topic,
             topic_info,
             principper,
             profile.tone_og_stil,
@@ -285,85 +460,16 @@ def generate_angles(emne: str, topic_info: str, profile: Any, bypass_cache: bool
             nogo_omrader
         )
         
-        # Log the request
-        log_info(f"Sender anmodning til Claude API for emnet '{emne}'")
+        response = await client.send_request(prompt, temperature=0.7)
+        angles = parse_angles_from_response(response)
         
-        # Call the Anthropic Claude API instead of OpenAI
-        import requests
-        import os
-        
-        # Use API key from config
-        claude_api_key = ANTHROPIC_API_KEY
-        
-        if not claude_api_key:
-            raise ValueError(
-                "ANTHROPIC_API_KEY mangler i miljøvariablerne. Sørg for at tilføje denne til din .env fil."
-            )
-        
-        # Prepare system and user message with Claude's format
-        claude_messages = [
-            {"role": "system", "content": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler."},
-            {"role": "user", "content": prompt}
-        ]
-        
-        # Claude API call
-        claude_response = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "Content-Type": "application/json",
-                "x-api-key": claude_api_key,
-                "anthropic-version": "2023-06-01"
-            },
-            json={
-                "model": "claude-3-opus-20240229",
-                "max_tokens": 2500,
-                "temperature": 0.7,
-                "system": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler.",
-                "messages": [{"role": "user", "content": prompt}],
-            }
-        )
-        
-        # Parse Claude response
-        if claude_response.status_code != 200:
-            log_error(f"Claude API fejl: {claude_response.status_code}: {claude_response.text}")
-            raise ValueError(f"Claude API fejl: {claude_response.status_code}")
-            
-        response_data = claude_response.json()
-        response_text = response_data['content'][0]['text']
-        angles = parse_angles_from_response(response_text)
-        
-        # Log success
-        log_info(f"Genereret {len(angles)} vinkler succesfuldt")
-        
-        # Make sure we return a list
-        if not isinstance(angles, list):
-            if isinstance(angles, dict):
-                # Single angle in dict format
-                angles = [angles]
-            else:
-                log_error(f"Uventet format: {type(angles)}")
-                raise ValueError(f"Uventet format: {type(angles)}. Forventede en liste eller dict.")
-        
-        # Add perplexity information to each angle if available
-        if topic_info and isinstance(topic_info, str):
-            try:
-                # Extract first 1000 chars to keep it concise
-                perplexity_extract = topic_info[:1000] + ("..." if len(topic_info) > 1000 else "")
-                for angle in angles:
-                    if isinstance(angle, dict):
-                        angle['perplexityInfo'] = perplexity_extract
-            except Exception as e:
-                # Log but don't fail if we can't add perplexity info
-                log_warning(f"Kunne ikke tilføje perplexity information: {e}")
+        if not angles:
+            log_error(f"Failed to parse any angles for topic: {topic}")
         
         return angles
-        
     except Exception as e:
-        log_error(f"Uventet fejl ved generering af vinkler: {e}")
-        raise ValueError(
-            f"Uventet fejl ved generering af vinkler: {e}. "
-            "Kontakt venligst support hvis problemet fortsætter."
-        )
+        log_error(f"Error generating angles: {str(e)}")
+        return []
 
 # Temporarily removed decorators to debug the issue
 def call_angle_api(emne: str, topic_info: str, profile: Any, bypass_cache: bool = False) -> Any:

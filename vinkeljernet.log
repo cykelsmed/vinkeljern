@@ -1,13 +1,14 @@
-2025-04-03 15:58:21,640 - root - DEBUG - Logging initialized
-2025-04-03 15:58:21,641 - root - INFO - Vinkeljernet starting up
-2025-04-03 15:58:21,972 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-04-03 15:58:28,714 - markdown_it.rules_block.code - DEBUG - entering code: StateBlock(line=1,level=0,tokens=0), 1, 23, False
-2025-04-03 16:00:19,356 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'dev_mode': False, 'progress_callback': <function process_generation_request.<locals>.progress_callback at 0x104d4eac0>}
-2025-04-03 16:00:19,357 - vinkeljernet - INFO - Using Perplexity API key starting with pplx-U...mkop
-2025-04-03 16:00:19,357 - vinkeljernet - INFO - Indhenter information om emnet "protektonisme" via Perplexity...
-2025-04-03 16:00:19,357 - vinkeljernet - INFO - Using Perplexity API key (masked): pplx-...kop
-2025-04-03 16:00:19,357 - vinkeljernet - INFO - Request URL: https://api.perplexity.ai/chat/completions
-2025-04-03 16:00:31,268 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.anthropic.com:443
-2025-04-03 16:01:39,259 - urllib3.connectionpool - DEBUG - https://api.anthropic.com:443 "POST /v1/messages HTTP/1.1" 200 None
-2025-04-03 16:01:39,273 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.anthropic.com:443
-2025-04-03 16:01:41,525 - urllib3.connectionpool - DEBUG - https://api.anthropic.com:443 "POST /v1/messages HTTP/1.1" 200 None
+2025-04-03 22:12:37,656 - root - DEBUG - Logging initialized
+2025-04-03 22:12:37,656 - root - INFO - Vinkeljernet starting up
+2025-04-03 22:12:37,660 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
+2025-04-03 22:12:37,660 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
+2025-04-03 22:12:37,660 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
+2025-04-03 22:12:37,660 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
+2025-04-03 22:12:37,663 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-04-03 22:12:37,749 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-03 22:12:37,824 - vinkeljernet.api - INFO - API client initialized and ready
+2025-04-03 22:12:37,829 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: DR - Danmarks Radio
+2025-04-03 22:12:37,831 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-03 22:12:37,832 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-04-03 22:12:37,832 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x107c66a20>}
+2025-04-03 22:12:47,560 - vinkeljernet.api - INFO - Perplexity API request completed in 9.73 seconds

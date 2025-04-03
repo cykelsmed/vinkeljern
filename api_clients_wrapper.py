@@ -18,7 +18,7 @@ from error_handling import APIKeyMissingError, APIConnectionError
 # Logger setup
 logger = logging.getLogger("vinkeljernet.api_wrapper")
 
-# Set to True to use the optimized client, False to use the original
+# Always use the optimized client for better performance
 USE_OPTIMIZED_CLIENT = True
 
 def get_implementation():

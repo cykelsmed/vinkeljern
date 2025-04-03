@@ -731,7 +731,77 @@ def generate_editorial_considerations(topic, profile_name, angles):
         app.logger.error(f"Error generating editorial considerations: {e}")
         return f"Kunne ikke generere redaktionelle overvejelser: {str(e)}"
 
+async def process_generation_request_async(topic, profile):
+    """
+    Process a generation request using optimized asynchronous API calls.
+    
+    Args:
+        topic: News topic to generate angles for
+        profile: Editorial DNA profile to use
+        
+    Returns:
+        List[Dict]: Generated angles
+    """
+    try:
+        # Security: Validate input parameters first
+        sanitize_input(topic, max_length=200)
+        
+        # Use the optimized implementation from ai_providers_optimized
+        from ai_providers_optimized import process_generation_request_parallel
+        
+        # Define a progress tracker if needed
+        progress = {"value": 0}
+        
+        async def progress_callback(value):
+            progress["value"] = value
+        
+        # Call the optimized parallel implementation
+        return await process_generation_request_parallel(
+            topic=topic,
+            profile=profile,
+            progress_callback=progress_callback,
+            use_fast_models=True,  # Use faster models for better performance
+            timeout=45  # Reasonable timeout to prevent excessive waiting
+        )
+        
+    except Exception as e:
+        app.logger.error(f"Error in optimized angle generation: {e}")
+        # Fallback to the original implementation if available
+        try:
+            # Import the original implementation
+            from api_clients_wrapper import process_generation_request as original_process
+            
+            # Run the original in the event loop
+            return await original_process(topic, profile)
+        except Exception as fallback_error:
+            app.logger.error(f"Even fallback angle generation failed: {fallback_error}")
+            raise ValueError(f"Failed to generate angles: {e}")
+
 def process_generation_request(topic, profile):
+    """
+    Synchronous wrapper for the asynchronous process_generation_request function.
+    
+    This maintains backward compatibility with the existing API while using
+    the optimized async implementation internally.
+    """
+    # Create a new event loop if needed
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        # No event loop exists in current thread, create a new one
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    
+    try:
+        # Run the async function in the event loop
+        return loop.run_until_complete(process_generation_request_async(topic, profile))
+    except Exception as e:
+        app.logger.error(f"Error in process_generation_request: {e}")
+        # Re-raise for proper error handling upstream
+        raise
+
+# Original implementation kept for reference
+def _original_process_generation_request(topic, profile):
     """
     Process a generation request with synchronous API calls.
     
