@@ -1,4 +1,53 @@
+# Virtual environment
 venv/
+env/
+ENV/
+{venv_name}/
+
+# Environment variables and secrets
 .env
+.env.local
+.env.development
+.env.production
+
+# Python bytecode
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+
+# Development and IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Application specific
+*.log
+results/
+temp/
+cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# Documentation
+docs/_build/

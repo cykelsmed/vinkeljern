@@ -1,15 +1,27 @@
-# Core AI and orchestration
+# Core dependencies
 langchain==0.1.6
 openai==1.12.0
-
-# Data handling and validation
 pydantic==2.5.3
-PyYAML>=5.4
-
-# HTTP and API interaction
-requests>=2.25
 python-dotenv==1.0.0
+PyYAML==6.0.1
+requests==2.31.0
+anthropic==0.8.1
 
-# CLI formatting and display
-rich>=10.0
-prompt_toolkit>=3.0
+# Web interface
+Flask==2.3.3
+Flask-WTF==1.2.1
+Werkzeug==2.3.7
+WTForms==3.0.1
+pdfkit==1.0.0
+
+# CLI and formatting
+rich==13.6.0
+prompt_toolkit==3.0.41
+
+# Async support
+aiohttp==3.9.1
+asyncio==3.4.3
+
+# Error handling and networking
+urllib3==2.0.7
+certifi==2023.11.17

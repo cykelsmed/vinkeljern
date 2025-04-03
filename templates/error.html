@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Fejl {{ error_code }} | Vinkeljernet{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="mb-0">Fejl {{ error_code }}</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-4">{{ error_message }}</p>
+                    
+                    {% if error_details %}
+                    <div class="alert alert-secondary">
+                        <h5>Tekniske detaljer:</h5>
+                        <p>{{ error_details }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-house-door"></i> Gå til forsiden
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <small>Anmodnings-ID: {{ request_id }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

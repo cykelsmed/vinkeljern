@@ -12,6 +12,7 @@ import yaml
 import logging
 import os
 import glob
+import time
 from argparse import Namespace
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
@@ -19,7 +20,7 @@ from typing import List, Dict, Any, Optional, Tuple
 from rich import print as rprint
 from rich.console import Console
 from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from rich.table import Table
 from rich.markdown import Markdown
 from rich.syntax import Syntax
@@ -63,7 +64,14 @@ except Exception as e:
     sys.exit(1)
 
 from config_loader import load_and_validate_profile
-from api_clients import fetch_topic_information, generate_angles
+from api_clients_wrapper import (
+    fetch_topic_information, 
+    generate_angles, 
+    process_generation_request,
+    get_performance_metrics,
+    initialize_api_client,
+    shutdown_api_client
+)
 from angle_processor import filter_and_rank_angles
 
 # Initialize console
@@ -147,6 +155,24 @@ def parse_arguments() -> Namespace:
     )
     
     parser.add_argument(
+        "--performance",
+        action="store_true",
+        help="Vis ydeevne-statistik for API og cache"
+    )
+    
+    parser.add_argument(
+        "--optimize-cache",
+        action="store_true",
+        help="Optimer disk-cachen (fjern forældede og komprimér)"
+    )
+    
+    parser.add_argument(
+        "--detailed",
+        action="store_true",
+        help="Få mere detaljeret information om emnet"
+    )
+    
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="Aktiver debug tilstand med ekstra output"
@@ -171,6 +197,12 @@ async def main_async() -> None:
     # Parse command-line arguments
     args = parse_arguments()
     
+    # Initialize API client for optimized performance
+    try:
+        await initialize_api_client()
+    except Exception as e:
+        logging.warning(f"Failed to initialize API client: {e}")
+    
     # Print start message with nice formatting
     console.print(Panel.fit(
         "[bold blue]Vinkeljernet[/bold blue] - Journalistisk vinkelgenerator",
@@ -184,18 +216,33 @@ async def main_async() -> None:
     console.print(f"  [green]Output fil:[/green] {args.output if args.output else 'Ingen (viser i terminalen)'}")
     if args.dev_mode:
         console.print("  [yellow]⚠️ Udvikler-tilstand aktiveret (usikker SSL)[/yellow]")
+    if args.detailed:
+        console.print("  [green]Detaljeret emne-information aktiveret[/green]")
     
+    # Handle cache operations
     if args.clear_cache:
         from cache_manager import clear_cache
         num_cleared = clear_cache()
         console.print(f"[yellow]Cache ryddet: {num_cleared} filer slettet[/yellow]")
     
+    if args.optimize_cache:
+        from cache_manager import optimize_cache
+        result = optimize_cache()
+        console.print("[yellow]Cache optimeret[/yellow]")
+        console.print(f"  Filer behandlet: {result['files_processed']}")
+        console.print(f"  Filer komprimeret: {result['files_recompressed']}")
+        console.print(f"  Forældede filer fjernet: {result['files_removed']}")
+        console.print(f"  Plads sparet: {result['mb_saved']:.2f} MB")
+    
+    # Handle circuit breaker operations
     if args.reset_circuits:
         from retry_manager import reset_circuit
         reset_circuit("perplexity_api")
         reset_circuit("openai_api")
+        reset_circuit("anthropic_api")
         console.print("[yellow]Alle circuit breakers nulstillet[/yellow]")
 
+    # Show circuit breaker status if requested
     if args.show_circuits:
         from retry_manager import get_circuit_stats
         stats = get_circuit_stats()
@@ -223,6 +270,46 @@ async def main_async() -> None:
         
         console.print("\n[bold blue]Circuit Breaker Status:[/bold blue]")
         console.print(circuit_table)
+    
+    # Show performance metrics if requested
+    if args.performance:
+        metrics = get_performance_metrics()
+        
+        # Display API metrics
+        api_metrics = metrics.get("api", {})
+        console.print("\n[bold blue]API Ydeevne Statistik:[/bold blue]")
+        
+        api_table = Table(show_header=True, header_style="bold blue")
+        api_table.add_column("Metrik", style="dim")
+        api_table.add_column("Værdi")
+        
+        if "note" in api_metrics:
+            # Simple metrics
+            api_table.add_row("Besked", api_metrics["note"])
+        else:
+            # Advanced metrics
+            api_table.add_row("Successrate", api_metrics.get("success_rate", "N/A"))
+            api_table.add_row("Cache træfrate", api_metrics.get("cache_hit_rate", "N/A"))
+            api_table.add_row("Total antal kald", str(api_metrics.get("total_requests", "N/A")))
+            api_table.add_row("Succesfulde kald", str(api_metrics.get("successful_requests", "N/A")))
+            api_table.add_row("Fejlede kald", str(api_metrics.get("failed_requests", "N/A")))
+            api_table.add_row("Gennemsnitlig latens", f"{api_metrics.get('average_latency_ms', 'N/A')} ms")
+            api_table.add_row("Driftstid", api_metrics.get("uptime_formatted", "N/A"))
+        
+        console.print(api_table)
+        
+        # Display cache metrics
+        cache_metrics = metrics.get("cache", {})
+        console.print("\n[bold blue]Cache Statistik:[/bold blue]")
+        
+        cache_table = Table(show_header=True, header_style="bold blue")
+        cache_table.add_column("Metrik", style="dim")
+        cache_table.add_column("Værdi")
+        
+        for key, value in cache_metrics.items():
+            cache_table.add_row(key, str(value))
+        
+        console.print(cache_table)
     
     # Load and validate profile with progress spinner
     profile = None
@@ -265,273 +352,97 @@ async def main_async() -> None:
     table.add_row("Kerneprincipper", principles)
     table.add_row("Tone og stil", profile.tone_og_stil)
     table.add_row("Antal nyhedskriterier", str(len(profile.nyhedsprioritering)))
-    table.add_row("Antal fokusområder", str(len(profile.fokusOmrader)))     # Updated attribute name
-    table.add_row("Antal no-go områder", str(len(profile.noGoOmrader)))         # Updated attribute name
+    table.add_row("Antal fokusområder", str(len(profile.fokusOmrader)))
+    table.add_row("Antal no-go områder", str(len(profile.noGoOmrader)))
 
     console.print(table)
     
-    # Get information about the topic with progress bar
-    topic_info = None
-    with Progress(
-        SpinnerColumn(),
-        TextColumn(f"[bold blue]Henter information om \"{args.emne}\"..."),
-        console=console,
-        transient=True
-    ) as progress:
-        task = progress.add_task("Researching", total=100)
-        
-        # Set up a callback to update progress
-        async def progress_callback(percent: int):
-            progress.update(task, completed=percent)
-        
-        # Start with initial progress
-        progress.update(task, completed=10)
-        
-        # Fetch topic information with progress updates
-        topic_info = await fetch_topic_information(
-            args.emne, 
-            dev_mode=args.dev_mode, 
-            bypass_cache=args.bypass_cache,
-            progress_callback=progress_callback
-        )
-        
-        # Ensure completed at the end
-        progress.update(task, completed=100)
+    # Record start time for performance measurement
+    start_time = time.time()
     
-    if topic_info:
-        console.print("[green]✓[/green] Baggrundsinformation indhentet")
-    else:
-        console.print("[yellow]⚠️ Kunne ikke indhente detaljeret baggrundsinformation[/yellow]")
-        console.print("[yellow]  Fortsætter med begrænset kontekst[/yellow]")
-        # Set a minimal fallback for topic_info
-        topic_info = f"Emnet handler om {args.emne}. Ingen yderligere baggrundsinformation tilgængelig."
-    
-    # Generate angles with progress bar
+    # Process generation request with optimized client
     angles = None
     with Progress(
         SpinnerColumn(),
-        TextColumn(f"[bold blue]Genererer vinkler..."),
+        BarColumn(),
+        TextColumn("[bold blue]{task.description}[/bold blue] {task.percentage:>3.0f}%"),
         console=console,
         transient=True
     ) as progress:
-        task = progress.add_task("Generating", total=100)
+        # Set up a callback to update progress
+        async def progress_callback(percent: int):
+            progress.update(task, completed=percent)
+            
+            # Update task description based on progress
+            if percent < 30:
+                progress.update(task, description="Henter information om emnet...")
+            elif percent < 70:
+                progress.update(task, description="Genererer vinkler...")
+            elif percent < 90:
+                progress.update(task, description="Finder kilder og filtrerer...")
+            else:
+                progress.update(task, description="Færdiggør resultater...")
         
-        # Start with initial progress
-        progress.update(task, completed=5)
+        # Create progress task
+        task = progress.add_task("Starter processen...", total=100)
         
-        # Direct OpenAI API call to bypass any decorators that might inject 'proxies'
         try:
-            # Import directly to ensure we're using the correct version
-            import os
-            import sys
-            from prompt_engineering import construct_angle_prompt, parse_angles_from_response
-            
-            # Use Claude API instead of OpenAI
-            print("DEBUG - Using Claude API instead of OpenAI")
-            
-            # Convert profile into strings for prompt construction
-            principper = "\n".join([f"- {p}" for p in profile.kerneprincipper])
-            nyhedskriterier = "\n".join([f"- {k}: {v}" for k, v in profile.nyhedsprioritering.items()])
-            fokusomrader = "\n".join([f"- {f}" for f in profile.fokusOmrader])
-            nogo_omrader = "\n".join([f"- {n}" for n in profile.noGoOmrader]) if profile.noGoOmrader else "Ingen"
-            
-            # Create the prompt
-            prompt = construct_angle_prompt(
+            # Avoid name conflict: Import the API wrapper function with a different name
+            from api_clients_wrapper import process_generation_request as api_process_request
+            angles = await api_process_request(
                 args.emne,
-                topic_info,
-                principper,
-                profile.tone_og_stil,
-                fokusomrader,
-                nyhedskriterier,
-                nogo_omrader
+                profile,
+                bypass_cache=args.bypass_cache,
+                progress_callback=progress_callback
             )
             
-            # Update progress after creating prompt
-            progress.update(task, completed=20)
+            # Ensure progress is complete
+            progress.update(task, completed=100, description="Færdig!")
             
-            # Use Claude API instead
-            import requests
-            from config import ANTHROPIC_API_KEY
-            
-            # Update progress before API call
-            progress.update(task, completed=30)
-            
-            # Claude API call
-            # Define a function to simulate streaming updates during the Claude API call
-            def update_progress_periodically():
-                import threading
-                import time
-                
-                current = 30
-                target = 65
-                step = 5
-                delay = 2  # seconds between updates
-                
-                def updater():
-                    nonlocal current
-                    while current < target:
-                        time.sleep(delay)
-                        current += step
-                        progress.update(task, completed=min(current, target))
-                
-                # Start the updater in a separate thread
-                thread = threading.Thread(target=updater)
-                thread.daemon = True
-                thread.start()
-                
-                return thread
-            
-            # Start progress updates
-            progress_thread = update_progress_periodically()
-            
-            # Make the actual API call
-            claude_response = requests.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "Content-Type": "application/json",
-                    "x-api-key": ANTHROPIC_API_KEY,
-                    "anthropic-version": "2023-06-01"
-                },
-                json={
-                    "model": "claude-3-opus-20240229",
-                    "max_tokens": 2500,
-                    "temperature": 0.7,
-                    "system": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler.",
-                    "messages": [{"role": "user", "content": prompt}],
-                }
-            )
-            
-            # Update progress after receiving API response
-            progress.update(task, completed=70)
-            
-            # Parse Claude response
-            if claude_response.status_code != 200:
-                print(f"Claude API fejl: {claude_response.status_code}: {claude_response.text}")
-                raise ValueError(f"Claude API fejl: {claude_response.status_code}")
-                
-            response_data = claude_response.json()
-            print(f"DEBUG - Claude API response: {response_data}")
-            response_text = response_data['content'][0]['text']
-            print(f"DEBUG - Claude API response text: {response_text[:500]}...")
-            angles = parse_angles_from_response(response_text)
-            
-            # Update progress after parsing angles
-            progress.update(task, completed=80)
-            
-            # Add perplexity information to each angle
-            if angles and isinstance(angles, list):
-                perplexity_extract = topic_info[:1000] + ("..." if len(topic_info) > 1000 else "")
-                
-                # Generate source suggestions using Claude
-                source_suggestions_prompt = f"""
-                Baseret på emnet '{args.emne}', giv en kort liste med 3-5 relevante og troværdige danske kilder, 
-                som en journalist kunne bruge til research. Inkluder officielle hjemmesider, forskningsinstitutioner, 
-                eksperter og organisationer. Formater som en simpel punktopstilling med korte beskrivelser på dansk.
-                Hold dit svar under 250 ord og fokuser kun på de mest pålidelige kilder.
-                """
-                
-                # Claude API call for source suggestions
-                try:
-                    # Update progress before source suggestions API call
-                    progress.update(task, completed=85)
-                
-                    # Call the API
-                    source_response = requests.post(
-                        "https://api.anthropic.com/v1/messages",
-                        headers={
-                            "Content-Type": "application/json",
-                            "x-api-key": ANTHROPIC_API_KEY,
-                            "anthropic-version": "2023-06-01"
-                        },
-                        json={
-                            "model": "claude-3-haiku-20240307",
-                            "max_tokens": 500,
-                            "temperature": 0.2,
-                            "system": "Du er en hjælpsom researchassistent med stort kendskab til troværdige danske kilder. Du svarer altid på dansk.",
-                            "messages": [{"role": "user", "content": source_suggestions_prompt}],
-                        }
-                    )
-                    
-                    # Update progress after source suggestions API call
-                    progress.update(task, completed=90)
-                    
-                    if source_response.status_code == 200:
-                        source_data = source_response.json()
-                        source_text = source_data['content'][0]['text']
-                        
-                        # Update progress after getting source suggestions
-                        progress.update(task, completed=95)
-                        
-                        # Add both perplexity info and source suggestions to each angle
-                        for angle in angles:
-                            if isinstance(angle, dict):
-                                angle['perplexityInfo'] = perplexity_extract
-                                angle['kildeForslagInfo'] = source_text
-                    else:
-                        # If source generation fails, just add perplexity info
-                        print(f"Failed to generate source suggestions: {source_response.status_code}: {source_response.text}")
-                        for angle in angles:
-                            if isinstance(angle, dict):
-                                angle['perplexityInfo'] = perplexity_extract
-                except Exception as e:
-                    print(f"Error generating source suggestions: {e}")
-                    # If there's an error, just add perplexity info
-                    for angle in angles:
-                        if isinstance(angle, dict):
-                            angle['perplexityInfo'] = perplexity_extract
         except Exception as e:
-            console.print(f"[bold red]Error during direct API call:[/bold red] {e}")
-            # Fall back to the regular function for logging purposes
-            angles = generate_angles(args.emne, topic_info, profile, bypass_cache=args.bypass_cache)
-        
-        progress.update(task, completed=True)
+            progress.update(task, completed=100, description="Fejlet!")
+            console.print(f"\n[bold red]Fejl under vinkelgenerering:[/bold red] {e}")
+            
+            # Try fallback if the optimized client fails
+            console.print("[yellow]Forsøger med backup-metode...[/yellow]")
+            try:
+                # First get topic info
+                topic_info = await fetch_topic_information(
+                    args.emne, 
+                    dev_mode=args.dev_mode, 
+                    bypass_cache=args.bypass_cache,
+                    detailed=args.detailed
+                )
+                
+                if not topic_info:
+                    topic_info = f"Emnet handler om {args.emne}. Ingen yderligere baggrundsinformation tilgængelig."
+                
+                # Then generate angles with topic info
+                angles = generate_angles(args.emne, topic_info, profile, bypass_cache=args.bypass_cache)
+                
+            except Exception as fallback_error:
+                console.print(f"[bold red]Backup-metode fejlede også:[/bold red] {fallback_error}")
+                sys.exit(1)
+    
+    # Calculate and display performance
+    execution_time = time.time() - start_time
+    console.print(f"[dim]Udførelsestid: {execution_time:.2f} sekunder[/dim]")
     
     # Check if we have any angles
     if not angles:
         console.print("[bold red]Ingen vinkler kunne genereres.[/bold red]")
         console.print("[yellow]Mulige årsager:[/yellow]")
-        console.print("  - API-fejl ved forbindelse til OpenAI")
+        console.print("  - API-fejl ved forbindelse til AI-tjenester")
         console.print("  - Emnet er for specifikt eller ukendt")
         console.print("  - Profilen er for restriktiv")
         console.print("[yellow]Prøv et andet emne eller kontrollér API-nøglen.[/yellow]")
         sys.exit(1)
     
-    console.print(f"[green]✓[/green] Genereret {len(angles)} råvinkler")
-    
-    # Filter and rank angles with progress bar
-    ranked_angles = None
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[bold blue]Filtrerer og rangerer vinkler..."),
-        console=console,
-        transient=True
-    ) as progress:
-        task = progress.add_task("Filtering", total=100)
-        try:
-            # Start with initial progress
-            progress.update(task, completed=10)
-            
-            # Show progress steps in filtering process
-            progress.update(task, completed=30)
-            ranked_angles = safe_process_angles(angles, profile, 5)
-            progress.update(task, completed=100)
-        except Exception as e:
-            progress.update(task, completed=100)
-            console.print(f"[bold red]Fejl ved filtrering af vinkler:[/bold red] {e}")
-            console.print("[yellow]Forsøger at fortsætte med ufiltrerede vinkler...[/yellow]")
-            # Fallback: use the first 5 angles or all if less than 5
-            ranked_angles = angles[:min(5, len(angles))]
-    
-    if not ranked_angles:
-        console.print("[bold red]Ingen vinkler tilbage efter filtrering.[/bold red]")
-        console.print("[yellow]Emnet matcher muligvis ikke mediets profil, eller alle genererede vinkler rammer no-go områder.[/yellow]")
-        sys.exit(1)
-    
-    console.print(f"[green]✓[/green] Rangeret og filtreret til {len(ranked_angles)} vinkler")
+    console.print(f"[green]✓[/green] Genereret {len(angles)} vinkler")
     
     # Present results with nice formatting
     console.print("\n[bold blue]🎯 Anbefalede vinkler:[/bold blue]")
-    for i, angle in enumerate(ranked_angles, 1):
+    for i, angle in enumerate(angles, 1):
         # Handle potentially missing keys with .get()
         headline = angle.get('overskrift', 'Ingen overskrift')
         description = angle.get('beskrivelse', 'Ingen beskrivelse')
@@ -573,7 +484,7 @@ async def main_async() -> None:
             profile_name = Path(args.profil).stem
             
             format_angles(
-                ranked_angles, 
+                angles, 
                 format_type=args.format,
                 profile_name=profile_name,
                 topic=args.emne,
@@ -584,13 +495,19 @@ async def main_async() -> None:
         except ImportError:
             # Fallback to JSON if formatter module not available
             with open(args.output, 'w', encoding='utf-8') as outfile:
-                json.dump(ranked_angles, outfile, ensure_ascii=False, indent=2)
+                json.dump(angles, outfile, ensure_ascii=False, indent=2)
             console.print(f"\n[green]✓[/green] Resultater gemt i {args.output} (JSON format)")
         except IOError as e:
             console.print(f"\n[bold red]Fejl ved skrivning til fil:[/bold red] {e}")
             console.print(f"[yellow]Tjek om stien eksisterer og om du har skriverettigheder.[/yellow]")
         except Exception as e:
             console.print(f"\n[bold red]Uventet fejl ved skrivning til fil:[/bold red] {e}")
+            
+    # Properly clean up API client on exit
+    try:
+        await shutdown_api_client()
+    except Exception as e:
+        logging.warning(f"Error shutting down API client: {e}")
     
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -897,14 +814,19 @@ async def run_interactive_cli() -> None:
 
 
 async def process_generation_request(args) -> None:
-    """Process a generation request with the given args, similar to main_async but for interactive mode."""
-    # Most of this function is copied from main_async, but with some modifications for interactive mode
+    """Process a generation request with the given args using the optimized API client."""
     
     # Print start message with nice formatting
     console.print(Panel.fit(
         f"[bold blue]Genererer vinkler for: {args.emne}[/bold blue]",
         border_style="blue"
     ))
+    
+    # Initialize API client for optimized performance
+    try:
+        await initialize_api_client()
+    except Exception as e:
+        logging.warning(f"Failed to initialize API client: {e}")
     
     # Load and validate profile
     profile = None
@@ -934,256 +856,90 @@ async def process_generation_request(args) -> None:
     
     console.print("[green]✓[/green] Profil indlæst og valideret")
     
-    # Get information about the topic with progress bar
-    topic_info = None
-    with Progress(
-        SpinnerColumn(),
-        TextColumn(f"[bold blue]Henter information om \"{args.emne}\"..."),
-        console=console,
-        transient=True
-    ) as progress:
-        task = progress.add_task("Researching", total=100)
-        
-        # Set up a callback to update progress
-        async def progress_callback(percent: int):
-            progress.update(task, completed=percent)
-        
-        # Start with initial progress
-        progress.update(task, completed=10)
-        
-        # Fetch topic information with progress updates
-        topic_info = await fetch_topic_information(
-            args.emne, 
-            dev_mode=args.dev_mode, 
-            bypass_cache=args.bypass_cache,
-            progress_callback=progress_callback
-        )
-        
-        # Ensure completed at the end
-        progress.update(task, completed=100)
+    # Record start time for performance measurement
+    start_time = time.time()
     
-    if topic_info:
-        console.print("[green]✓[/green] Baggrundsinformation indhentet")
-    else:
-        console.print("[yellow]⚠️ Kunne ikke indhente detaljeret baggrundsinformation[/yellow]")
-        console.print("[yellow]  Fortsætter med begrænset kontekst[/yellow]")
-        # Set a minimal fallback for topic_info
-        topic_info = f"Emnet handler om {args.emne}. Ingen yderligere baggrundsinformation tilgængelig."
-    
-    # Generate angles with progress bar
+    # Process generation request with optimized client
     angles = None
     with Progress(
         SpinnerColumn(),
-        TextColumn(f"[bold blue]Genererer vinkler..."),
+        BarColumn(),
+        TextColumn("[bold blue]{task.description}[/bold blue] {task.percentage:>3.0f}%"),
         console=console,
         transient=True
     ) as progress:
-        task = progress.add_task("Generating", total=100)
+        # Set up a callback to update progress
+        async def progress_callback(percent: int):
+            progress.update(task, completed=percent)
+            
+            # Update task description based on progress
+            if percent < 30:
+                progress.update(task, description="Henter information om emnet...")
+            elif percent < 70:
+                progress.update(task, description="Genererer vinkler...")
+            elif percent < 90:
+                progress.update(task, description="Finder kilder og filtrerer...")
+            else:
+                progress.update(task, description="Færdiggør resultater...")
         
-        # Start with initial progress
-        progress.update(task, completed=5)
+        # Create progress task
+        task = progress.add_task("Starter processen...", total=100)
         
-        # Direct API call to generate angles
         try:
-            # Use the same code as in main_async()
-            import os
-            import sys
-            from prompt_engineering import construct_angle_prompt, parse_angles_from_response
-            
-            # Convert profile into strings for prompt construction
-            principper = "\n".join([f"- {p}" for p in profile.kerneprincipper])
-            nyhedskriterier = "\n".join([f"- {k}: {v}" for k, v in profile.nyhedsprioritering.items()])
-            fokusomrader = "\n".join([f"- {f}" for f in profile.fokusOmrader])
-            nogo_omrader = "\n".join([f"- {n}" for n in profile.noGoOmrader]) if profile.noGoOmrader else "Ingen"
-            
-            # Create the prompt
-            prompt = construct_angle_prompt(
+            # Avoid name conflict: Import the API wrapper function with a different name
+            from api_clients_wrapper import process_generation_request as api_process_request
+            angles = await api_process_request(
                 args.emne,
-                topic_info,
-                principper,
-                profile.tone_og_stil,
-                fokusomrader,
-                nyhedskriterier,
-                nogo_omrader
+                profile,
+                bypass_cache=args.bypass_cache,
+                progress_callback=progress_callback
             )
             
-            # Update progress after creating prompt
-            progress.update(task, completed=20)
+            # Ensure progress is complete
+            progress.update(task, completed=100, description="Færdig!")
             
-            # Use Claude API
-            import requests
-            from config import ANTHROPIC_API_KEY
-            
-            # Define function to update progress periodically
-            def update_progress_periodically():
-                import threading
-                import time
-                
-                current = 30
-                target = 65
-                step = 5
-                delay = 2
-                
-                def updater():
-                    nonlocal current
-                    while current < target:
-                        time.sleep(delay)
-                        current += step
-                        progress.update(task, completed=min(current, target))
-                
-                thread = threading.Thread(target=updater)
-                thread.daemon = True
-                thread.start()
-                
-                return thread
-            
-            # Start progress updates
-            progress_thread = update_progress_periodically()
-            
-            # Make the API call
-            claude_response = requests.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "Content-Type": "application/json",
-                    "x-api-key": ANTHROPIC_API_KEY,
-                    "anthropic-version": "2023-06-01"
-                },
-                json={
-                    "model": "claude-3-opus-20240229",
-                    "max_tokens": 2500,
-                    "temperature": 0.7,
-                    "system": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler.",
-                    "messages": [{"role": "user", "content": prompt}],
-                }
-            )
-            
-            # Update progress after receiving API response
-            progress.update(task, completed=70)
-            
-            # Parse Claude response
-            if claude_response.status_code != 200:
-                raise ValueError(f"Claude API fejl: {claude_response.status_code}")
-                
-            response_data = claude_response.json()
-            response_text = response_data['content'][0]['text']
-            
-            if args.debug:
-                console.print(f"[dim]API Response debug: {response_text[:300]}...[/dim]")
-                
-            angles = parse_angles_from_response(response_text)
-            
-            # Update progress after parsing angles
-            progress.update(task, completed=80)
-            
-            # Add perplexity information to each angle
-            if angles and isinstance(angles, list):
-                perplexity_extract = topic_info[:1000] + ("..." if len(topic_info) > 1000 else "")
-                
-                # Generate source suggestions using Claude
-                source_suggestions_prompt = f"""
-                Baseret på emnet '{args.emne}', giv en kort liste med 3-5 relevante og troværdige danske kilder, 
-                som en journalist kunne bruge til research. Inkluder officielle hjemmesider, forskningsinstitutioner, 
-                eksperter og organisationer. Formater som en simpel punktopstilling med korte beskrivelser på dansk.
-                Hold dit svar under 250 ord og fokuser kun på de mest pålidelige kilder.
-                """
-                
-                # Claude API call for source suggestions
-                try:
-                    # Update progress before source suggestions API call
-                    progress.update(task, completed=85)
-                
-                    # Call the API
-                    source_response = requests.post(
-                        "https://api.anthropic.com/v1/messages",
-                        headers={
-                            "Content-Type": "application/json",
-                            "x-api-key": ANTHROPIC_API_KEY,
-                            "anthropic-version": "2023-06-01"
-                        },
-                        json={
-                            "model": "claude-3-haiku-20240307",
-                            "max_tokens": 500,
-                            "temperature": 0.2,
-                            "system": "Du er en hjælpsom researchassistent med stort kendskab til troværdige danske kilder. Du svarer altid på dansk.",
-                            "messages": [{"role": "user", "content": source_suggestions_prompt}],
-                        }
-                    )
-                    
-                    # Update progress after source suggestions API call
-                    progress.update(task, completed=90)
-                    
-                    if source_response.status_code == 200:
-                        source_data = source_response.json()
-                        source_text = source_data['content'][0]['text']
-                        
-                        # Update progress after getting source suggestions
-                        progress.update(task, completed=95)
-                        
-                        # Add both perplexity info and source suggestions to each angle
-                        for angle in angles:
-                            if isinstance(angle, dict):
-                                angle['perplexityInfo'] = perplexity_extract
-                                angle['kildeForslagInfo'] = source_text
-                    else:
-                        # If source generation fails, just add perplexity info
-                        for angle in angles:
-                            if isinstance(angle, dict):
-                                angle['perplexityInfo'] = perplexity_extract
-                except Exception as e:
-                    # If there's an error, just add perplexity info
-                    for angle in angles:
-                        if isinstance(angle, dict):
-                            angle['perplexityInfo'] = perplexity_extract
         except Exception as e:
-            console.print(f"[bold red]Error during direct API call:[/bold red] {e}")
-            return
-        
-        progress.update(task, completed=True)
+            progress.update(task, completed=100, description="Fejlet!")
+            console.print(f"\n[bold red]Fejl under vinkelgenerering:[/bold red] {e}")
+            
+            # Try fallback if the optimized client fails
+            console.print("[yellow]Forsøger med backup-metode...[/yellow]")
+            try:
+                # First get topic info
+                topic_info = await fetch_topic_information(
+                    args.emne, 
+                    dev_mode=args.dev_mode, 
+                    bypass_cache=args.bypass_cache
+                )
+                
+                if not topic_info:
+                    topic_info = f"Emnet handler om {args.emne}. Ingen yderligere baggrundsinformation tilgængelig."
+                
+                # Then generate angles with topic info
+                angles = generate_angles(args.emne, topic_info, profile, bypass_cache=args.bypass_cache)
+                
+            except Exception as fallback_error:
+                console.print(f"[bold red]Backup-metode fejlede også:[/bold red] {fallback_error}")
+                return
+    
+    # Calculate and display performance
+    execution_time = time.time() - start_time
+    console.print(f"[dim]Udførelsestid: {execution_time:.2f} sekunder[/dim]")
     
     # Check if we have any angles
     if not angles:
         console.print("[bold red]Ingen vinkler kunne genereres.[/bold red]")
         console.print("[yellow]Mulige årsager:[/yellow]")
-        console.print("  - API-fejl ved forbindelse til Claude")
+        console.print("  - API-fejl ved forbindelse til AI-tjenester")
         console.print("  - Emnet er for specifikt eller ukendt")
         console.print("  - Profilen er for restriktiv")
         return
     
-    console.print(f"[green]✓[/green] Genereret {len(angles)} råvinkler")
-    
-    # Filter and rank angles with progress bar
-    ranked_angles = None
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[bold blue]Filtrerer og rangerer vinkler..."),
-        console=console,
-        transient=True
-    ) as progress:
-        task = progress.add_task("Filtering", total=100)
-        try:
-            # Start with initial progress
-            progress.update(task, completed=10)
-            
-            # Show progress steps in filtering process
-            progress.update(task, completed=30)
-            ranked_angles = safe_process_angles(angles, profile, 5)
-            progress.update(task, completed=100)
-        except Exception as e:
-            progress.update(task, completed=100)
-            console.print(f"[bold red]Fejl ved filtrering af vinkler:[/bold red] {e}")
-            console.print("[yellow]Forsøger at fortsætte med ufiltrerede vinkler...[/yellow]")
-            ranked_angles = angles[:min(5, len(angles))]
-    
-    if not ranked_angles:
-        console.print("[bold red]Ingen vinkler tilbage efter filtrering.[/bold red]")
-        console.print("[yellow]Emnet matcher muligvis ikke mediets profil, eller alle genererede vinkler rammer no-go områder.[/yellow]")
-        return
-    
-    console.print(f"[green]✓[/green] Rangeret og filtreret til {len(ranked_angles)} vinkler")
+    console.print(f"[green]✓[/green] Genereret {len(angles)} vinkler")
     
     # Present results with nice formatting
     console.print("\n[bold blue]🎯 Anbefalede vinkler:[/bold blue]")
-    for i, angle in enumerate(ranked_angles, 1):
+    for i, angle in enumerate(angles, 1):
         # Handle potentially missing keys with .get()
         headline = angle.get('overskrift', 'Ingen overskrift')
         description = angle.get('beskrivelse', 'Ingen beskrivelse')
@@ -1215,6 +971,12 @@ async def process_generation_request(args) -> None:
             border_style="green",
             expand=False
         ))
+    
+    # Clean up resources
+    try:
+        await shutdown_api_client()
+    except Exception as e:
+        logging.warning(f"Error shutting down API client: {e}")
     
     # Ask if user wants to save the output
     def ask_save_output():
@@ -1376,6 +1138,11 @@ def main() -> None:
             
     except KeyboardInterrupt:
         console.print("\n[yellow]Program afbrudt af bruger.[/yellow]")
+        # Do a final attempt to clean up resources
+        try:
+            asyncio.run(shutdown_api_client())
+        except:
+            pass
         sys.exit(0)
     except ValueError as e:
         # Håndter ValueError separat, da disse ofte er forventede fejl
@@ -1384,6 +1151,12 @@ def main() -> None:
     except Exception as e:
         console.print(f"\n[bold red]Uventet fejl:[/bold red] {e}")
         console.print("[yellow]Dette er sandsynligvis en bug i programmet. Indsend venligst en fejlrapport.[/yellow]")
+        
+        # Do a final attempt to clean up resources
+        try:
+            asyncio.run(shutdown_api_client())
+        except:
+            pass
         sys.exit(1)
 
 
