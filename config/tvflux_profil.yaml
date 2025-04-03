@@ -1,0 +1,26 @@
+# config/tvflux_profil.yaml
+navn: "TV Flux"
+beskrivelse: "Uafhængigt video-baseret medie med fokus på undergrundsjournalistik, sociale spørgsmål, protester og fællesskabsbegivenheder, der dækker historier som andre medier overser."
+
+kerneprincipper:
+  - "Underholdende"
+  - "Kreativ"
+  - "Provokerende"
+
+tone_og_stil: "Dynamisk og uforudsigelig med et strejf af humor"
+
+nyhedsprioritering:
+  identifikation: 5
+  aktualitet: 4
+  konflikt: 3
+  sensation: 5
+  væsentlighed: 2
+
+fokusområder:
+  - "popkultur"
+  - "teknologi"
+  - "samfundstendenser"
+
+nogo_områder:
+  - "overdreven politisk korrekthed"
+  - "ensretet indhold"

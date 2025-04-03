@@ -133,8 +133,19 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
         
         return angles
     
-    except json.JSONDecodeError:
-        print("Error: Response is not valid JSON")
+    except json.JSONDecodeError as e:
+        print(f"Error: Response is not valid JSON: {e}")
+        # Try to find where JSON might start in the response
+        try:
+            json_start = response_text.find("```json")
+            json_end = response_text.rfind("```")
+            if json_start != -1 and json_end != -1 and json_end > json_start:
+                # Extract JSON from code block
+                json_content = response_text[json_start+7:json_end].strip()
+                print(f"Attempting to parse extracted JSON: {json_content[:100]}...")
+                return json.loads(json_content)
+        except Exception as e2:
+            print(f"Failed to extract JSON from markdown blocks: {e2}")
         return []
     except Exception as e:
         print(f"Error parsing angles: {str(e)}")

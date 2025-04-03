@@ -38,7 +38,7 @@ except ImportError:
         class RateLimitError(Exception):
             pass
 
-from config import PERPLEXITY_API_KEY, OPENAI_API_KEY
+from config import PERPLEXITY_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY
 from models import RedaktionelDNA
 from prompt_engineering import construct_angle_prompt, parse_angles_from_response
 import asyncio
@@ -260,21 +260,50 @@ def generate_angles(emne: str, topic_info: str, profile: Any, bypass_cache: bool
         )
         
         # Log the request
-        log_info(f"Sender anmodning til OpenAI API for emnet '{emne}'")
+        log_info(f"Sender anmodning til Claude API for emnet '{emne}'")
         
-        # Call the OpenAI API with minimal parameters
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=2500
+        # Call the Anthropic Claude API instead of OpenAI
+        import requests
+        import os
+        
+        # Use API key from config
+        claude_api_key = ANTHROPIC_API_KEY
+        
+        if not claude_api_key:
+            raise ValueError(
+                "ANTHROPIC_API_KEY mangler i miljøvariablerne. Sørg for at tilføje denne til din .env fil."
+            )
+        
+        # Prepare system and user message with Claude's format
+        claude_messages = [
+            {"role": "system", "content": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        # Claude API call
+        claude_response = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": claude_api_key,
+                "anthropic-version": "2023-06-01"
+            },
+            json={
+                "model": "claude-3-opus-20240229",
+                "max_tokens": 2500,
+                "temperature": 0.7,
+                "system": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler.",
+                "messages": [{"role": "user", "content": prompt}],
+            }
         )
         
-        # Extract and parse the response
-        response_text = response.choices[0].message.content
+        # Parse Claude response
+        if claude_response.status_code != 200:
+            log_error(f"Claude API fejl: {claude_response.status_code}: {claude_response.text}")
+            raise ValueError(f"Claude API fejl: {claude_response.status_code}")
+            
+        response_data = claude_response.json()
+        response_text = response_data['content'][0]['text']
         angles = parse_angles_from_response(response_text)
         
         # Log success
@@ -284,10 +313,22 @@ def generate_angles(emne: str, topic_info: str, profile: Any, bypass_cache: bool
         if not isinstance(angles, list):
             if isinstance(angles, dict):
                 # Single angle in dict format
-                return [angles]
+                angles = [angles]
             else:
                 log_error(f"Uventet format: {type(angles)}")
                 raise ValueError(f"Uventet format: {type(angles)}. Forventede en liste eller dict.")
+        
+        # Add perplexity information to each angle if available
+        if topic_info and isinstance(topic_info, str):
+            try:
+                # Extract first 1000 chars to keep it concise
+                perplexity_extract = topic_info[:1000] + ("..." if len(topic_info) > 1000 else "")
+                for angle in angles:
+                    if isinstance(angle, dict):
+                        angle['perplexityInfo'] = perplexity_extract
+            except Exception as e:
+                # Log but don't fail if we can't add perplexity info
+                log_warning(f"Kunne ikke tilføje perplexity information: {e}")
         
         return angles
         

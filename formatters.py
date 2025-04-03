@@ -117,6 +117,7 @@ class MarkdownFormatter(BaseFormatter):
             criteria = angle.get('nyhedskriterier', [])
             questions = angle.get('startSpørgsmål', [])
             score = angle.get('kriterieScore', None)
+            background_info = angle.get('perplexityInfo', '') # Added perplexity info extraction
             
             lines.extend([
                 f"### {i}. {headline}",
@@ -128,6 +129,19 @@ class MarkdownFormatter(BaseFormatter):
                 f"**Nyhedskriterier:** {', '.join(criteria)}",
                 ""
             ])
+            
+            # Add perplexity background info if available
+            if background_info and isinstance(background_info, str) and len(background_info.strip()) > 0:
+                lines.append("**Baggrundsinformation:**")
+                lines.append(background_info)
+                lines.append("")
+                
+            # Add source suggestions if available
+            source_info = angle.get('kildeForslagInfo', '')
+            if source_info and isinstance(source_info, str) and len(source_info.strip()) > 0:
+                lines.append("**Relevante kildeforslag:**")
+                lines.append(source_info)
+                lines.append("")
             
             if questions:
                 lines.append("**Startspørgsmål:**")
@@ -223,6 +237,8 @@ class HTMLFormatter(BaseFormatter):
             "        .questions { padding-left: 20px; }",
             "        .questions li { margin-bottom: 8px; }",
             "        .rationale { font-style: italic; color: #555; }",
+            "        .background-info { background-color: #f5f5f5; padding: 10px; border-left: 3px solid #3498db; margin: 10px 0; font-size: 0.9em; }",
+            "        .source-info { background-color: #f5fffa; padding: 10px; border-left: 3px solid #2ecc71; margin: 10px 0; font-size: 0.9em; }",
             "        .score { font-weight: bold; color: #2980b9; }",
             "        .footer { margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; color: #7f8c8d; font-size: 0.9em; }",
             "    </style>",
@@ -247,6 +263,7 @@ class HTMLFormatter(BaseFormatter):
             criteria = angle.get('nyhedskriterier', [])
             questions = angle.get('startSpørgsmål', [])
             score = angle.get('kriterieScore', None)
+            background_info = angle.get('perplexityInfo', '') # Added perplexity info extraction
             
             html.append(f"    <div class='angle'>")
             html.append(f"        <h3>{i}. {self._escape_html(headline)}</h3>")
@@ -258,6 +275,17 @@ class HTMLFormatter(BaseFormatter):
             for criterion in criteria:
                 html.append(f"<span class='criteria'>{self._escape_html(criterion)}</span>")
             html.append("</p>")
+            
+            # Add perplexity background info if available
+            if background_info and isinstance(background_info, str) and len(background_info.strip()) > 0:
+                html.append(f"        <p><strong>Baggrundsinformation:</strong></p>")
+                html.append(f"        <p class='background-info'>{self._escape_html(background_info)}</p>")
+                
+            # Add source suggestions if available
+            source_info = angle.get('kildeForslagInfo', '')
+            if source_info and isinstance(source_info, str) and len(source_info.strip()) > 0:
+                html.append(f"        <p><strong>Relevante kildeforslag:</strong></p>")
+                html.append(f"        <p class='source-info'>{self._escape_html(source_info)}</p>")
             
             # Questions as bullet points
             if questions:

@@ -278,30 +278,8 @@ async def main_async() -> None:
             import sys
             from prompt_engineering import construct_angle_prompt, parse_angles_from_response
             
-            # Check if OpenAI is already in sys.modules and print info
-            print("DEBUG - Checking for OpenAI module:")
-            for module_name in sys.modules:
-                if "openai" in module_name.lower():
-                    print(f"DEBUG - Found '{module_name}' in sys.modules")
-            
-            # Force reload of the OpenAI module to get a clean version
-            if "openai" in sys.modules:
-                print("DEBUG - Removing openai from sys.modules")
-                del sys.modules["openai"]
-                
-            # Import the clean version
-            from openai import OpenAI
-            
-            # Get the API key directly from environment
-            api_key = os.environ.get("OPENAI_API_KEY")
-            if not api_key:
-                raise ValueError("OpenAI API-nøgle mangler i miljøvariablerne")
-            
-            # Create minimal client with just the API key
-            print("DEBUG - Creating OpenAI client with ONLY api_key parameter")
-            print(f"DEBUG - OpenAI module path: {sys.modules['openai'].__file__}")
-            client = OpenAI(api_key=api_key)
-            print("DEBUG - Successfully created OpenAI client")
+            # Use Claude API instead of OpenAI
+            print("DEBUG - Using Claude API instead of OpenAI")
             
             # Convert profile into strings for prompt construction
             principper = "\n".join([f"- {p}" for p in profile.kerneprincipper])
@@ -320,20 +298,89 @@ async def main_async() -> None:
                 nogo_omrader
             )
             
-            # Call the OpenAI API directly with minimal parameters
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=2500
+            # Use Claude API instead
+            import requests
+            from config import ANTHROPIC_API_KEY
+            
+            # Claude API call
+            claude_response = requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01"
+                },
+                json={
+                    "model": "claude-3-opus-20240229",
+                    "max_tokens": 2500,
+                    "temperature": 0.7,
+                    "system": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler.",
+                    "messages": [{"role": "user", "content": prompt}],
+                }
             )
             
-            # Extract and parse the response
-            response_text = response.choices[0].message.content
+            # Parse Claude response
+            if claude_response.status_code != 200:
+                print(f"Claude API fejl: {claude_response.status_code}: {claude_response.text}")
+                raise ValueError(f"Claude API fejl: {claude_response.status_code}")
+                
+            response_data = claude_response.json()
+            print(f"DEBUG - Claude API response: {response_data}")
+            response_text = response_data['content'][0]['text']
+            print(f"DEBUG - Claude API response text: {response_text[:500]}...")
             angles = parse_angles_from_response(response_text)
+            
+            # Add perplexity information to each angle
+            if angles and isinstance(angles, list):
+                perplexity_extract = topic_info[:1000] + ("..." if len(topic_info) > 1000 else "")
+                
+                # Generate source suggestions using Claude
+                source_suggestions_prompt = f"""
+                Baseret på emnet '{args.emne}', giv en kort liste med 3-5 relevante og troværdige danske kilder, 
+                som en journalist kunne bruge til research. Inkluder officielle hjemmesider, forskningsinstitutioner, 
+                eksperter og organisationer. Formater som en simpel punktopstilling med korte beskrivelser på dansk.
+                Hold dit svar under 250 ord og fokuser kun på de mest pålidelige kilder.
+                """
+                
+                # Claude API call for source suggestions
+                try:
+                    source_response = requests.post(
+                        "https://api.anthropic.com/v1/messages",
+                        headers={
+                            "Content-Type": "application/json",
+                            "x-api-key": ANTHROPIC_API_KEY,
+                            "anthropic-version": "2023-06-01"
+                        },
+                        json={
+                            "model": "claude-3-haiku-20240307",
+                            "max_tokens": 500,
+                            "temperature": 0.2,
+                            "system": "Du er en hjælpsom researchassistent med stort kendskab til troværdige danske kilder. Du svarer altid på dansk.",
+                            "messages": [{"role": "user", "content": source_suggestions_prompt}],
+                        }
+                    )
+                    
+                    if source_response.status_code == 200:
+                        source_data = source_response.json()
+                        source_text = source_data['content'][0]['text']
+                        
+                        # Add both perplexity info and source suggestions to each angle
+                        for angle in angles:
+                            if isinstance(angle, dict):
+                                angle['perplexityInfo'] = perplexity_extract
+                                angle['kildeForslagInfo'] = source_text
+                    else:
+                        # If source generation fails, just add perplexity info
+                        print(f"Failed to generate source suggestions: {source_response.status_code}: {source_response.text}")
+                        for angle in angles:
+                            if isinstance(angle, dict):
+                                angle['perplexityInfo'] = perplexity_extract
+                except Exception as e:
+                    print(f"Error generating source suggestions: {e}")
+                    # If there's an error, just add perplexity info
+                    for angle in angles:
+                        if isinstance(angle, dict):
+                            angle['perplexityInfo'] = perplexity_extract
         except Exception as e:
             console.print(f"[bold red]Error during direct API call:[/bold red] {e}")
             # Fall back to the regular function for logging purposes
