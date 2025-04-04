@@ -101,9 +101,11 @@ async def run_standard_mode(args: Namespace) -> None:
                 )
             ),
             progress_stages={"FETCHING_INFO": tracker.set_stage, 
+                             "GENERATING_KNOWLEDGE": tracker.set_stage,
                              "GENERATING_ANGLES": tracker.set_stage,
                              "FILTERING_ANGLES": tracker.set_stage,
-                             "GENERATING_SOURCES": tracker.set_stage}
+                             "GENERATING_SOURCES": tracker.set_stage,
+                             "GENERATING_EXPERT_SOURCES": tracker.set_stage}
         )
         
         # Finalizing

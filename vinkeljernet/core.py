@@ -25,7 +25,13 @@ from vinkeljernet.ui_utils import (
 from config_manager import get_config
 from models import RedaktionelDNA
 from config_loader import load_and_validate_profile
-from api_clients import fetch_topic_information, generate_angles, generate_expert_source_suggestions
+from api_clients_wrapper import (
+    fetch_topic_information, 
+    generate_angles, 
+    generate_expert_source_suggestions,
+    generate_knowledge_distillate,
+    process_generation_request as api_process_generation
+)
 from angle_processor import filter_and_rank_angles
 
 # Configure logger
@@ -103,6 +109,35 @@ async def process_generation_request(
         # Set a minimal fallback for topic_info
         topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
     
+    # Notify of stage change if callback provided - generate knowledge distillate
+    if progress_stages and "GENERATING_KNOWLEDGE" in progress_stages:
+        try:
+            from vinkeljernet.ui_utils import ProcessStage
+            progress_stages["GENERATING_KNOWLEDGE"](
+                ProcessStage.GENERATING_KNOWLEDGE, 
+                f"Genererer videndistillat om '{topic}'..."
+            )
+        except (ImportError, KeyError):
+            progress_stages["GENERATING_KNOWLEDGE"]("GENERATING_KNOWLEDGE", f"Genererer videndistillat...")
+    
+    # Generate knowledge distillate from background information
+    logger.info("Generating knowledge distillate from background information")
+    knowledge_distillate = None
+    try:
+        knowledge_distillate = await generate_knowledge_distillate(
+            topic_info=topic_info,
+            topic=topic,
+            bypass_cache=bypass_cache,
+            progress_callback=progress_callback
+        )
+        if knowledge_distillate:
+            logger.info("Knowledge distillate generated successfully")
+        else:
+            logger.warning("Could not generate knowledge distillate")
+    except Exception as e:
+        logger.error(f"Error generating knowledge distillate: {e}")
+        # Continue without knowledge distillate
+    
     # Notify of stage change if callback provided
     if progress_stages and "GENERATING_ANGLES" in progress_stages:
         try:
@@ -152,65 +187,82 @@ async def process_generation_request(
         try:
             from vinkeljernet.ui_utils import ProcessStage
             progress_stages["GENERATING_SOURCES"](
-                ProcessStage.FINALIZING,  # Reuse finalizing stage for source generation
-                f"Finder relevante eksperter og kilder til vinkelforslag..."
+                ProcessStage.GENERATING_SOURCES,
+                f"Finder relevante kilder til vinkelforslag..."
             )
         except (ImportError, KeyError):
             progress_stages["GENERATING_SOURCES"]("GENERATING_SOURCES", 
-                                             "Finder relevante eksperter og kilder...")
+                                             "Finder relevante kilder...")
     
     # Enrich each angle with expert and source suggestions
-    logger.info("Generating expert and source suggestions for each angle...")
+    logger.info("Generating general source suggestions...")
     
-    # Define progress tracking for source suggestion generation
-    source_suggestion_tasks = []
-    source_progress_callback = None
+    # Add the knowledge distillate to each angle if available
+    if knowledge_distillate:
+        for angle in ranked_angles:
+            angle['videnDistillat'] = knowledge_distillate
+            angle['harVidenDistillat'] = True
+    
+    # Add a process stage for expert source generation
+    if progress_stages and "GENERATING_EXPERT_SOURCES" in progress_stages:
+        try:
+            from vinkeljernet.ui_utils import ProcessStage
+            progress_stages["GENERATING_EXPERT_SOURCES"](
+                ProcessStage.GENERATING_EXPERT_SOURCES,
+                f"Finder ekspertkilder til specifikke vinkler..."
+            )
+        except (ImportError, KeyError):
+            progress_stages["GENERATING_EXPERT_SOURCES"]("GENERATING_EXPERT_SOURCES", 
+                                                    "Finder ekspertkilder...")
+    
+    # Generate expert sources for each angle
+    logger.info("Generating expert sources for each angle...")
+    
+    # Define progress tracking for expert source generation
+    expert_source_tasks = []
+    expert_progress_callback = None
     if progress_callback:
-        async def source_progress_callback(percent):
+        async def expert_progress_callback(percent):
             # Adjust the percent to fit within 0-100 range
             # We're not doing anything with the percent in this case since it's per-angle
             pass
     
     # Create task for each angle
-    for angle in ranked_angles:
+    for angle in ranked_angles[:3]:  # Limit to top 3 angles to reduce API load
         task = asyncio.create_task(
             generate_expert_source_suggestions(
                 topic=topic,
                 angle_headline=angle.get('overskrift', ''),
                 angle_description=angle.get('beskrivelse', ''),
-                dev_mode=dev_mode,
                 bypass_cache=bypass_cache,
-                progress_callback=source_progress_callback
+                progress_callback=expert_progress_callback
             )
         )
-        source_suggestion_tasks.append((angle, task))
+        expert_source_tasks.append((angle, task))
     
     # Process results as they complete
-    for i, (angle, task) in enumerate(source_suggestion_tasks):
+    for i, (angle, task) in enumerate(expert_source_tasks):
         try:
             # Set progress for every angle if progress_callback is provided
             if progress_callback:
-                progress_value = int((i / len(source_suggestion_tasks)) * 100)
+                progress_value = int((i / len(expert_source_tasks)) * 100)
                 await progress_callback(progress_value)
                 
-            suggestions = await task
-            if suggestions:
-                angle['ekspertForslag'] = suggestions.get('experts', [])
-                angle['kildeForslag'] = suggestions.get('sources', [])
-                angle['statistikForslag'] = suggestions.get('statistics', [])
-                logger.info(f"Added expert and source suggestions to angle: {angle.get('overskrift', '')}")
+            expert_sources = await task
+            if expert_sources:
+                angle['ekspertKilder'] = expert_sources
+                angle['harEkspertKilder'] = True
+                logger.info(f"Added expert sources to angle: {angle.get('overskrift', '')}")
             else:
-                # Add empty lists if no suggestions were generated
-                angle['ekspertForslag'] = []
-                angle['kildeForslag'] = []
-                angle['statistikForslag'] = []
-                logger.warning(f"Failed to generate suggestions for angle: {angle.get('overskrift', '')}")
+                # Add empty object if no expert sources were generated
+                angle['ekspertKilder'] = {"experts": [], "institutions": [], "data_sources": []}
+                angle['harEkspertKilder'] = False
+                logger.warning(f"Failed to generate expert sources for angle: {angle.get('overskrift', '')}")
         except Exception as e:
-            logger.error(f"Error generating suggestions for angle: {e}")
-            # Add empty lists for this angle
-            angle['ekspertForslag'] = []
-            angle['kildeForslag'] = []
-            angle['statistikForslag'] = []
+            logger.error(f"Error generating expert sources for angle: {e}")
+            # Add empty object for this angle
+            angle['ekspertKilder'] = {"experts": [], "institutions": [], "data_sources": []}
+            angle['harEkspertKilder'] = False
     
     # Final progress update if callback is provided
     if progress_callback:

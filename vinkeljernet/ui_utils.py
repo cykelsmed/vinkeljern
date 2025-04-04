@@ -35,9 +35,11 @@ class ProcessStage(Enum):
     INITIALIZING = "Initialiserer"
     LOADING_PROFILE = "Indlæser profil"
     FETCHING_INFO = "Henter baggrundsinformation"
+    GENERATING_KNOWLEDGE = "Genererer videndistillat"
     GENERATING_ANGLES = "Genererer vinkler"
     FILTERING_ANGLES = "Filtrerer og rangerer vinkler"
     GENERATING_SOURCES = "Finder eksperter og kilder"
+    GENERATING_EXPERT_SOURCES = "Finder ekspertkilder til vinkler"
     FINALIZING = "Færdiggør"
     COMPLETE = "Færdig"
 
@@ -49,14 +51,16 @@ class ProgressTracker:
     This class provides a way to track and display progress across the different
     stages of the angle generation pipeline, with estimates of time remaining.
     """
-    def __init__(self, total_stages: int = 5):
+    def __init__(self, total_stages: int = 8):
         self.stages = {
             ProcessStage.INITIALIZING: {"weight": 5, "progress": 0, "start_time": None, "end_time": None, "message": ""},
-            ProcessStage.LOADING_PROFILE: {"weight": 10, "progress": 0, "start_time": None, "end_time": None, "message": ""},
-            ProcessStage.FETCHING_INFO: {"weight": 25, "progress": 0, "start_time": None, "end_time": None, "message": ""},
-            ProcessStage.GENERATING_ANGLES: {"weight": 30, "progress": 0, "start_time": None, "end_time": None, "message": ""},
+            ProcessStage.LOADING_PROFILE: {"weight": 5, "progress": 0, "start_time": None, "end_time": None, "message": ""},
+            ProcessStage.FETCHING_INFO: {"weight": 15, "progress": 0, "start_time": None, "end_time": None, "message": ""},
+            ProcessStage.GENERATING_KNOWLEDGE: {"weight": 15, "progress": 0, "start_time": None, "end_time": None, "message": ""},
+            ProcessStage.GENERATING_ANGLES: {"weight": 20, "progress": 0, "start_time": None, "end_time": None, "message": ""},
             ProcessStage.FILTERING_ANGLES: {"weight": 10, "progress": 0, "start_time": None, "end_time": None, "message": ""},
-            ProcessStage.GENERATING_SOURCES: {"weight": 15, "progress": 0, "start_time": None, "end_time": None, "message": ""},
+            ProcessStage.GENERATING_SOURCES: {"weight": 10, "progress": 0, "start_time": None, "end_time": None, "message": ""},
+            ProcessStage.GENERATING_EXPERT_SOURCES: {"weight": 15, "progress": 0, "start_time": None, "end_time": None, "message": ""},
             ProcessStage.FINALIZING: {"weight": 5, "progress": 0, "start_time": None, "end_time": None, "message": ""},
         }
         self.current_stage = ProcessStage.INITIALIZING
@@ -424,6 +428,149 @@ def display_angles_table(angles: List[Dict[str, Any]]) -> None:
     console.print(table)
 
 
+def display_knowledge_distillate(knowledge_distillate: Dict[str, Any]) -> None:
+    """
+    Display knowledge distillate in a nicely formatted panel.
+    
+    Args:
+        knowledge_distillate: Knowledge distillate dictionary
+    """
+    console.print("\n[bold blue]📊 Videndistillat:[/bold blue]")
+    
+    distillate_content = []
+    
+    # Add key statistics if available
+    if 'noegletal' in knowledge_distillate and knowledge_distillate['noegletal']:
+        distillate_content.append("[bold cyan]Nøgletal:[/bold cyan]")
+        for stat in knowledge_distillate['noegletal']:
+            source = f" [dim]({stat.get('kilde')})[/dim]" if stat.get('kilde') else ""
+            distillate_content.append(f"• [bold]{stat.get('tal')}[/bold]: {stat.get('beskrivelse')}{source}")
+        distillate_content.append("")
+    
+    # Add key claims if available
+    if 'centralePaastand' in knowledge_distillate and knowledge_distillate['centralePaastand']:
+        distillate_content.append("[bold cyan]Centrale påstande:[/bold cyan]")
+        for claim in knowledge_distillate['centralePaastand']:
+            source = f" [dim]({claim.get('kilde')})[/dim]" if claim.get('kilde') else ""
+            distillate_content.append(f"• {claim.get('paastand')}{source}")
+        distillate_content.append("")
+    
+    # Add different perspectives if available
+    if 'vinkler' in knowledge_distillate and knowledge_distillate['vinkler']:
+        distillate_content.append("[bold cyan]Perspektiver:[/bold cyan]")
+        for perspective in knowledge_distillate['vinkler']:
+            actor = f" [dim]({perspective.get('aktør')})[/dim]" if perspective.get('aktør') else ""
+            distillate_content.append(f"• {perspective.get('vinkel')}{actor}")
+        distillate_content.append("")
+    
+    # Add important dates if available
+    if 'datoer' in knowledge_distillate and knowledge_distillate['datoer']:
+        distillate_content.append("[bold cyan]Vigtige datoer:[/bold cyan]")
+        for date_info in knowledge_distillate['datoer']:
+            importance = f" - {date_info.get('betydning')}" if date_info.get('betydning') else ""
+            distillate_content.append(f"• [bold]{date_info.get('dato')}[/bold]: {date_info.get('begivenhed')}{importance}")
+    
+    # Display the distillate panel
+    console.print(Panel(
+        "\n".join(distillate_content),
+        title="[bold blue]Videndistillat[/bold blue]",
+        border_style="blue",
+        expand=False
+    ))
+
+
+def display_expert_sources(expert_sources: Dict[str, Any]) -> None:
+    """
+    Display expert sources in a nicely formatted panel.
+    
+    Args:
+        expert_sources: Expert sources dictionary
+    """
+    console.print("\n[bold green]👥 Ekspertkilder:[/bold green]")
+    
+    # Set up the content
+    content = []
+    
+    # Display experts
+    if 'experts' in expert_sources and expert_sources['experts']:
+        content.append("[bold cyan]Eksperter:[/bold cyan]")
+        for expert in expert_sources['experts']:
+            name = expert.get('navn', 'N/A')
+            title = expert.get('titel', 'N/A')
+            org = expert.get('organisation', 'N/A')
+            expertise = expert.get('ekspertise', '')
+            contact = expert.get('kontakt', '')
+            relevance = expert.get('relevans', '')
+            
+            expert_line = f"• [bold]{name}[/bold]: {title}, {org}"
+            content.append(expert_line)
+            
+            if expertise:
+                content.append(f"  [dim]Ekspertise: {expertise}[/dim]")
+            if relevance:
+                content.append(f"  [dim]Relevans: {relevance}[/dim]")
+            if contact:
+                content.append(f"  [dim]Kontakt: {contact}[/dim]")
+            
+            content.append("")  # Add a blank line between experts
+    
+    # Display institutions
+    if 'institutions' in expert_sources and expert_sources['institutions']:
+        content.append("[bold cyan]Institutioner:[/bold cyan]")
+        for institution in expert_sources['institutions']:
+            name = institution.get('navn', 'N/A')
+            type_str = institution.get('type', '')
+            relevance = institution.get('relevans', '')
+            contact_person = institution.get('kontaktperson', '')
+            contact = institution.get('kontakt', '')
+            
+            inst_line = f"• [bold]{name}[/bold]"
+            if type_str:
+                inst_line += f" ({type_str})"
+            content.append(inst_line)
+            
+            if relevance:
+                content.append(f"  [dim]Relevans: {relevance}[/dim]")
+            if contact_person and contact_person != "Presseafdeling":
+                content.append(f"  [dim]Kontaktperson: {contact_person}[/dim]")
+            if contact:
+                content.append(f"  [dim]Kontakt: {contact}[/dim]")
+            
+            content.append("")  # Add a blank line between institutions
+    
+    # Display data sources
+    if 'data_sources' in expert_sources and expert_sources['data_sources']:
+        content.append("[bold cyan]Datakilder:[/bold cyan]")
+        for source in expert_sources['data_sources']:
+            title = source.get('titel', 'N/A')
+            publisher = source.get('udgiver', '')
+            description = source.get('beskrivelse', '')
+            link = source.get('link', '')
+            updated = source.get('senest_opdateret', '')
+            
+            source_line = f"• [bold]{title}[/bold]"
+            if publisher:
+                source_line += f" ({publisher})"
+            content.append(source_line)
+            
+            if description:
+                content.append(f"  [dim]Beskrivelse: {description}[/dim]")
+            if link:
+                content.append(f"  [dim]Link: {link}[/dim]")
+            if updated:
+                content.append(f"  [dim]Senest opdateret: {updated}[/dim]")
+            
+            content.append("")  # Add a blank line between data sources
+    
+    # Display the panel
+    console.print(Panel(
+        "\n".join(content),
+        title="[bold green]Ekspertkilder og Institutioner[/bold green]",
+        border_style="green",
+        expand=False
+    ))
+
+
 def display_angles_panels(angles: List[Dict[str, Any]]) -> None:
     """
     Display detailed panels for each angle.
@@ -431,13 +578,21 @@ def display_angles_panels(angles: List[Dict[str, Any]]) -> None:
     Args:
         angles: List of angle dictionaries
     """
-    console.print("\n[bold blue]🎯 Recommended angles:[/bold blue]")
+    # First check if we have a knowledge distillate to display
+    has_distillate = False
+    for angle in angles:
+        if angle.get('videnDistillat') and not has_distillate:
+            has_distillate = True
+            display_knowledge_distillate(angle.get('videnDistillat'))
+            break
+    
+    console.print("\n[bold blue]🎯 Anbefalede vinkler:[/bold blue]")
     
     for i, angle in enumerate(angles, 1):
         # Handle potentially missing keys with .get()
-        headline = angle.get('overskrift', 'No headline')
-        description = angle.get('beskrivelse', 'No description')
-        rationale = angle.get('begrundelse', 'No rationale')
+        headline = angle.get('overskrift', 'Ingen overskrift')
+        description = angle.get('beskrivelse', 'Ingen beskrivelse')
+        rationale = angle.get('begrundelse', 'Ingen begrundelse')
         criteria = angle.get('nyhedskriterier', [])
         questions = angle.get('startSpørgsmål', [])
         score = angle.get('kriterieScore', 'N/A')
@@ -451,21 +606,44 @@ def display_angles_panels(angles: List[Dict[str, Any]]) -> None:
         panel_content = [
             f"[bold white]{headline}[/bold white]",
             f"\n{description}",
-            f"\n[dim blue]Rationale:[/dim blue] [dim]{rationale}[/dim]",
-            f"\n[dim blue]News criteria:[/dim blue] [dim]{', '.join(criteria)}[/dim]"
+            f"\n[dim blue]Begrundelse:[/dim blue] [dim]{rationale}[/dim]",
+            f"\n[dim blue]Nyhedskriterier:[/dim blue] [dim]{', '.join(criteria)}[/dim]"
         ]
         
         # Add start questions if available
         if questions:
-            panel_content.append(f"\n[dim blue]Initial questions:[/dim blue]")
+            panel_content.append(f"\n[dim blue]Startspørgsmål:[/dim blue]")
             for q in questions:
                 panel_content.append(f"[dim]• {q}[/dim]")
         
         if score != 'N/A':
             panel_content.append(f"\n[dim blue]Score:[/dim blue] [dim]{score}[/dim]")
         
-        # Add expert suggestions if available
-        if experts:
+        # Check for new expert sources format first
+        if angle.get('ekspertKilder'):
+            ekspert_kilder = angle.get('ekspertKilder')
+            
+            # Add expert suggestions if available in the new format
+            if 'experts' in ekspert_kilder and ekspert_kilder['experts']:
+                panel_content.append(f"\n[bold cyan]Ekspertkilder:[/bold cyan]")
+                for expert in ekspert_kilder['experts'][:3]:  # Limit to 3 for CLI view
+                    name = expert.get('navn', 'N/A')
+                    title = expert.get('titel', 'N/A')
+                    org = expert.get('organisation', 'N/A')
+                    
+                    expert_line = f"[bold]• {name}[/bold]: {title}, {org}"
+                    panel_content.append(expert_line)
+                
+                if len(ekspert_kilder['experts']) > 3:
+                    panel_content.append(f"[dim]+ {len(ekspert_kilder['experts']) - 3} flere eksperter...[/dim]")
+            
+            # Add data sources count if available
+            if 'data_sources' in ekspert_kilder and ekspert_kilder['data_sources']:
+                count = len(ekspert_kilder['data_sources'])
+                panel_content.append(f"[dim]+ {count} datakilder tilgængelige[/dim]")
+        
+        # Fall back to older expert and source formats if needed
+        elif experts:
             panel_content.append(f"\n[bold blue]Relevante eksperter:[/bold blue]")
             for expert in experts:
                 name = expert.get('navn', '')
@@ -483,7 +661,7 @@ def display_angles_panels(angles: List[Dict[str, Any]]) -> None:
                     if expertise:
                         panel_content.append(f"  [dim]{expertise}[/dim]")
         
-        # Add source suggestions if available
+        # Add source suggestions (older format) if available
         if sources:
             panel_content.append(f"\n[bold blue]Relevante kilder:[/bold blue]")
             for source in sources:
@@ -499,7 +677,7 @@ def display_angles_panels(angles: List[Dict[str, Any]]) -> None:
                     if desc:
                         panel_content.append(f"  [dim]{desc}[/dim]")
         
-        # Add statistics if available
+        # Add statistics (older format) if available
         if statistics:
             panel_content.append(f"\n[bold blue]Relevante statistikker:[/bold blue]")
             for stat in statistics:
@@ -514,10 +692,14 @@ def display_angles_panels(angles: List[Dict[str, Any]]) -> None:
         
         console.print(Panel(
             "\n".join(panel_content),
-            title=f"[bold green]Angle {i}[/bold green]",
+            title=f"[bold green]Vinkel {i}[/bold green]",
             border_style="green",
             expand=False
         ))
+        
+        # Display full expert sources for this angle if available
+        if angle.get('ekspertKilder') and i <= 3:  # Only show detailed view for top 3 angles
+            display_expert_sources(angle.get('ekspertKilder'))
 
 
 def display_welcome_panel(title: str = "Vinkeljernet") -> None:

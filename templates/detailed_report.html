@@ -100,6 +100,127 @@
                 </div>
             </div>
             
+            <!-- Videndistillat -->
+            {% if has_knowledge_distillate %}
+            <div class="card mb-5 distillate-card">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0"><i class="bi bi-diagram-3"></i> Videndistillat</h2>
+                    <div>
+                        {% if has_knowledge_distillate_error %}
+                            <span class="badge bg-warning text-dark">Fejlede</span>
+                        {% endif %}
+                        <a href="{{ url_for('regenerate_distillate') }}" class="btn btn-sm btn-light ms-2" title="Regenerer videndistillat">
+                            <i class="bi bi-arrow-clockwise"></i> Regenerer
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if knowledge_distillate %}
+                        <!-- Nøgletal -->
+                        {% if knowledge_distillate.noegletal %}
+                        <div class="distillate-section">
+                            <h5><i class="bi bi-graph-up"></i> Nøgletal</h5>
+                            <div class="row">
+                                {% for stat in knowledge_distillate.noegletal %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100 p-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="display-6 text-info me-3">{{ stat.tal }}</div>
+                                            <div>
+                                                <div>{{ stat.beskrivelse }}</div>
+                                                {% if stat.kilde %}
+                                                <small class="key-stat-source">Kilde: {{ stat.kilde }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Centrale Påstande -->
+                        {% if knowledge_distillate.centralePaastand %}
+                        <div class="distillate-section">
+                            <h5><i class="bi bi-check2-circle"></i> Centrale påstande</h5>
+                            <ul class="list-group">
+                                {% for claim in knowledge_distillate.centralePaastand %}
+                                <li class="list-group-item">
+                                    {{ claim.paastand }}
+                                    {% if claim.kilde %}
+                                    <div class="mt-1"><small class="key-stat-source">Kilde: {{ claim.kilde }}</small></div>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Forskellige perspektiver -->
+                        {% if knowledge_distillate.vinkler %}
+                        <div class="distillate-section">
+                            <h5><i class="bi bi-eyeglasses"></i> Perspektiver</h5>
+                            <div class="row">
+                                {% for perspective in knowledge_distillate.vinkler %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100 p-3">
+                                        <p>{{ perspective.vinkel }}</p>
+                                        {% if perspective.aktør %}
+                                        <div class="mt-auto text-end">
+                                            <span class="badge bg-light text-dark">{{ perspective.aktør }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Vigtige datoer -->
+                        {% if knowledge_distillate.datoer %}
+                        <div class="distillate-section">
+                            <h5><i class="bi bi-calendar-event"></i> Vigtige datoer</h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Dato</th>
+                                            <th>Begivenhed</th>
+                                            <th>Betydning</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for date_info in knowledge_distillate.datoer %}
+                                        <tr>
+                                            <td><strong>{{ date_info.dato }}</strong></td>
+                                            <td>{{ date_info.begivenhed }}</td>
+                                            <td>{{ date_info.betydning }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% elif has_knowledge_distillate_error %}
+                        <div class="alert alert-warning">
+                            <h5><i class="bi bi-exclamation-triangle"></i> Fejl ved generering af videndistillat</h5>
+                            <p>Der opstod en fejl ved forsøget på at generere videndistillat. Dette kan skyldes problemer med forbindelsen til AI-tjenesten eller en timeout.</p>
+                            <p>Du kan prøve at regenerere ved at klikke på knappen ovenfor.</p>
+                            <p class="text-muted small">Fejlbesked: {{ knowledge_distillate_error }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Videndistillat genereres...</p>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"></div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- Kildeforslag -->
             {% if source_suggestions %}
             <div class="card mb-5">
@@ -161,6 +282,7 @@
                                     <th>#</th>
                                     <th>Overskrift</th>
                                     <th>Nyhedskriterier</th>
+                                    <th>Ekspertkilder</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -176,6 +298,13 @@
                                             <span class="badge bg-secondary me-1">{{ kriterium }}</span>
                                         {% endfor %}
                                     </td>
+                                    <td>
+                                        {% if angle.ekspertKilder and angle.ekspertKilder.experts %}
+                                            <span class="badge bg-success rounded-pill">
+                                                <i class="bi bi-people-fill"></i> {{ angle.ekspertKilder.experts|length }} eksperter
+                                            </span>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -183,6 +312,110 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Detaljerede vinkler med ekspertkilder -->
+            {% for angle in angles %}
+            <div class="card mb-5">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">{{ angle.overskrift }}</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ angle.beskrivelse }}</p>
+                    
+                    <div class="row">
+                        <div class="col-md-7">
+                            <div class="mb-3">
+                                <h5>Begrundelse:</h5>
+                                <p class="text-muted">{{ angle.begrundelse }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h5>Nyhedskriterier:</h5>
+                                <div class="d-flex flex-wrap">
+                                    {% for kriterium in angle.nyhedskriterier %}
+                                        <span class="badge bg-secondary me-2 mb-2">{{ kriterium }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            {% if angle.startSpørgsmål %}
+                            <div class="mb-3">
+                                <h5>Startspørgsmål:</h5>
+                                <ul class="list-group">
+                                    {% for question in angle.startSpørgsmål %}
+                                        <li class="list-group-item">{{ question }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-5">
+                            <!-- Ekspertkilder -->
+                            {% if angle.ekspertKilder and angle.ekspertKilder.experts %}
+                            <div class="mb-4">
+                                <h5><i class="bi bi-people"></i> Ekspertkilder</h5>
+                                <div class="accordion" id="expertAccordion{{ loop.index }}">
+                                    {% for expert in angle.ekspertKilder.experts %}
+                                    <div class="card expert-card mb-2">
+                                        <div class="card-header p-2" id="expertHeading{{ loop.index }}">
+                                            <h2 class="mb-0">
+                                                <button class="btn btn-link btn-block text-start text-decoration-none text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#expertCollapse{{ loop.parent.loop.index }}_{{ loop.index }}" aria-expanded="{{ 'true' if loop.index == 1 else 'false' }}" aria-controls="expertCollapse{{ loop.parent.loop.index }}_{{ loop.index }}">
+                                                    <span class="expert-name">{{ expert.navn }}</span>
+                                                    <span class="expert-org d-block small">{{ expert.organisation }}</span>
+                                                </button>
+                                            </h2>
+                                        </div>
+                                        <div id="expertCollapse{{ loop.parent.loop.index }}_{{ loop.index }}" class="collapse {{ 'show' if loop.index == 1 else '' }}" aria-labelledby="expertHeading{{ loop.index }}" data-bs-parent="#expertAccordion{{ loop.parent.loop.index }}">
+                                            <div class="card-body">
+                                                <p class="expert-title mb-2">{{ expert.titel }}</p>
+                                                <p><strong>Ekspertise:</strong> {{ expert.ekspertise }}</p>
+                                                {% if expert.relevans %}
+                                                <p><strong>Relevans:</strong> {{ expert.relevans }}</p>
+                                                {% endif %}
+                                                {% if expert.kontakt %}
+                                                <p><strong>Kontakt:</strong> {{ expert.kontakt }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Institutioner -->
+                                {% if angle.ekspertKilder.institutions %}
+                                <div class="mt-3 mb-2">
+                                    <h6 class="text-muted">Relevante institutioner:</h6>
+                                    <div>
+                                        {% for institution in angle.ekspertKilder.institutions %}
+                                            <span class="badge institution-badge mb-1 me-1 p-2">
+                                                {{ institution.navn }} {% if institution.kontaktperson and institution.kontaktperson != 'Presseafdeling' %}({{ institution.kontaktperson }}){% endif %}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Datakilder -->
+                                {% if angle.ekspertKilder.data_sources %}
+                                <div class="mt-3">
+                                    <h6 class="text-muted">Datakilder:</h6>
+                                    <div>
+                                        {% for source in angle.ekspertKilder.data_sources %}
+                                            <span class="badge datasource-badge mb-1 me-1 p-2">
+                                                {{ source.titel }} {% if source.udgiver %}({{ source.udgiver }}){% endif %}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>

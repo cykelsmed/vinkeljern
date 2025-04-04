@@ -1,0 +1,32 @@
+# config/tvflux_profil.yaml
+navn: "TVflux"
+beskrivelse: "Alternativt medie fra undergrunden, der fokuserer på oversete historier, anti-autoritær journalistik og samfundskritik."
+kerneprincipper:
+  - "Anti-autoritær: Udfordrer magtstrukturer og etablerede narrativer."
+  - "Undergrundsbaseret: Giver stemme til marginaliserede og alternative perspektiver."
+  - "Uafhængig: Fri for kommercielle og politiske interesser."
+  - "Provokerende: Sætter spørgsmålstegn ved normer og autoriteter."
+  - "Engageret: Støtter sociale bevægelser og frihedsidealer."
+tone_og_stil: "Direkte, rå og uformel. Skarp og kritisk uden at være akademisk tung. Autentisk og ofte med en ironisk eller satirisk undertone."
+nyhedsprioritering:
+  væsentlighed: 4
+  identifikation: 5
+  konflikt: 5
+  aktualitet: 3
+  sensation: 2
+fokusOmrader:
+  - "Undergrundskultur og modkultur"
+  - "Sociale bevægelser og aktivisme"
+  - "Kritik af magt og overvågning"
+  - "Frie samfund som Christiania"
+  - "Miljø og bæredygtighed"
+  - "Kunst og kreativitet udenfor normen"
+  - "Politisk ukorrekthed og ytringsfrihed"
+  - "Internationale konflikter og uretfærdigheder"
+noGoOmrader:
+  - "Mainstream-mediernes dagsorden"
+  - "Kommerciel propaganda"
+  - "Overfladisk underholdning"
+  - "Ukritiske etablissementssynspunkter"
+  - "Politiske kompromiser uden substans"
+  - "Censur og selvcensur"

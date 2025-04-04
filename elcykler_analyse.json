@@ -1,0 +1,666 @@
+{
+  "metadata": {
+    "timestamp": "2025-04-04T01:33:47.673450",
+    "topic": "elcykler",
+    "profile": "weekendavisen_profil",
+    "angle_count": 5
+  },
+  "summary": "Genereret 5 vinkler om 'elcykler'. De mest anvendte nyhedskriterier er: væsentlighed, konflikt, identifikation.",
+  "angles": [
+    {
+      "overskrift": "Elcykler: Revolutionerende mobilitet eller teknologisk fix?",
+      "beskrivelse": "Elcykler vinder frem som grønt transportalternativ. Men er de virkelig en bæredygtig løsning eller blot en midlertidig teknologisk lappeløsning på et større problem?",
+      "begrundelse": "Vinklen går i dybden med elcyklers rolle i en større bæredygtighedskontekst. Den stiller et filosofisk spørgsmål og inviterer til refleksion og debat.",
+      "nyhedskriterier": [
+        "væsentlighed",
+        "konflikt"
+      ],
+      "startSpørgsmål": [
+        "Hvordan har elcykler påvirket transportmønstre i byerne?",
+        "Er elcykler et skridt i retning af reel bæredygtig transport?",
+        "Hvilke etiske overvejelser er der ved elcykler sammenlignet med konventionelle cykler?"
+      ],
+      "perplexityInfo": "## OVERSIGT\nElcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel. De kombinerer traditionel cykling med elektrisk assistance, hvilket gør dem til et attraktivt alternativ til bilen.\n\n## AKTUEL STATUS\nElcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer. Mange cykelproducenter udvider deres sortiment med nye modeller, hvilket gør det lettere for forbrugerne at vælge den rigtige elcykel til deres formål.\n\n## NØGLETAL\n- **Typer af elcykler**: Der findes mange typer, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler[1][3].\n- **Populære mærker**: Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler[3][5].\n- **Reguleringer**: I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav[3]...",
+      "kildeForslagInfo": "Her er en liste med 5 relevante og troværdige danske kilder om elcykler, som en journalist kunne bruge til research:\n\n- Cyklistforbundet (www.cyklistforbundet.dk) - Landsdækkende interesseorganisation for cyklister, der har viden og data om elcykler i Danmark.\n\n- Transportministeriet (www.trm.dk) - Ministeriet har information om lovgivning, regler og støtteordninger for elcykler i Danmark.\n\n- Teknologisk Institut (www.teknologisk.dk) - Uafhængigt forskningsinstitut, der har udført analyser og tests af elcykler på det danske marked.\n\n- Dansk Elbil Alliance (www.danskelbilalliance.dk) - Brancheorganisation, der repræsenterer virksomheder inden for elcykler og kan give indsigt i markedet.\n\n- Professor Jens Stissing Jensen, DTU Management (www.man.dtu.dk) - Ekspert i bæredygtig mobilitet, der har forsket i elcyklers rolle i den grønne omstilling.\n\nDisse kilder dækker et bredt spektrum af information om elcykler i Danmark, herunder markedsdata, lovgivning, forskning og brancheekspertise. Journalisten vil kunne finde pålidelige fakta, statistikker og kontakter til at understøtte en dybdegående research om emnet.",
+      "calculatedScore": 9.0,
+      "videnDistillat": {
+        "noegletal": [
+          {
+            "tal": "Flere typer",
+            "beskrivelse": "Der findes mange typer elcykler, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler",
+            "kilde": "[1][3]"
+          }
+        ],
+        "centralePaastand": [
+          {
+            "paastand": "Elcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel.",
+            "kilde": null
+          },
+          {
+            "paastand": "Elcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer.",
+            "kilde": null
+          },
+          {
+            "paastand": "Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler.",
+            "kilde": "[3][5]"
+          },
+          {
+            "paastand": "I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav.",
+            "kilde": "[3]"
+          }
+        ],
+        "vinkler": [
+          {
+            "vinkel": "Miljøperspektiv: Elcykler ses som en grøn løsning til transport, da de reducerer CO2-udledning og støj",
+            "aktør": null
+          },
+          {
+            "vinkel": "Praktisk perspektiv: De er praktiske for daglig pendling og shopping, især med ladcykler",
+            "aktør": null
+          },
+          {
+            "vinkel": "Fritidsperspektiv: Elcykler åbner op for nye muligheder for fritidsaktiviteter, som terrænkørsel med el mountainbikes",
+            "aktør": null
+          }
+        ],
+        "datoer": []
+      },
+      "ekspertKilder": {
+        "experts": [
+          {
+            "navn": "Heidi Sørensen",
+            "titel": "Afdelingsleder",
+            "organisation": "Danmarks Statistik",
+            "ekspertise": "Produktion og salg af elcykler",
+            "kontakt": "HSN@dst.dk",
+            "relevans": "Ekspertise i statistik om elcykler og deres markedsudvikling"
+          },
+          {
+            "navn": "Pia Nielsen",
+            "titel": "Afdelingsleder",
+            "organisation": "Danmarks Statistik",
+            "ekspertise": "Import og eksport af elcykler",
+            "kontakt": "pin@dst.dk",
+            "relevans": "Kendskab til udenrigshandel med elcykler"
+          },
+          {
+            "navn": "Jakob Hansen",
+            "titel": "Salgs- og administrationschef",
+            "organisation": "Velohouse",
+            "ekspertise": "Praktisk erfaring med elcykler og kundebehov",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Praktisk indsigt i elcykler som transportalternativ"
+          },
+          {
+            "navn": "Morten Winther",
+            "titel": "Direktør",
+            "organisation": "Winther Bikes",
+            "ekspertise": "Produktion af danske elcykler",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Indsigt i dansk elcykelproduktion"
+          },
+          {
+            "navn": "Kasper Kjær",
+            "titel": "Cykelmekaniker og ekspert",
+            "organisation": "Cykelexperten",
+            "ekspertise": "Teknisk service og rådgivning om elcykler",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Praktisk viden om elcykler og deres tekniske aspekter"
+          },
+          {
+            "navn": "Lars Møller",
+            "titel": "Forskningschef",
+            "organisation": "DTU Transport",
+            "ekspertise": "Transportforskning og bæredygtige løsninger",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Akademisk indsigt i bæredygtig transport"
+          }
+        ],
+        "institutions": [
+          {
+            "navn": "Danmarks Statistik",
+            "type": "Myndighed",
+            "relevans": "Statistisk overblik over elcykler på det danske marked",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://www.dst.dk/da/Kontakt"
+          },
+          {
+            "navn": "Velohouse",
+            "type": "Forretning",
+            "relevans": "Praktisk erfaring med elcykler og kundebehov",
+            "kontaktperson": "Jakob Hansen",
+            "kontakt": "https://velohouse.dk"
+          },
+          {
+            "navn": "DTU Transport",
+            "type": "Universitetsinstitut",
+            "relevans": "Forskning i bæredygtig transport og mobilitet",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://www.transport.dtu.dk/"
+          },
+          {
+            "navn": "Cykelexperten",
+            "type": "Forretning",
+            "relevans": "Ekspertise i elcykler og deres tekniske aspekter",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://cykelexperten.dk"
+          },
+          {
+            "navn": "Transportministeriet",
+            "type": "Myndighed",
+            "relevans": "Politisk og lovgivningsmæssig indsigt i transportsektoren",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://trm.dk/"
+          }
+        ],
+        "data_sources": [
+          {
+            "titel": "Statistikbanken",
+            "udgiver": "Danmarks Statistik",
+            "beskrivelse": "Statistisk data om import, eksport og salg af elcykler i Danmark",
+            "link": "https://www.statistikbanken.dk/KN8Y",
+            "senest_opdateret": "2021"
+          },
+          {
+            "titel": "Varekoder for cykler og elcykler",
+            "udgiver": "Danmarks Statistik",
+            "beskrivelse": "Specifikke varekoder for statistik om cykler og elcykler",
+            "link": "https://www.statistikbanken.dk/VARER1",
+            "senest_opdateret": "2021"
+          },
+          {
+            "titel": "Elcykler vinder frem på det danske cykelmarked",
+            "udgiver": "Danmarks Statistik",
+            "beskrivelse": "Analyse af elcyklernes fremvækst på det danske marked",
+            "link": "https://www.dst.dk/da/Statistik/nyheder-analyser-publ/bagtal/2019/2019-05-10-elcykler-vinder-frem-paa-det-danske-cykelmarked",
+            "senest_opdateret": "2021"
+          },
+          {
+            "titel": "Transportforskning ved DTU",
+            "udgiver": "DTU Transport",
+            "beskrivelse": "Forskning i bæredygtig transport og mobilitet",
+            "link": "https://www.transport.dtu.dk/",
+            "senest_opdateret": "2023"
+          }
+        ]
+      },
+      "harVidenDistillat": true,
+      "harEkspertKilder": true
+    },
+    {
+      "overskrift": "Elcyklen i magtens korridorer: Politik på hjul",
+      "beskrivelse": "Flere politikere bruger elcyklen som symbol i valgkampe og politisk kommunikation. Vi ser på elcyklen som retorisk virkemiddel og dens rolle i den politiske sfære.",
+      "begrundelse": "Vinklen undersøger elcyklens strategiske brug i politik og dens betydning for politisk selvfremstilling. Den kobler et hverdagsfænomen med magtens maskineri.",
+      "nyhedskriterier": [
+        "konflikt",
+        "væsentlighed"
+      ],
+      "startSpørgsmål": [
+        "Hvordan bruges elcyklen strategisk af politikere?",
+        "Hvad signalerer politikere ved at lade sig portrættere på elcykel?",
+        "Kan elcykler være med til at 'grønvaske' politikeres image?"
+      ],
+      "perplexityInfo": "## OVERSIGT\nElcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel. De kombinerer traditionel cykling med elektrisk assistance, hvilket gør dem til et attraktivt alternativ til bilen.\n\n## AKTUEL STATUS\nElcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer. Mange cykelproducenter udvider deres sortiment med nye modeller, hvilket gør det lettere for forbrugerne at vælge den rigtige elcykel til deres formål.\n\n## NØGLETAL\n- **Typer af elcykler**: Der findes mange typer, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler[1][3].\n- **Populære mærker**: Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler[3][5].\n- **Reguleringer**: I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav[3]...",
+      "kildeForslagInfo": "Her er en liste med 5 relevante og troværdige danske kilder om elcykler, som en journalist kunne bruge til research:\n\n- Cyklistforbundet (www.cyklistforbundet.dk) - Landsdækkende interesseorganisation for cyklister, der har viden og data om elcykler i Danmark.\n\n- Transportministeriet (www.trm.dk) - Ministeriet har information om lovgivning, regler og støtteordninger for elcykler i Danmark.\n\n- Teknologisk Institut (www.teknologisk.dk) - Uafhængigt forskningsinstitut, der har udført analyser og tests af elcykler på det danske marked.\n\n- Dansk Elbil Alliance (www.danskelbilalliance.dk) - Brancheorganisation, der repræsenterer virksomheder inden for elcykler og kan give indsigt i markedet.\n\n- Professor Jens Stissing Jensen, DTU Management (www.man.dtu.dk) - Ekspert i bæredygtig mobilitet, der har forsket i elcyklers rolle i den grønne omstilling.\n\nDisse kilder dækker et bredt spektrum af information om elcykler i Danmark, herunder markedsdata, lovgivning, forskning og brancheekspertise. Journalisten vil kunne finde pålidelige fakta, statistikker og kontakter til at understøtte en dybdegående research om emnet.",
+      "calculatedScore": 9.0,
+      "videnDistillat": {
+        "noegletal": [
+          {
+            "tal": "Flere typer",
+            "beskrivelse": "Der findes mange typer elcykler, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler",
+            "kilde": "[1][3]"
+          }
+        ],
+        "centralePaastand": [
+          {
+            "paastand": "Elcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel.",
+            "kilde": null
+          },
+          {
+            "paastand": "Elcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer.",
+            "kilde": null
+          },
+          {
+            "paastand": "Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler.",
+            "kilde": "[3][5]"
+          },
+          {
+            "paastand": "I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav.",
+            "kilde": "[3]"
+          }
+        ],
+        "vinkler": [
+          {
+            "vinkel": "Miljøperspektiv: Elcykler ses som en grøn løsning til transport, da de reducerer CO2-udledning og støj",
+            "aktør": null
+          },
+          {
+            "vinkel": "Praktisk perspektiv: De er praktiske for daglig pendling og shopping, især med ladcykler",
+            "aktør": null
+          },
+          {
+            "vinkel": "Fritidsperspektiv: Elcykler åbner op for nye muligheder for fritidsaktiviteter, som terrænkørsel med el mountainbikes",
+            "aktør": null
+          }
+        ],
+        "datoer": []
+      },
+      "ekspertKilder": {
+        "experts": [
+          {
+            "navn": "Heidi Sørensen",
+            "titel": "Afdelingsleder",
+            "organisation": "Danmarks Statistik",
+            "ekspertise": "Produktion og import af elcykler",
+            "kontakt": "HSN@dst.dk",
+            "relevans": "Ekspertise i statistik om elcykler"
+          },
+          {
+            "navn": "Pia Nielsen",
+            "titel": "Afdelingsleder",
+            "organisation": "Danmarks Statistik",
+            "ekspertise": "Import og eksport af elcykler",
+            "kontakt": "pin@dst.dk",
+            "relevans": "Ekspertise i udenrigshandel med elcykler"
+          },
+          {
+            "navn": "Søren Schultz Hansen",
+            "titel": "Selvstændig erhvervsforsker og ekstern lektor",
+            "organisation": "Copenhagen Business School (CBS)",
+            "ekspertise": "Politisk kommunikation og sociale medier",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Ekspertise i politisk kommunikation"
+          },
+          {
+            "navn": "Mark Ørsten",
+            "titel": "Medieforsker",
+            "organisation": "Roskilde Universitet",
+            "ekspertise": "Politisk kommunikation og medieproduktion",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Ekspertise i politisk kommunikation"
+          },
+          {
+            "navn": "Rasmus Kleis Nielsen",
+            "titel": "Lektor i politisk kommunikation",
+            "organisation": "Roskilde Universitet",
+            "ekspertise": "Politisk journalistik og kommunikation",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Ekspertise i politisk journalistik"
+          },
+          {
+            "navn": "Rasmus Nielsen",
+            "titel": "Chefredaktør",
+            "organisation": "Altinget.dk",
+            "ekspertise": "Politisk journalistik",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Ekspertise i politisk journalistik"
+          }
+        ],
+        "institutions": [
+          {
+            "navn": "Danmarks Statistik",
+            "type": "Myndighed",
+            "relevans": "Statistisk data om elcykler",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://www.dst.dk/da/Kontakt"
+          },
+          {
+            "navn": "Copenhagen Business School (CBS)",
+            "type": "Universitet",
+            "relevans": "Ekspertise i politisk kommunikation",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://www.cbs.dk/en/about-cbs/contact"
+          },
+          {
+            "navn": "Roskilde Universitet",
+            "type": "Universitet",
+            "relevans": "Ekspertise i politisk kommunikation og medieproduktion",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://ruc.dk/en/about-roskilde-university/contact"
+          },
+          {
+            "navn": "Altinget.dk",
+            "type": "Medieplatform",
+            "relevans": "Politisk journalistik og nyhedsdækning",
+            "kontaktperson": "Rasmus Nielsen",
+            "kontakt": "https://www.altinget.dk/kontakt"
+          },
+          {
+            "navn": "Folketinget",
+            "type": "Lovgivende forsamling",
+            "relevans": "Politisk kommunikation og valgkampe",
+            "kontaktperson": "Jesper Tidemann",
+            "kontakt": "https://www.ft.dk/da/aktuelt/kontakt"
+          }
+        ],
+        "data_sources": [
+          {
+            "titel": "Elcykler vinder frem på det danske cykelmarked",
+            "udgiver": "Danmarks Statistik",
+            "beskrivelse": "Statistik om import og salg af elcykler i Danmark",
+            "link": "https://www.dst.dk/da/Statistik/nyheder-analyser-publ/bagtal/2019/2019-05-10-elcykler-vinder-frem-paa-det-danske-cykelmarked",
+            "senest_opdateret": "25. marts 2021"
+          },
+          {
+            "titel": "Statistikbanken",
+            "udgiver": "Danmarks Statistik",
+            "beskrivelse": "Samling af statistik om forskellige emner, herunder transport og trafik",
+            "link": "https://www.statistikbanken.dk/",
+            "senest_opdateret": "Varierende"
+          },
+          {
+            "titel": "Politisk kommunikation",
+            "udgiver": "Hans Reitzels Forlag",
+            "beskrivelse": "Bog om forandringer i politisk kommunikation",
+            "link": "Ikke offentligt tilgængelig",
+            "senest_opdateret": "2018"
+          }
+        ]
+      },
+      "harVidenDistillat": true,
+      "harEkspertKilder": true
+    },
+    {
+      "overskrift": "Pedalkraft møder strøm: Elcyklens idéhistorie",
+      "beskrivelse": "Elcyklen bygger bro mellem traditionel cykling og motoriseret transport. Hvad er dens idéhistoriske rødder, og hvordan har den udviklet sig til nutidens populære hybridkøretøj?",
+      "begrundelse": "Vinklen giver et historisk perspektiv på elcykler og deres teknologiske udvikling. Den appellerer til den dannede læser med interesse for idéhistorie.",
+      "nyhedskriterier": [
+        "identifikation",
+        "væsentlighed"
+      ],
+      "startSpørgsmål": [
+        "Hvornår opstod den første elcykel?",
+        "Hvilke nøglepersoner og opfindelser har formet elcyklens historie?",
+        "Hvordan adskiller nutidens elcykler sig fra tidligere modeller?"
+      ],
+      "perplexityInfo": "## OVERSIGT\nElcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel. De kombinerer traditionel cykling med elektrisk assistance, hvilket gør dem til et attraktivt alternativ til bilen.\n\n## AKTUEL STATUS\nElcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer. Mange cykelproducenter udvider deres sortiment med nye modeller, hvilket gør det lettere for forbrugerne at vælge den rigtige elcykel til deres formål.\n\n## NØGLETAL\n- **Typer af elcykler**: Der findes mange typer, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler[1][3].\n- **Populære mærker**: Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler[3][5].\n- **Reguleringer**: I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav[3]...",
+      "kildeForslagInfo": "Her er en liste med 5 relevante og troværdige danske kilder om elcykler, som en journalist kunne bruge til research:\n\n- Cyklistforbundet (www.cyklistforbundet.dk) - Landsdækkende interesseorganisation for cyklister, der har viden og data om elcykler i Danmark.\n\n- Transportministeriet (www.trm.dk) - Ministeriet har information om lovgivning, regler og støtteordninger for elcykler i Danmark.\n\n- Teknologisk Institut (www.teknologisk.dk) - Uafhængigt forskningsinstitut, der har udført analyser og tests af elcykler på det danske marked.\n\n- Dansk Elbil Alliance (www.danskelbilalliance.dk) - Brancheorganisation, der repræsenterer virksomheder inden for elcykler og kan give indsigt i markedet.\n\n- Professor Jens Stissing Jensen, DTU Management (www.man.dtu.dk) - Ekspert i bæredygtig mobilitet, der har forsket i elcyklers rolle i den grønne omstilling.\n\nDisse kilder dækker et bredt spektrum af information om elcykler i Danmark, herunder markedsdata, lovgivning, forskning og brancheekspertise. Journalisten vil kunne finde pålidelige fakta, statistikker og kontakter til at understøtte en dybdegående research om emnet.",
+      "calculatedScore": 8.0,
+      "videnDistillat": {
+        "noegletal": [
+          {
+            "tal": "Flere typer",
+            "beskrivelse": "Der findes mange typer elcykler, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler",
+            "kilde": "[1][3]"
+          }
+        ],
+        "centralePaastand": [
+          {
+            "paastand": "Elcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel.",
+            "kilde": null
+          },
+          {
+            "paastand": "Elcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer.",
+            "kilde": null
+          },
+          {
+            "paastand": "Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler.",
+            "kilde": "[3][5]"
+          },
+          {
+            "paastand": "I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav.",
+            "kilde": "[3]"
+          }
+        ],
+        "vinkler": [
+          {
+            "vinkel": "Miljøperspektiv: Elcykler ses som en grøn løsning til transport, da de reducerer CO2-udledning og støj",
+            "aktør": null
+          },
+          {
+            "vinkel": "Praktisk perspektiv: De er praktiske for daglig pendling og shopping, især med ladcykler",
+            "aktør": null
+          },
+          {
+            "vinkel": "Fritidsperspektiv: Elcykler åbner op for nye muligheder for fritidsaktiviteter, som terrænkørsel med el mountainbikes",
+            "aktør": null
+          }
+        ],
+        "datoer": []
+      },
+      "ekspertKilder": {
+        "experts": [
+          {
+            "navn": "Pernille Taagaard Dinesen",
+            "titel": "Direktør",
+            "organisation": "Køn – Gender Museum Denmark",
+            "ekspertise": "Kulturhistorie og samfundsudvikling",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Kan bidrage med indsigt i samfundsudviklingen og teknologiens rolle i kulturelle forandringer"
+          },
+          {
+            "navn": "Mikkel Maarbjerg",
+            "titel": "Kok og restauratør",
+            "organisation": "Restaurant Vie",
+            "ekspertise": "Innovation og teknologi i madbranchen",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Kan tale om innovation og teknologi i en bredere forstand, relevant for elcyklers udvikling"
+          },
+          {
+            "navn": "Jesper Schleimann",
+            "titel": "Forsker",
+            "organisation": "DTU Transport",
+            "ekspertise": "Transportteknologi og mobilitet",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Ekspertise i transportteknologi og mobilitetsløsninger"
+          },
+          {
+            "navn": "Lars Bo Andersen",
+            "titel": "Professor",
+            "organisation": "Aalborg Universitet, Institut for Arkitektur og Design",
+            "ekspertise": "Design og teknologi",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Kan bidrage med indsigt i design og teknologisk udvikling"
+          },
+          {
+            "navn": "Henrik Madsen",
+            "titel": "Forsker",
+            "organisation": "DTU Fysik",
+            "ekspertise": "Energi og teknologi",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Kan tale om energi og teknologi i forhold til elcykler"
+          },
+          {
+            "navn": "Jens Christian Morell",
+            "titel": "Forsker",
+            "organisation": "Aarhus Universitet, Institut for Ingeniørvidenskab",
+            "ekspertise": "Ingeniørvidenskab og teknologi",
+            "kontakt": "Ikke offentligt tilgængelig",
+            "relevans": "Ekspertise i teknologisk udvikling og innovation"
+          }
+        ],
+        "institutions": [
+          {
+            "navn": "Køn – Gender Museum Denmark",
+            "type": "Museum",
+            "relevans": "Kan bidrage med indsigt i kulturelle og sociale aspekter af teknologisk udvikling",
+            "kontaktperson": "Pernille Taagaard Dinesen",
+            "kontakt": "Ikke offentligt tilgængelig"
+          },
+          {
+            "navn": "DTU Transport",
+            "type": "Forskningsinstitution",
+            "relevans": "Ekspertise i transportteknologi og mobilitetsløsninger",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://www.transport.dtu.dk/"
+          },
+          {
+            "navn": "Aarhus Universitet, Institut for Ingeniørvidenskab",
+            "type": "Universitetsinstitut",
+            "relevans": "Forskningsmiljø for teknologisk udvikling og innovation",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://ing.engineer.au.dk/"
+          },
+          {
+            "navn": "Dansk Cyklist Forbund",
+            "type": "Interesseorganisation",
+            "relevans": "Ekspertise i cykling og mobilitet",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://www.cyklistforbundet.dk/"
+          },
+          {
+            "navn": "Transportministeriet",
+            "type": "Myndighed",
+            "relevans": "Politisk og strategisk indsigt i transportsektoren",
+            "kontaktperson": "Presseafdeling",
+            "kontakt": "https://trm.dk/"
+          }
+        ],
+        "data_sources": [
+          {
+            "titel": "Elcykelstatistik",
+            "udgiver": "Transportministeriet",
+            "beskrivelse": "Statistik over elcykelbrug og -salg i Danmark",
+            "link": "Ikke offentligt tilgængelig",
+            "senest_opdateret": "Ikke offentligt tilgængelig"
+          },
+          {
+            "titel": "Kursuspriser 2025",
+            "udgiver": "Uddannelses- og Forskningsministeriet",
+            "beskrivelse": "Kursuspriser for uddannelser inklusiv elcykelrelaterede kurser",
+            "link": "https://www.uvm.dk/-/media/filer/uvm/institutioner-og-drift/xls25/250108-isb-takstkatalog-2025.xlsx",
+            "senest_opdateret": "2025"
+          },
+          {
+            "titel": "Transport og Mobilitet",
+            "udgiver": "DTU Transport",
+            "beskrivelse": "Forskningsdata om transportteknologi og mobilitet",
+            "link": "https://www.transport.dtu.dk/",
+            "senest_opdateret": "Ikke offentligt tilgængelig"
+          },
+          {
+            "titel": "Cyklistforbundets Årsrapport",
+            "udgiver": "Dansk Cyklist Forbund",
+            "beskrivelse": "Årlig rapport om cyklingstrends og -udvikling i Danmark",
+            "link": "https://www.cyklistforbundet.dk/",
+            "senest_opdateret": "Ikke offentligt tilgængelig"
+          }
+        ]
+      },
+      "harVidenDistillat": true,
+      "harEkspertKilder": true
+    },
+    {
+      "overskrift": "Når elcyklen møder naturen: Paradokser og perspektiver",
+      "beskrivelse": "Elcyklen vinder frem som fritidskøretøj i naturen. Men hvordan påvirker den vores naturoplevelse og -forståelse? Vi undersøger elcyklens rolle i et større økologisk perspektiv.",
+      "begrundelse": "Vinklen belyser elcyklens indvirkning på vores forhold til naturen. Den rejser etiske spørgsmål og paradokser, som inviterer til filosofisk refleksion.",
+      "nyhedskriterier": [
+        "væsentlighed",
+        "konflikt"
+      ],
+      "startSpørgsmål": [
+        "Hvordan ændrer elcykler vores adgang til og oplevelse af naturen?",
+        "Er elcykler i naturen et gode eller et onde ud fra et økologisk perspektiv?",
+        "Hvilke etiske hensyn bør vi have, når vi bruger elcykler i naturen?"
+      ],
+      "perplexityInfo": "## OVERSIGT\nElcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel. De kombinerer traditionel cykling med elektrisk assistance, hvilket gør dem til et attraktivt alternativ til bilen.\n\n## AKTUEL STATUS\nElcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer. Mange cykelproducenter udvider deres sortiment med nye modeller, hvilket gør det lettere for forbrugerne at vælge den rigtige elcykel til deres formål.\n\n## NØGLETAL\n- **Typer af elcykler**: Der findes mange typer, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler[1][3].\n- **Populære mærker**: Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler[3][5].\n- **Reguleringer**: I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav[3]...",
+      "kildeForslagInfo": "Her er en liste med 5 relevante og troværdige danske kilder om elcykler, som en journalist kunne bruge til research:\n\n- Cyklistforbundet (www.cyklistforbundet.dk) - Landsdækkende interesseorganisation for cyklister, der har viden og data om elcykler i Danmark.\n\n- Transportministeriet (www.trm.dk) - Ministeriet har information om lovgivning, regler og støtteordninger for elcykler i Danmark.\n\n- Teknologisk Institut (www.teknologisk.dk) - Uafhængigt forskningsinstitut, der har udført analyser og tests af elcykler på det danske marked.\n\n- Dansk Elbil Alliance (www.danskelbilalliance.dk) - Brancheorganisation, der repræsenterer virksomheder inden for elcykler og kan give indsigt i markedet.\n\n- Professor Jens Stissing Jensen, DTU Management (www.man.dtu.dk) - Ekspert i bæredygtig mobilitet, der har forsket i elcyklers rolle i den grønne omstilling.\n\nDisse kilder dækker et bredt spektrum af information om elcykler i Danmark, herunder markedsdata, lovgivning, forskning og brancheekspertise. Journalisten vil kunne finde pålidelige fakta, statistikker og kontakter til at understøtte en dybdegående research om emnet.",
+      "calculatedScore": 9.0,
+      "videnDistillat": {
+        "noegletal": [
+          {
+            "tal": "Flere typer",
+            "beskrivelse": "Der findes mange typer elcykler, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler",
+            "kilde": "[1][3]"
+          }
+        ],
+        "centralePaastand": [
+          {
+            "paastand": "Elcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel.",
+            "kilde": null
+          },
+          {
+            "paastand": "Elcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer.",
+            "kilde": null
+          },
+          {
+            "paastand": "Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler.",
+            "kilde": "[3][5]"
+          },
+          {
+            "paastand": "I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav.",
+            "kilde": "[3]"
+          }
+        ],
+        "vinkler": [
+          {
+            "vinkel": "Miljøperspektiv: Elcykler ses som en grøn løsning til transport, da de reducerer CO2-udledning og støj",
+            "aktør": null
+          },
+          {
+            "vinkel": "Praktisk perspektiv: De er praktiske for daglig pendling og shopping, især med ladcykler",
+            "aktør": null
+          },
+          {
+            "vinkel": "Fritidsperspektiv: Elcykler åbner op for nye muligheder for fritidsaktiviteter, som terrænkørsel med el mountainbikes",
+            "aktør": null
+          }
+        ],
+        "datoer": []
+      },
+      "harVidenDistillat": true,
+      "harEkspertKilder": false
+    },
+    {
+      "overskrift": "Når alderen indhenter: Elcyklen som livslinje for ældre",
+      "beskrivelse": "For mange ældre udgør elcyklen en mulighed for at bevare mobilitet og uafhængighed. Vi undersøger, hvordan elcykler kan forbedre ældres livskvalitet og modvirke isolation.",
+      "begrundelse": "Vinklen sætter fokus på elcyklers sociale betydning for en ofte overset befolkningsgruppe. Den rummer et menneskeligt perspektiv og inviterer til identifikation.",
+      "nyhedskriterier": [
+        "identifikation",
+        "væsentlighed"
+      ],
+      "startSpørgsmål": [
+        "Hvordan oplever ældre elcyklens indvirkning på deres hverdag?",
+        "Hvilke udfordringer møder ældre i brugen af elcykler?",
+        "Kan elcykler modvirke aldersrelateret ensomhed og isolation?"
+      ],
+      "perplexityInfo": "## OVERSIGT\nElcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel. De kombinerer traditionel cykling med elektrisk assistance, hvilket gør dem til et attraktivt alternativ til bilen.\n\n## AKTUEL STATUS\nElcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer. Mange cykelproducenter udvider deres sortiment med nye modeller, hvilket gør det lettere for forbrugerne at vælge den rigtige elcykel til deres formål.\n\n## NØGLETAL\n- **Typer af elcykler**: Der findes mange typer, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler[1][3].\n- **Populære mærker**: Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler[3][5].\n- **Reguleringer**: I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav[3]...",
+      "kildeForslagInfo": "Her er en liste med 5 relevante og troværdige danske kilder om elcykler, som en journalist kunne bruge til research:\n\n- Cyklistforbundet (www.cyklistforbundet.dk) - Landsdækkende interesseorganisation for cyklister, der har viden og data om elcykler i Danmark.\n\n- Transportministeriet (www.trm.dk) - Ministeriet har information om lovgivning, regler og støtteordninger for elcykler i Danmark.\n\n- Teknologisk Institut (www.teknologisk.dk) - Uafhængigt forskningsinstitut, der har udført analyser og tests af elcykler på det danske marked.\n\n- Dansk Elbil Alliance (www.danskelbilalliance.dk) - Brancheorganisation, der repræsenterer virksomheder inden for elcykler og kan give indsigt i markedet.\n\n- Professor Jens Stissing Jensen, DTU Management (www.man.dtu.dk) - Ekspert i bæredygtig mobilitet, der har forsket i elcyklers rolle i den grønne omstilling.\n\nDisse kilder dækker et bredt spektrum af information om elcykler i Danmark, herunder markedsdata, lovgivning, forskning og brancheekspertise. Journalisten vil kunne finde pålidelige fakta, statistikker og kontakter til at understøtte en dybdegående research om emnet.",
+      "calculatedScore": 8.0,
+      "videnDistillat": {
+        "noegletal": [
+          {
+            "tal": "Flere typer",
+            "beskrivelse": "Der findes mange typer elcykler, herunder klassiske elcykler, el citybikes, el mountainbikes, Speed Pedelec cykler og el ladcykler",
+            "kilde": "[1][3]"
+          }
+        ],
+        "centralePaastand": [
+          {
+            "paastand": "Elcykler er en voksende trend i transport og fritid, med en bred vifte af modeller tilpasset forskellige behov, fra daglig pendling til terrænkørsel.",
+            "kilde": null
+          },
+          {
+            "paastand": "Elcykler er lige nu meget relevante på grund af deres miljøvenlige og kosteffektive egenskaber, samt deres evne til at mindske trafikproblemer i byer.",
+            "kilde": null
+          },
+          {
+            "paastand": "Kendte mærker som Specialized, Cube, Gazelle og Batavus tilbyder en række elcykler.",
+            "kilde": "[3][5]"
+          },
+          {
+            "paastand": "I Danmark er der specifikke regler for brug af elcykler, inklusiv hastighedsgrænser og udstyrskrav.",
+            "kilde": "[3]"
+          }
+        ],
+        "vinkler": [
+          {
+            "vinkel": "Miljøperspektiv: Elcykler ses som en grøn løsning til transport, da de reducerer CO2-udledning og støj",
+            "aktør": null
+          },
+          {
+            "vinkel": "Praktisk perspektiv: De er praktiske for daglig pendling og shopping, især med ladcykler",
+            "aktør": null
+          },
+          {
+            "vinkel": "Fritidsperspektiv: Elcykler åbner op for nye muligheder for fritidsaktiviteter, som terrænkørsel med el mountainbikes",
+            "aktør": null
+          }
+        ],
+        "datoer": []
+      },
+      "harVidenDistillat": true,
+      "harEkspertKilder": false
+    }
+  ]
+}

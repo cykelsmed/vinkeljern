@@ -1,14 +1,59 @@
-2025-04-03 22:12:37,656 - root - DEBUG - Logging initialized
-2025-04-03 22:12:37,656 - root - INFO - Vinkeljernet starting up
-2025-04-03 22:12:37,660 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
-2025-04-03 22:12:37,660 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
-2025-04-03 22:12:37,660 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
-2025-04-03 22:12:37,660 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
-2025-04-03 22:12:37,663 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-04-03 22:12:37,749 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-03 22:12:37,824 - vinkeljernet.api - INFO - API client initialized and ready
-2025-04-03 22:12:37,829 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: DR - Danmarks Radio
-2025-04-03 22:12:37,831 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-03 22:12:37,832 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-04-03 22:12:37,832 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x107c66a20>}
-2025-04-03 22:12:47,560 - vinkeljernet.api - INFO - Perplexity API request completed in 9.73 seconds
+2025-04-04 02:54:34,677 - root - DEBUG - Logging initialized
+2025-04-04 02:54:34,677 - root - INFO - Vinkeljernet starting up
+2025-04-04 02:54:34,681 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
+2025-04-04 02:54:34,681 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
+2025-04-04 02:54:34,681 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
+2025-04-04 02:54:34,681 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
+2025-04-04 02:54:34,684 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-04-04 02:54:34,769 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-04 02:54:34,870 - vinkeljernet.api - INFO - API client initialized and ready
+2025-04-04 02:54:34,875 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: Arbejderen
+2025-04-04 02:54:34,878 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-04 02:54:34,878 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-04-04 02:54:34,878 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x107eb0a40>}
+2025-04-04 02:54:46,646 - vinkeljernet.api - INFO - Perplexity API request completed in 11.77 seconds
+2025-04-04 02:54:46,650 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-04-04 02:54:46,650 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nKommunalvalget i København 2025 handler om valget af kommunalbestyrelse, der skal træffe beslutninger om lokale forhold som skoler, ældrepleje og byudvikling. Valget finder sted den 18. november 2025. Partier som Radikale Venstre og Socialdemokratiet er allerede i gang med at opstille kandidater.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da partierne er i gang med at forberede sig til valget. Opstillingsprocessen er i fuld gang, og spidskandidater er ved at blive valgt. Dette indebærer, at der er en intens aktivitet omkring kandidatopstillinger og valgkampagneaktiviteter.\n\n## NØGLETAL\n- **Valgdato:** Tirsdag den 18. november 2025.\n- **Kandidatopstillinger:** Radikale Venstre har to opstillingsmøder, hvoraf det første finder sted to år før valget, og det andet ét år før[1].\n- **Socialdemokratiets liste:** Indeholder 35 navne og vedtages via urafstemning blandt medlemmerne[2].\n\n## PERSPEKTIVER\nForskellige partier har forskellige synspunkter på kommunalvalget. Radikale Venstre fokuserer på en åben proces for kandidatopstilling, mens Socialdemokratiet bruger urafstemning til at prioritere kandidater. Venstre har et fokus på lokale løsninger og stærke lokalsamfund[3]. Disse perspektiver afspejler partierne forskellige politiske mål og strategier for valgkampen.', 'topic': 'Kommunalvalg i København 2025'}
+2025-04-04 02:55:11,418 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+  "noegletal": [
+    {
+      "tal": "18. november 2025",
+      "beskrivelse": "Valgdato for kommun...
+2025-04-04 02:55:11,419 - json_parser - INFO - Successfully parsed JSON directly: 3 items found
+2025-04-04 02:55:11,419 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 24.77 seconds
+2025-04-04 02:55:46,036 - vinkeljernet.cache - INFO - Cache hit for fetch_source_suggestions
+2025-04-04 02:55:46,039 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-04 02:55:46,039 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Kommunalvalg i København 2025', 'angle_headline': 'Aktivister: Valget mangler grøn dagsorden', 'angle_description': 'Miljøforkæmpere savner fokus på klima og bæredygtighed i valgkampen. Vi taler med aktivister om, hvad der skal til for en grønnere by.'}
+2025-04-04 02:55:46,039 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-04 02:55:46,039 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Kommunalvalg i København 2025', 'angle_headline': 'Socialistiske partier i kamp mod ulighed', 'angle_description': 'Hvilke partier har de mest progressive forslag til at bekæmpe social ulighed i København? Vi ser nærmere på deres politik og visioner.'}
+2025-04-04 02:55:46,040 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-04 02:55:46,040 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Kommunalvalg i København 2025', 'angle_headline': 'Udenforskab: De glemte stemmer i valget', 'angle_description': 'Socialt udsatte grupper er tit overset i valgkampen. Vi giver stemme til hjemløse, misbrugere og andre på kanten af samfundet.'}
+2025-04-04 02:56:05,897 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+{
+  "eksperter": [
+    {
+      "navn": "Sisse Marie Welling",
+      "titel": "Sundheds- og o...
+2025-04-04 02:56:05,899 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-04 02:56:05,899 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-04 02:56:05,899 - vinkeljernet.api - INFO - Expert source suggestions generated in 19.86 seconds
+2025-04-04 02:56:07,894 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+{
+  "eksperter": [
+    {
+      "navn": "Maria Reumert Gjerding",
+      "titel": "Præsident",...
+2025-04-04 02:56:07,895 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-04 02:56:07,897 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-04 02:56:07,897 - vinkeljernet.api - INFO - Expert source suggestions generated in 21.86 seconds
+2025-04-04 02:56:09,458 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+{
+  "eksperter": [
+    {
+      "navn": "Jan Salling Kristensen",
+      "titel": "Ansvarshave...
+2025-04-04 02:56:09,458 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-04 02:56:09,458 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-04 02:56:09,458 - vinkeljernet.api - INFO - Expert source suggestions generated in 23.42 seconds
+2025-04-04 02:56:09,483 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-04 02:56:09,490 - vinkeljernet.api - INFO - API client shut down successfully

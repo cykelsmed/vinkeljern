@@ -34,7 +34,7 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.shortcuts import clear, message_dialog, button_dialog
 from prompt_toolkit.application import run_in_terminal
 
-from models import RedaktionelDNA  # <--- Added import here
+from models import RedaktionelDNA, ExpertSource, KnowledgeDistillate  # <--- Updated imports
 
 # Configure root logger
 logging.basicConfig(
@@ -374,12 +374,14 @@ async def main_async() -> None:
             progress.update(task, completed=percent)
             
             # Update task description based on progress
-            if percent < 30:
+            if percent < 20:
                 progress.update(task, description="Henter information om emnet...")
-            elif percent < 70:
+            elif percent < 40:
+                progress.update(task, description="Genererer videndistillat...")
+            elif percent < 60:
                 progress.update(task, description="Genererer vinkler...")
-            elif percent < 90:
-                progress.update(task, description="Finder kilder og filtrerer...")
+            elif percent < 80:
+                progress.update(task, description="Finder ekspertkilder...")
             else:
                 progress.update(task, description="Færdiggør resultater...")
         
@@ -393,7 +395,9 @@ async def main_async() -> None:
                 args.emne,
                 profile,
                 bypass_cache=args.bypass_cache,
-                progress_callback=progress_callback
+                progress_callback=progress_callback,
+                include_expert_sources=True,
+                include_knowledge_distillate=True
             )
             
             # Ensure progress is complete
@@ -440,6 +444,60 @@ async def main_async() -> None:
     
     console.print(f"[green]✓[/green] Genereret {len(angles)} vinkler")
     
+    # Check if we have a knowledge distillate
+    has_distillate = False
+    for angle in angles:
+        if angle.get('videnDistillat') and not has_distillate:
+            has_distillate = True
+            distillate = angle.get('videnDistillat')
+            
+            # Display knowledge distillate panel
+            console.print("\n[bold blue]📊 Videndistillat:[/bold blue]")
+            
+            distillate_content = []
+            
+            # Add key statistics if available
+            if 'noegletal' in distillate and distillate['noegletal']:
+                distillate_content.append("[bold cyan]Nøgletal:[/bold cyan]")
+                for stat in distillate['noegletal']:
+                    source = f" [dim]({stat.get('kilde')})[/dim]" if stat.get('kilde') else ""
+                    distillate_content.append(f"• [bold]{stat.get('tal')}[/bold]: {stat.get('beskrivelse')}{source}")
+                distillate_content.append("")
+            
+            # Add key claims if available
+            if 'centralePaastand' in distillate and distillate['centralePaastand']:
+                distillate_content.append("[bold cyan]Centrale påstande:[/bold cyan]")
+                for claim in distillate['centralePaastand']:
+                    source = f" [dim]({claim.get('kilde')})[/dim]" if claim.get('kilde') else ""
+                    distillate_content.append(f"• {claim.get('paastand')}{source}")
+                distillate_content.append("")
+            
+            # Add different perspectives if available
+            if 'vinkler' in distillate and distillate['vinkler']:
+                distillate_content.append("[bold cyan]Perspektiver:[/bold cyan]")
+                for perspective in distillate['vinkler']:
+                    actor = f" [dim]({perspective.get('aktør')})[/dim]" if perspective.get('aktør') else ""
+                    distillate_content.append(f"• {perspective.get('vinkel')}{actor}")
+                distillate_content.append("")
+            
+            # Add important dates if available
+            if 'datoer' in distillate and distillate['datoer']:
+                distillate_content.append("[bold cyan]Vigtige datoer:[/bold cyan]")
+                for date_info in distillate['datoer']:
+                    importance = f" - {date_info.get('betydning')}" if date_info.get('betydning') else ""
+                    distillate_content.append(f"• [bold]{date_info.get('dato')}[/bold]: {date_info.get('begivenhed')}{importance}")
+            
+            # Display the distillate panel
+            console.print(Panel(
+                "\n".join(distillate_content),
+                title="[bold blue]Videndistillat[/bold blue]",
+                border_style="blue",
+                expand=False
+            ))
+            
+            # Only show the distillate once
+            break
+    
     # Present results with nice formatting
     console.print("\n[bold blue]🎯 Anbefalede vinkler:[/bold blue]")
     for i, angle in enumerate(angles, 1):
@@ -467,6 +525,24 @@ async def main_async() -> None:
         
         if score != 'N/A':
             panel_content.append(f"\n[dim blue]Score:[/dim blue] [dim]{score}[/dim]")
+        
+        # Add expert sources if available for this angle
+        if angle.get('ekspertKilder'):
+            panel_content.append(f"\n[bold cyan]Ekspertkilder:[/bold cyan]")
+            
+            # Add experts
+            if 'experts' in angle['ekspertKilder'] and angle['ekspertKilder']['experts']:
+                for expert in angle['ekspertKilder']['experts'][:3]:  # Limit to 3 experts to avoid overload
+                    name = expert.get('navn', 'N/A')
+                    title = expert.get('titel', 'N/A')
+                    org = expert.get('organisation', 'N/A')
+                    contact = f" [dim]({expert.get('kontakt')})[/dim]" if expert.get('kontakt') else ""
+                    panel_content.append(f"• [bold]{name}[/bold]: {title}, {org}{contact}")
+            
+            # Add data sources (just a mention)
+            if 'data_sources' in angle['ekspertKilder'] and angle['ekspertKilder']['data_sources']:
+                data_count = len(angle['ekspertKilder']['data_sources'])
+                panel_content.append(f"[dim]+ {data_count} datakilder tilgængelige[/dim]")
         
         console.print(Panel(
             "\n".join(panel_content),
@@ -873,12 +949,14 @@ async def process_generation_request(args) -> None:
             progress.update(task, completed=percent)
             
             # Update task description based on progress
-            if percent < 30:
+            if percent < 20:
                 progress.update(task, description="Henter information om emnet...")
-            elif percent < 70:
+            elif percent < 40:
+                progress.update(task, description="Genererer videndistillat...")
+            elif percent < 60:
                 progress.update(task, description="Genererer vinkler...")
-            elif percent < 90:
-                progress.update(task, description="Finder kilder og filtrerer...")
+            elif percent < 80:
+                progress.update(task, description="Finder ekspertkilder...")
             else:
                 progress.update(task, description="Færdiggør resultater...")
         
@@ -892,7 +970,9 @@ async def process_generation_request(args) -> None:
                 args.emne,
                 profile,
                 bypass_cache=args.bypass_cache,
-                progress_callback=progress_callback
+                progress_callback=progress_callback,
+                include_expert_sources=True,
+                include_knowledge_distillate=True
             )
             
             # Ensure progress is complete
@@ -937,6 +1017,60 @@ async def process_generation_request(args) -> None:
     
     console.print(f"[green]✓[/green] Genereret {len(angles)} vinkler")
     
+    # Check if we have a knowledge distillate
+    has_distillate = False
+    for angle in angles:
+        if angle.get('videnDistillat') and not has_distillate:
+            has_distillate = True
+            distillate = angle.get('videnDistillat')
+            
+            # Display knowledge distillate panel
+            console.print("\n[bold blue]📊 Videndistillat:[/bold blue]")
+            
+            distillate_content = []
+            
+            # Add key statistics if available
+            if 'noegletal' in distillate and distillate['noegletal']:
+                distillate_content.append("[bold cyan]Nøgletal:[/bold cyan]")
+                for stat in distillate['noegletal']:
+                    source = f" [dim]({stat.get('kilde')})[/dim]" if stat.get('kilde') else ""
+                    distillate_content.append(f"• [bold]{stat.get('tal')}[/bold]: {stat.get('beskrivelse')}{source}")
+                distillate_content.append("")
+            
+            # Add key claims if available
+            if 'centralePaastand' in distillate and distillate['centralePaastand']:
+                distillate_content.append("[bold cyan]Centrale påstande:[/bold cyan]")
+                for claim in distillate['centralePaastand']:
+                    source = f" [dim]({claim.get('kilde')})[/dim]" if claim.get('kilde') else ""
+                    distillate_content.append(f"• {claim.get('paastand')}{source}")
+                distillate_content.append("")
+            
+            # Add different perspectives if available
+            if 'vinkler' in distillate and distillate['vinkler']:
+                distillate_content.append("[bold cyan]Perspektiver:[/bold cyan]")
+                for perspective in distillate['vinkler']:
+                    actor = f" [dim]({perspective.get('aktør')})[/dim]" if perspective.get('aktør') else ""
+                    distillate_content.append(f"• {perspective.get('vinkel')}{actor}")
+                distillate_content.append("")
+            
+            # Add important dates if available
+            if 'datoer' in distillate and distillate['datoer']:
+                distillate_content.append("[bold cyan]Vigtige datoer:[/bold cyan]")
+                for date_info in distillate['datoer']:
+                    importance = f" - {date_info.get('betydning')}" if date_info.get('betydning') else ""
+                    distillate_content.append(f"• [bold]{date_info.get('dato')}[/bold]: {date_info.get('begivenhed')}{importance}")
+            
+            # Display the distillate panel
+            console.print(Panel(
+                "\n".join(distillate_content),
+                title="[bold blue]Videndistillat[/bold blue]",
+                border_style="blue",
+                expand=False
+            ))
+            
+            # Only show the distillate once
+            break
+    
     # Present results with nice formatting
     console.print("\n[bold blue]🎯 Anbefalede vinkler:[/bold blue]")
     for i, angle in enumerate(angles, 1):
@@ -964,6 +1098,24 @@ async def process_generation_request(args) -> None:
         
         if score != 'N/A':
             panel_content.append(f"\n[dim blue]Score:[/dim blue] [dim]{score}[/dim]")
+        
+        # Add expert sources if available for this angle
+        if angle.get('ekspertKilder'):
+            panel_content.append(f"\n[bold cyan]Ekspertkilder:[/bold cyan]")
+            
+            # Add experts
+            if 'experts' in angle['ekspertKilder'] and angle['ekspertKilder']['experts']:
+                for expert in angle['ekspertKilder']['experts'][:3]:  # Limit to 3 experts to avoid overload
+                    name = expert.get('navn', 'N/A')
+                    title = expert.get('titel', 'N/A')
+                    org = expert.get('organisation', 'N/A')
+                    contact = f" [dim]({expert.get('kontakt')})[/dim]" if expert.get('kontakt') else ""
+                    panel_content.append(f"• [bold]{name}[/bold]: {title}, {org}{contact}")
+            
+            # Add data sources (just a mention)
+            if 'data_sources' in angle['ekspertKilder'] and angle['ekspertKilder']['data_sources']:
+                data_count = len(angle['ekspertKilder']['data_sources'])
+                panel_content.append(f"[dim]+ {data_count} datakilder tilgængelige[/dim]")
         
         console.print(Panel(
             "\n".join(panel_content),

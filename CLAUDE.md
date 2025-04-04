@@ -19,6 +19,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Type annotations: Use for function parameters and return values
 - Naming: snake_case for functions/variables, PascalCase for classes, ALL_CAPS for constants
 - Docstrings: Triple quotes with descriptive text
-- Error handling: Use specific exception types and decorators (@safe_execute, @retry_with_backoff)
+- Error handling: Use specific exception types and decorators (@safe_execute, @retry_with_backoff, @retry_with_circuit_breaker, @user_friendly_error)
 - Module organization: Group imports (standard library, third-party, local)
 - Testing: Use pytest with appropriate markers (unit, integration, slow)

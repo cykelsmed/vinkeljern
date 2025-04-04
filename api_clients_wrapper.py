@@ -169,7 +169,9 @@ async def process_generation_request(
     topic: str,
     profile: RedaktionelDNA,
     bypass_cache: bool = False,
-    progress_callback = None
+    progress_callback = None,
+    include_expert_sources: bool = True,
+    include_knowledge_distillate: bool = True
 ) -> List[Dict[str, Any]]:
     """
     Process an angle generation request with optional optimizations.
@@ -179,20 +181,37 @@ async def process_generation_request(
         profile: Editorial DNA profile to use
         bypass_cache: If True, ignore cached results
         progress_callback: Optional callback function for progress updates
+        include_expert_sources: If True, generate expert source suggestions for each angle
+        include_knowledge_distillate: If True, generate a knowledge distillate from background info
         
     Returns:
         List[Dict]: Generated angles
     """
     implementation = get_implementation()
     
-    # Check if the implementation has the optimized version
+    # Check if the implementation has the optimized version with new parameters
     if hasattr(implementation, 'process_generation_request'):
-        return await implementation.process_generation_request(
-            topic, 
-            profile, 
-            bypass_cache=bypass_cache, 
-            progress_callback=progress_callback
-        )
+        # Check if the implementation supports the new parameters
+        impl_function = implementation.process_generation_request
+        param_names = impl_function.__code__.co_varnames[:impl_function.__code__.co_argcount]
+        
+        if 'include_expert_sources' in param_names and 'include_knowledge_distillate' in param_names:
+            return await implementation.process_generation_request(
+                topic, 
+                profile, 
+                bypass_cache=bypass_cache, 
+                progress_callback=progress_callback,
+                include_expert_sources=include_expert_sources,
+                include_knowledge_distillate=include_knowledge_distillate
+            )
+        else:
+            # Fall back to the standard call if the implementation doesn't support the new parameters
+            return await implementation.process_generation_request(
+                topic, 
+                profile, 
+                bypass_cache=bypass_cache, 
+                progress_callback=progress_callback
+            )
     else:
         # Fall back to standard implementation combining individual steps
         if progress_callback:

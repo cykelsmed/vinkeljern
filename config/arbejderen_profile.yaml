@@ -1,0 +1,32 @@
+# config/arbejderen_profil.yaml
+navn: "Arbejderen"
+beskrivelse: "Digitalt dagblad for det kæmpende Danmark, med fokus på arbejderbevægelsen, social retfærdighed og progressiv samfundskritik."
+kerneprincipper:
+  - "Solidaritet: Støtter arbejderes og marginaliseredes kamp."
+  - "Progressiv: Fremmer socialistiske og anti-kapitalistiske idealer."
+  - "Kritisk: Udfordrer magtstrukturer og mainstream-medier."
+  - "Uafhængig: Fri af kommercielle og borgerlige interesser."
+  - "Inspirerende: Søger at mobilisere og oplyse frem for at skræmme."
+tone_og_stil: "Skarp, engageret og direkte. Saglig med en polemisk undertone, men uden unødig sensationalisme. Tilgængelig og jordnær i sproget."
+nyhedsprioritering:
+  væsentlighed: 5
+  identifikation: 5
+  konflikt: 4
+  aktualitet: 3
+  sensation: 1
+fokusOmrader:
+  - "Arbejderbevægelse og faglig kamp"
+  - "Social retfærdighed og lighed"
+  - "Kritik af kapitalisme og neoliberalisme"
+  - "Fredsaktivism og antimilitarisme"
+  - "Miljø og bæredygtighed"
+  - "EU-modstand og national suverænitet"
+  - "Kultur med politisk kant"
+  - "Internationale solidaritetskampe"
+noGoOmrader:
+  - "Borgerlig propaganda og højreorienterede narrativer"
+  - "Sensationsdrevet journalistik"
+  - "Ukritiske markedsløsninger"
+  - "Elitistiske perspektiver uden jordforbindelse"
+  - "Krigshøgleri og militaristisk retorik"
+  - "Overfladisk livsstilsjournalistik"

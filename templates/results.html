@@ -41,6 +41,75 @@
                 </a>
             </div>
             
+            <!-- Videndistillat -->
+            {% if has_knowledge_distillate and knowledge_distillate %}
+            <div class="card mb-4 distillate-card">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0"><i class="bi bi-diagram-3"></i> Videndistillat</h2>
+                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#videndistillatInfo" aria-expanded="true" aria-controls="videndistillatInfo">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse show" id="videndistillatInfo">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Nøgletal -->
+                            {% if knowledge_distillate.noegletal and knowledge_distillate.noegletal|length > 0 %}
+                            <div class="col-md-6 mb-3">
+                                <div class="distillate-section">
+                                    <h5><i class="bi bi-graph-up"></i> Nøgletal</h5>
+                                    <ul class="list-group">
+                                        {% for stat in knowledge_distillate.noegletal|slice(0, 3) %}
+                                        <li class="list-group-item">
+                                            <span class="key-stat">{{ stat.tal }}:</span> {{ stat.beskrivelse }}
+                                            {% if stat.kilde %}
+                                            <div><small class="key-stat-source">Kilde: {{ stat.kilde }}</small></div>
+                                            {% endif %}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% if knowledge_distillate.noegletal|length > 3 %}
+                                    <div class="mt-2 text-end">
+                                        <a href="{{ url_for('detailed_report') }}" class="btn btn-sm btn-outline-info">Se alle {{ knowledge_distillate.noegletal|length }} nøgletal</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Centrale påstande -->
+                            {% if knowledge_distillate.centralePaastand and knowledge_distillate.centralePaastand|length > 0 %}
+                            <div class="col-md-6 mb-3">
+                                <div class="distillate-section">
+                                    <h5><i class="bi bi-check2-circle"></i> Centrale påstande</h5>
+                                    <ul class="list-group">
+                                        {% for claim in knowledge_distillate.centralePaastand|slice(0, 3) %}
+                                        <li class="list-group-item">
+                                            {{ claim.paastand }}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% if knowledge_distillate.centralePaastand|length > 3 %}
+                                    <div class="mt-2 text-end">
+                                        <a href="{{ url_for('detailed_report') }}" class="btn btn-sm btn-outline-info">Se alle {{ knowledge_distillate.centralePaastand|length }} påstande</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="text-end mt-2">
+                            <a href="{{ url_for('detailed_report') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-eye"></i> Se fuld videndistillat
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- Baggrundsinformation -->
             <div class="card mb-4">
                 <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
@@ -95,6 +164,35 @@
                                 <li class="list-group-item">{{ question }}</li>
                             {% endfor %}
                         </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Ekspertkilder -->
+                    {% if angle.ekspertKilder and angle.ekspertKilder.experts %}
+                    <div class="mb-3">
+                        <h5><i class="bi bi-people"></i> Ekspertkilder:</h5>
+                        <div class="row">
+                            {% for expert in angle.ekspertKilder.experts|slice(0, 2) %}
+                            <div class="col-md-6 mb-2">
+                                <div class="card expert-card h-100">
+                                    <div class="card-body">
+                                        <h6 class="expert-name">{{ expert.navn }}</h6>
+                                        <p class="expert-title mb-0">{{ expert.titel }}</p>
+                                        <p class="expert-org mb-2">{{ expert.organisation }}</p>
+                                        <p class="small mb-0"><strong>Ekspertise:</strong> {{ expert.ekspertise|truncate(80) }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if angle.ekspertKilder.experts|length > 2 %}
+                        <div class="text-end mt-2">
+                            <a href="{{ url_for('detailed_report') }}" class="btn btn-sm btn-outline-success">
+                                Se alle {{ angle.ekspertKilder.experts|length }} ekspertkilder
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endif %}
                     
