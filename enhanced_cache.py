@@ -34,6 +34,19 @@ from cache_manager import (
     optimize_cache
 )
 
+# Add these imports at the top of the file, after the existing imports
+from collections import defaultdict
+import re
+from difflib import SequenceMatcher
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+try:
+    stopwords.words('danish')
+except:
+    import nltk
+    nltk.download('stopwords')
+    nltk.download('punkt')
+
 # Type variables for function annotations
 T = TypeVar('T')
 AsyncFunc = Callable[..., Any]
@@ -63,6 +76,14 @@ PARTIAL_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 cache_access_counts: Dict[str, int] = {}
 last_cache_cleanup = time.time()
 CLEANUP_INTERVAL = 3600  # 1 hour
+
+# Similarity threshold for related topics (0-1)
+SIMILARITY_THRESHOLD = 0.75
+# Maximum number of similar topics to track
+MAX_SIMILAR_TOPICS = 20
+
+# Track related topics for intelligent caching
+_topic_similarity_cache = defaultdict(list)  # topic -> [(similar_topic, similarity_score)]
 
 @dataclass
 class EnhancedCacheStats:
@@ -379,13 +400,150 @@ def get_partial_result(cache_key: str, field: str) -> Tuple[Optional[Any], bool]
         return None, False
 
 
-def enhanced_cached_api(ttl: int = DEFAULT_TTL, namespace: str = "api") -> Callable:
+def preprocess_topic(topic: str) -> str:
     """
-    Enhanced decorator for caching API results with multi-tiered caching.
+    Preprocess a topic string for similarity comparison.
+    
+    Args:
+        topic: The topic string to preprocess
+        
+    Returns:
+        Preprocessed string
+    """
+    # Convert to lowercase
+    text = topic.lower()
+    
+    # Remove punctuation and special characters
+    text = re.sub(r'[^\w\s]', ' ', text)
+    
+    # Remove extra whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    # Get Danish stopwords or use English as fallback
+    try:
+        stop_words = set(stopwords.words('danish'))
+    except:
+        stop_words = set(stopwords.words('english'))
+    
+    # Remove stopwords
+    tokens = word_tokenize(text)
+    filtered_tokens = [token for token in tokens if token not in stop_words]
+    
+    return ' '.join(filtered_tokens)
+
+def calculate_similarity(text1: str, text2: str) -> float:
+    """
+    Calculate similarity between two strings using SequenceMatcher.
+    
+    Args:
+        text1: First string
+        text2: Second string
+        
+    Returns:
+        Similarity score between 0 and 1
+    """
+    # Preprocess texts
+    proc_text1 = preprocess_topic(text1)
+    proc_text2 = preprocess_topic(text2)
+    
+    # Calculate similarity
+    matcher = SequenceMatcher(None, proc_text1, proc_text2)
+    return matcher.ratio()
+
+def register_topic_for_similarity(topic: str, cache_key: str) -> None:
+    """
+    Register a topic for similarity matching.
+    
+    Args:
+        topic: The topic string
+        cache_key: The associated cache key
+    """
+    # Compare to existing topics
+    for existing_topic, existing_keys in list(_topic_similarity_cache.items()):
+        similarity = calculate_similarity(topic, existing_topic)
+        
+        # If similar, add to each other's lists
+        if similarity >= SIMILARITY_THRESHOLD:
+            # Add to existing topic's list
+            _topic_similarity_cache[existing_topic].append((topic, cache_key, similarity))
+            # Sort and limit list
+            _topic_similarity_cache[existing_topic] = sorted(
+                _topic_similarity_cache[existing_topic], 
+                key=lambda x: x[2], 
+                reverse=True
+            )[:MAX_SIMILAR_TOPICS]
+            
+            # Add existing topic to new topic's list
+            for _, existing_key, _ in existing_keys:
+                if existing_key not in [k for _, k, _ in _topic_similarity_cache[topic]]:
+                    _topic_similarity_cache[topic].append((existing_topic, existing_key, similarity))
+            
+    # Ensure topic has an entry even if no similar topics found
+    if topic not in _topic_similarity_cache:
+        _topic_similarity_cache[topic] = []
+
+def find_similar_topic_cache_keys(topic: str) -> List[Tuple[str, str, float]]:
+    """
+    Find cache keys for similar topics.
+    
+    Args:
+        topic: The topic to find similar topics for
+        
+    Returns:
+        List of tuples (similar_topic, cache_key, similarity_score)
+    """
+    # Start with exact matches
+    if topic in _topic_similarity_cache:
+        return _topic_similarity_cache[topic]
+    
+    similar_topics = []
+    # Calculate similarity with all existing topics
+    for existing_topic, similar_info in _topic_similarity_cache.items():
+        similarity = calculate_similarity(topic, existing_topic)
+        if similarity >= SIMILARITY_THRESHOLD:
+            # Get cache keys for this similar topic
+            for sim_topic, cache_key, sim_score in similar_info:
+                similar_topics.append((sim_topic, cache_key, sim_score * similarity))  # Adjust by current similarity
+    
+    # Return sorted by similarity
+    return sorted(similar_topics, key=lambda x: x[2], reverse=True)[:MAX_SIMILAR_TOPICS]
+
+def get_similar_topic_cache(topic: str) -> Optional[Dict[str, Any]]:
+    """
+    Get cached data for similar topics.
+    
+    Args:
+        topic: The topic to find similar cached data for
+        
+    Returns:
+        Dictionary mapping similar topics to their cached data
+    """
+    similar_topics = find_similar_topic_cache_keys(topic)
+    if not similar_topics:
+        return None
+        
+    result = {}
+    from cache_manager import load_from_cache
+    
+    for sim_topic, cache_key, similarity in similar_topics:
+        cached_data = load_from_cache(cache_key)
+        if cached_data:
+            result[sim_topic] = {
+                "data": cached_data,
+                "similarity": similarity,
+                "cache_key": cache_key
+            }
+    
+    return result if result else None
+
+def enhanced_cached_api(ttl: int = DEFAULT_TTL, namespace: str = "api", check_similar: bool = True) -> Callable:
+    """
+    Enhanced decorator for caching API results with multi-tiered caching and similarity matching.
     
     Args:
         ttl: Time-to-live in seconds
         namespace: Cache namespace
+        check_similar: If True, check for similar topics in cache
         
     Returns:
         Decorator function
@@ -399,6 +557,10 @@ def enhanced_cached_api(ttl: int = DEFAULT_TTL, namespace: str = "api") -> Calla
             # Create cache key
             func_name = func.__qualname__
             cache_key = make_cache_key(func_name, args, kwargs, namespace)
+            
+            # Check if this is a topic-related function (for similarity caching)
+            is_topic_func = 'topic' in kwargs or (args and isinstance(args[0], str))
+            topic = kwargs.get('topic', args[0] if args else None) if is_topic_func else None
             
             # Check for bypass_cache
             if not bypass_cache:
@@ -428,7 +590,7 @@ def enhanced_cached_api(ttl: int = DEFAULT_TTL, namespace: str = "api") -> Calla
                             L1_CACHE_KEYS.append(cache_key)
                             
                         enhanced_stats.hits += 1
-                        enhanced_stats.l2_hits += A1
+                        enhanced_stats.l2_hits += 1
                         logger.debug(f"L2 cache hit: {func_name}")
                         return value
                 
@@ -447,6 +609,32 @@ def enhanced_cached_api(ttl: int = DEFAULT_TTL, namespace: str = "api") -> Calla
                     enhanced_stats.disk_hits += 1
                     logger.debug(f"Disk cache hit: {func_name}")
                     return result
+                
+                # NEW: Check for similar topics if enabled and topic is provided
+                if check_similar and topic and is_topic_func:
+                    similar_results = get_similar_topic_cache(topic)
+                    if similar_results:
+                        # Use the result from the most similar topic
+                        most_similar = max(similar_results.items(), key=lambda x: x[1]["similarity"])
+                        sim_topic, data = most_similar
+                        sim_result = data["data"]
+                        sim_score = data["similarity"]
+                        
+                        logger.info(f"Using cache from similar topic '{sim_topic}' (similarity: {sim_score:.2f}) for '{topic}'")
+                        
+                        # Cache this lookup for future use with adjusted TTL
+                        adjusted_ttl = int(ttl * sim_score)  # Shorter TTL for less similar topics
+                        from cache_manager import save_to_cache
+                        save_to_cache(cache_key, sim_result, adjusted_ttl)
+                        
+                        # Store in L1 cache for immediate reuse
+                        L1_CACHE[cache_key] = (time.time(), sim_result)
+                        L1_CACHE_KEYS.append(cache_key)
+                        
+                        enhanced_stats.hits += 1
+                        enhanced_stats.partial_hits += 1  # Count as partial hit since it's from a similar topic
+                        
+                        return sim_result
             
             # Execute the function and save result to cache
             start_time = time.time()
@@ -469,6 +657,10 @@ def enhanced_cached_api(ttl: int = DEFAULT_TTL, namespace: str = "api") -> Calla
                         # Only save non-empty values that are not too complex
                         if value and not isinstance(value, (dict, list)):
                             save_partial_result(cache_key, field, value, ttl)
+                
+                # Register topic for similarity matching if relevant
+                if topic and is_topic_func:
+                    register_topic_for_similarity(topic, cache_key)
                 
                 # Update metrics
                 enhanced_stats.saved_processing_time += execution_time

@@ -438,38 +438,78 @@ def display_knowledge_distillate(knowledge_distillate: Dict[str, Any]) -> None:
     """
     console.print("\n[bold blue]📊 Videndistillat:[/bold blue]")
     
+    if not knowledge_distillate or not isinstance(knowledge_distillate, dict):
+        console.print(Panel("Ingen videndistillat tilgængeligt", title="[bold blue]Videndistillat[/bold blue]", border_style="blue"))
+        return
+        
     distillate_content = []
+    
+    # Add main points if available
+    if 'hovedpunkter' in knowledge_distillate and knowledge_distillate['hovedpunkter']:
+        distillate_content.append("[bold cyan]Hovedpunkter:[/bold cyan]")
+        for point in knowledge_distillate['hovedpunkter']:
+            distillate_content.append(f"• {point}")
+        distillate_content.append("")
     
     # Add key statistics if available
     if 'noegletal' in knowledge_distillate and knowledge_distillate['noegletal']:
         distillate_content.append("[bold cyan]Nøgletal:[/bold cyan]")
         for stat in knowledge_distillate['noegletal']:
-            source = f" [dim]({stat.get('kilde')})[/dim]" if stat.get('kilde') else ""
-            distillate_content.append(f"• [bold]{stat.get('tal')}[/bold]: {stat.get('beskrivelse')}{source}")
+            if isinstance(stat, dict):
+                tal = stat.get('tal', 'N/A')
+                beskrivelse = stat.get('beskrivelse', '')
+                kilde = stat.get('kilde', '')
+                source = f" [dim]({kilde})[/dim]" if kilde else ""
+                distillate_content.append(f"• [bold]{tal}[/bold]: {beskrivelse}{source}")
         distillate_content.append("")
     
     # Add key claims if available
     if 'centralePaastand' in knowledge_distillate and knowledge_distillate['centralePaastand']:
         distillate_content.append("[bold cyan]Centrale påstande:[/bold cyan]")
         for claim in knowledge_distillate['centralePaastand']:
-            source = f" [dim]({claim.get('kilde')})[/dim]" if claim.get('kilde') else ""
-            distillate_content.append(f"• {claim.get('paastand')}{source}")
+            if isinstance(claim, dict):
+                paastand = claim.get('paastand', '')
+                kilde = claim.get('kilde', '')
+                source = f" [dim]({kilde})[/dim]" if kilde else ""
+                distillate_content.append(f"• {paastand}{source}")
+            elif isinstance(claim, str):
+                distillate_content.append(f"• {claim}")
         distillate_content.append("")
     
     # Add different perspectives if available
     if 'vinkler' in knowledge_distillate and knowledge_distillate['vinkler']:
         distillate_content.append("[bold cyan]Perspektiver:[/bold cyan]")
         for perspective in knowledge_distillate['vinkler']:
-            actor = f" [dim]({perspective.get('aktør')})[/dim]" if perspective.get('aktør') else ""
-            distillate_content.append(f"• {perspective.get('vinkel')}{actor}")
+            if isinstance(perspective, dict):
+                vinkel = perspective.get('vinkel', '')
+                aktor = perspective.get('aktør', '')
+                actor_text = f" [dim]({aktor})[/dim]" if aktor else ""
+                distillate_content.append(f"• {vinkel}{actor_text}")
+            elif isinstance(perspective, str):
+                distillate_content.append(f"• {perspective}")
         distillate_content.append("")
     
     # Add important dates if available
     if 'datoer' in knowledge_distillate and knowledge_distillate['datoer']:
         distillate_content.append("[bold cyan]Vigtige datoer:[/bold cyan]")
         for date_info in knowledge_distillate['datoer']:
-            importance = f" - {date_info.get('betydning')}" if date_info.get('betydning') else ""
-            distillate_content.append(f"• [bold]{date_info.get('dato')}[/bold]: {date_info.get('begivenhed')}{importance}")
+            if isinstance(date_info, dict):
+                dato = date_info.get('dato', '')
+                begivenhed = date_info.get('begivenhed', '')
+                betydning = date_info.get('betydning', '')
+                importance = f" - {betydning}" if betydning else ""
+                distillate_content.append(f"• [bold]{dato}[/bold]: {begivenhed}{importance}")
+    
+    # If no content could be extracted, show a message
+    if not distillate_content:
+        distillate_content.append("[dim]Kunne ikke vise videndistillat i korrekt format.[/dim]")
+        # Add raw data as fallback
+        distillate_content.append("\n[dim]Rå data:[/dim]")
+        try:
+            import json
+            distillate_content.append(json.dumps(knowledge_distillate, indent=2, ensure_ascii=False)[:500])
+        except Exception:
+            distillate_content.append(str(knowledge_distillate)[:500])
     
     # Display the distillate panel
     console.print(Panel(

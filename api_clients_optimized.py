@@ -999,6 +999,7 @@ async def generate_knowledge_distillate(
 ) -> Optional[Dict[str, Any]]:
     """
     Generate a knowledge distillate from background information using Claude.
+    This optimized version reduces token usage and improves performance.
     
     Args:
         topic_info: The background information about the topic
@@ -1016,51 +1017,61 @@ async def generate_knowledge_distillate(
     if progress_callback and callable(progress_callback):
         await progress_callback(25)
     
-    # Optimized prompt for extracting structured knowledge
-    system_prompt = """Du er en analytisk AI-forsker specialiseret i at uddrage og organisere den vigtigste viden fra baggrundsinformation. 
-Din opgave er at skabe et videndistillat i form af et velstruktureret, kompakt format optimeret til journalistisk brug.
-Du skal være yderst præcis og faktuel, og kun inkludere information der er direkte understøttet af kildematerialet.
-Dit output skal være kortfattet, struktureret og fokuseret på de mest relevante fakta."""
+    # Extract just the key information from the topic_info to reduce token usage
+    # Truncate to maximum 3000 characters to reduce token consumption
+    truncated_topic_info = topic_info
+    if len(topic_info) > 3000:
+        # Try to find section markers to make a cleaner truncation
+        sections = ["## OVERSIGT", "## AKTUEL STATUS", "## NØGLETAL", "## PERSPEKTIVER"]
+        found_sections = []
+        
+        for section in sections:
+            if section in topic_info:
+                found_sections.append((section, topic_info.find(section)))
+        
+        found_sections.sort(key=lambda x: x[1])  # Sort by position
+        
+        if found_sections:
+            # Take just the first 3 sections we found
+            content_to_include = []
+            for i, (section, pos) in enumerate(found_sections[:3]):
+                next_pos = found_sections[i+1][1] if i+1 < len(found_sections) else len(topic_info)
+                section_content = topic_info[pos:next_pos]
+                # Limit each section to 1000 chars max
+                if len(section_content) > 1000:
+                    section_content = section_content[:997] + "..."
+                content_to_include.append(section_content)
+            truncated_topic_info = "\n".join(content_to_include)
+        else:
+            # No sections found, do a simple truncation
+            truncated_topic_info = topic_info[:2997] + "..."
+    
+    # Optimized system prompt - shorter but focused on the key task
+    system_prompt = """Du er en analytisk AI der uddrag de vigtigste fakta fra tekst. 
+Skab et kompakt, struktureret videndistillat med fokus på de mest relevante fakta for journalistisk brug.
+Vær yderst præcis og faktuel, brug kun information der er direkte nævnt i teksten."""
 
+    # Optimized user prompt - simplified and more focused
     user_prompt = f"""
-    Analyser følgende baggrundsinformation om emnet '{topic}' og skab et videndistillat.
+    Analyser denne information om '{topic}' og lav et videndistillat med de vigtigste fakta.
     
     BAGGRUNDSINFORMATION:
-    {topic_info}
+    {truncated_topic_info}
     
-    Formater dit svar som et JSON-objekt med følgende felter (bemærk: brug PRÆCIST disse danske feltnavne):
+    Formater dit svar som et JSON-objekt med følgende nøgler (brug PRÆCIST disse danske feltnavne):
+    1. "hovedpunkter": En liste med 4 vigtige punkter fra materialet.
+    2. "noegletal": En liste med 3 nøglestal, hvert med "tal", "beskrivelse" og "kilde" (hvis angivet).
+    3. "centralePaastand": En liste med 3 vigtige påstande, hver med "paastand" og "kilde" (hvis angivet).
     
-    1. "hovedpunkter": En liste med de 3-5 vigtigste punkter fra materialet.
-    
-    2. "noegletal": En liste med de 3-5 vigtigste statistikker/tal fra materialet. Hvert nøgletal har følgende struktur:
-       - "tal": Det faktiske tal/statistik
-       - "beskrivelse": Kort beskrivelse af hvad tallet repræsenterer
-       - "kilde": Kilden hvis angivet
-    
-    3. "centralePaastand": En liste med 3-5 centrale påstande/fakta fra materialet. Hver påstand har følgende struktur:
-       - "paastand": Den faktiske påstand/faktum
-       - "kilde": Kilden hvis angivet
-    
-    4. "vinkler": En liste med 3-4 forskellige perspektiver på emnet. Hvert perspektiv har følgende struktur:
-       - "vinkel": Kort beskrivelse af perspektivet
-       - "aktør": Hvem der repræsenterer dette perspektiv
-    
-    5. "datoer": En liste med 2-3 vigtige datoer relateret til emnet. Hver dato har følgende struktur:
-       - "dato": Den specifikke dato (format: YYYY-MM-DD eller beskrivelse hvis præcis dato ikke er kendt)
-       - "begivenhed": Hvad der skete på denne dato
-       - "betydning": Kort beskrivelse af hvorfor denne dato er vigtig
-    
-    Brug KUN information der findes i baggrundsmaterialet. Hvis der mangler information til et af felterne, inkluder en tom liste for det felt. Det er VIGTIGT at du bruger præcist de danske feltnavne som angivet ovenfor.
-    
-    Svar med det rene JSON-objekt, uden forklarende tekst eller indledning. Start med {{ og slut med }} uden andre tegn før eller efter.
+    Brug KUN information fra baggrundsmaterialet. Svar udelukkende med et rent JSON-objekt, uden forklaringer.
     """
     
-    # Update progress if callback provided - check if it's actually callable
+    # Update progress if callback provided
     if progress_callback and callable(progress_callback):
         await progress_callback(40)
     
-    # Get session from pool
-    session = await get_aiohttp_session(key="anthropic_knowledge", timeout=60)
+    # Get session from pool - use a smaller model and tighter timeout for better performance
+    session = await get_aiohttp_session(key="anthropic_knowledge", timeout=45)
     
     headers = {
         "Content-Type": "application/json",
@@ -1068,9 +1079,10 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
         "anthropic-version": "2023-06-01"
     }
     
+    # Use the smaller, faster Haiku model instead of Opus for knowledge distillation
     payload = {
-        "model": "claude-3-opus-20240229",
-        "max_tokens": 1500,
+        "model": "claude-3-haiku-20240307",  # Smaller, faster model
+        "max_tokens": 1000,  # Reduced token limit
         "temperature": 0.1,  # Lower temperature for more deterministic results
         "system": system_prompt,
         "messages": [{"role": "user", "content": user_prompt}],
@@ -1092,8 +1104,6 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
                     "hovedpunkter": [],
                     "noegletal": [],
                     "centralePaastand": [], 
-                    "vinkler": [], 
-                    "datoer": [],
                     "error": f"API Error: Status {response.status}"
                 }
             
@@ -1104,9 +1114,7 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
                 return {
                     "hovedpunkter": [],
                     "noegletal": [], 
-                    "centralePaastand": [], 
-                    "vinkler": [], 
-                    "datoer": [],
+                    "centralePaastand": [],
                     "error": "Response is not valid JSON"
                 }
             
@@ -1124,9 +1132,7 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
                     return {
                         "hovedpunkter": [],
                         "noegletal": [], 
-                        "centralePaastand": [], 
-                        "vinkler": [], 
-                        "datoer": [],
+                        "centralePaastand": [],
                         "error": "Empty content received from API"
                     }
             except (KeyError, IndexError, TypeError) as e:
@@ -1134,9 +1140,7 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
                 return {
                     "hovedpunkter": [],
                     "noegletal": [], 
-                    "centralePaastand": [], 
-                    "vinkler": [], 
-                    "datoer": [],
+                    "centralePaastand": [],
                     "error": f"Failed to extract content: {str(e)}"
                 }
             
@@ -1146,13 +1150,11 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
             # Use the enhanced JSON parser for robust parsing
             from json_parser import safe_parse_json
             
-            # Define default distillate structure
+            # Define default distillate structure - simpler with fewer fields
             fallback_distillate = {
                 "hovedpunkter": [],
                 "noegletal": [], 
-                "centralePaastand": [], 
-                "vinkler": [], 
-                "datoer": []
+                "centralePaastand": []
             }
             
             # Extra precaution: Check if content actually contains JSON
@@ -1185,9 +1187,7 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
             field_mappings = {
                 "main_points": "hovedpunkter",
                 "key_statistics": "noegletal",
-                "key_claims": "centralePaastand",
-                "perspectives": "vinkler",
-                "important_dates": "datoer"
+                "key_claims": "centralePaastand"
             }
             
             for eng_field, dk_field in field_mappings.items():
@@ -1225,9 +1225,7 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
         return {
             "hovedpunkter": [],
             "noegletal": [],
-            "centralePaastand": [], 
-            "vinkler": [], 
-            "datoer": [],
+            "centralePaastand": [],
             "error": f"Exception during API call: {str(e)}"
         }
 
