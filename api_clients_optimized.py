@@ -62,7 +62,7 @@ _session_pool = {}
 def get_connection_pool(max_workers=MAX_CONCURRENT_REQUESTS):
     """Get the global thread pool executor for API requests."""
     global _connection_pool
-    if _connection_pool is None:
+    if (_connection_pool is None):
         _connection_pool = ThreadPoolExecutor(max_workers=max_workers)
     return _connection_pool
 
@@ -72,25 +72,79 @@ async def get_aiohttp_session(key=None, timeout=60):
     
     if key is None:
         key = 'default'
+    
+    try:    
+        # Check if the session exists and is not closed
+        if key not in _session_pool or _session_pool[key].closed:
+            # First make sure we have a running event loop
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                logger.warning(f"No running event loop found when creating session for {key}. Creating new loop.")
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            
+            # Configure timeout
+            timeout_config = aiohttp.ClientTimeout(total=timeout)
+            
+            # Create connector with SSL context
+            import ssl
+            import certifi
+            
+            ssl_context = ssl.create_default_context(cafile=certifi.where())
+            connector = aiohttp.TCPConnector(
+                ssl=ssl_context, 
+                limit=MAX_CONCURRENT_REQUESTS,
+                force_close=False,  # Don't force close connections
+                enable_cleanup_closed=True  # Enable cleanup of closed connections
+            )
+            
+            # Create a new session with the connector
+            try:
+                _session_pool[key] = aiohttp.ClientSession(
+                    connector=connector,
+                    timeout=timeout_config,
+                    raise_for_status=False
+                )
+                logger.debug(f"Created new aiohttp session for key: {key}")
+            except RuntimeError as e:
+                if "Event loop is closed" in str(e):
+                    logger.warning(f"Event loop was closed when creating session for {key}. Creating new loop.")
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    _session_pool[key] = aiohttp.ClientSession(
+                        connector=connector,
+                        timeout=timeout_config,
+                        raise_for_status=False
+                    )
+                    logger.debug(f"Created new aiohttp session with new loop for key: {key}")
+                else:
+                    raise
         
-    if key not in _session_pool or _session_pool[key].closed:
-        # Configure timeout
-        timeout_config = aiohttp.ClientTimeout(total=timeout)
-        
-        # Create connector with SSL context
-        import ssl
-        import certifi
-        
-        ssl_context = ssl.create_default_context(cafile=certifi.where())
-        connector = aiohttp.TCPConnector(ssl=ssl_context, limit=MAX_CONCURRENT_REQUESTS)
-        
-        _session_pool[key] = aiohttp.ClientSession(
-            connector=connector,
-            timeout=timeout_config,
-            raise_for_status=False
-        )
-        
-    return _session_pool[key]
+        return _session_pool[key]
+    except Exception as e:
+        logger.error(f"Error creating session for key {key}: {str(e)}")
+        # Return a new session outside the pool as fallback
+        try:
+            # Try to get the current loop again
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                
+            timeout_config = aiohttp.ClientTimeout(total=timeout)
+            connector = aiohttp.TCPConnector(limit=10)
+            new_session = aiohttp.ClientSession(
+                connector=connector,
+                timeout=timeout_config,
+                raise_for_status=False
+            )
+            logger.warning(f"Using fallback session for key {key} (not in pool)")
+            return new_session
+        except Exception as inner_e:
+            logger.error(f"Failed to create fallback session: {str(inner_e)}")
+            raise RuntimeError(f"Cannot create aiohttp session: {str(e)}, then: {str(inner_e)}")
 
 async def close_all_sessions():
     """Close all aiohttp sessions in the pool."""
@@ -505,259 +559,330 @@ async def process_generation_request(
     Returns:
         List[Dict]: Generated angles with additional information
     """
-    # Update progress
-    if progress_callback:
-        await progress_callback(5)
-    
-    # Convert profile into strings for prompt construction
-    principper = "\n".join([f"- {p}" for p in profile.kerneprincipper])
-    nyhedskriterier = "\n".join([f"- {k}: {v}" for k, v in profile.nyhedsprioritering.items()])
-    fokusomrader = "\n".join([f"- {f}" for f in profile.fokusOmrader])
-    nogo_omrader = "\n".join([f"- {n}" for n in profile.noGoOmrader]) if profile.noGoOmrader else "Ingen"
-    
-    # Launch background tasks in parallel
-    # 1. Get topic information
-    background_info_task = asyncio.create_task(
-        fetch_topic_information(topic, bypass_cache=bypass_cache, progress_callback=progress_callback)
-    )
-    
-    # Update progress
-    if progress_callback:
-        await progress_callback(15)
-    
-    # Wait for background info which is needed for the prompt
-    topic_info = await background_info_task
-    
-    if not topic_info:
-        topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
-    
-    # Update progress
-    if progress_callback:
-        await progress_callback(20)
-    
-    # Launch knowledge distillate task in parallel (can run while generating angles)
-    knowledge_distillate_task = None
-    if include_knowledge_distillate:
-        try:
-            knowledge_distillate_task = asyncio.create_task(
-                generate_knowledge_distillate(
-                    topic_info=topic_info,
-                    topic=topic,
-                    bypass_cache=bypass_cache
-                )
-            )
-        except Exception as e:
-            logger.error(f"Failed to start knowledge distillate task: {e}")
-            # Continue without knowledge distillate if task creation fails
-    
-    # Create the prompt for angle generation
-    prompt = construct_angle_prompt(
-        topic,
-        topic_info,
-        principper,
-        profile.tone_og_stil,
-        fokusomrader,
-        nyhedskriterier,
-        nogo_omrader
-    )
-    
-    # Update progress
-    if progress_callback:
-        await progress_callback(30)
-    
-    # Generate angles with Claude API (with optimized streaming if enabled)
     try:
-        if USE_STREAMING:
-            response_text = await _stream_claude_response(prompt)
-        else:
-            # Non-streaming version
-            headers = {
-                "Content-Type": "application/json",
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01"
-            }
-            
-            payload = {
-                "model": "claude-3-opus-20240229",
-                "max_tokens": 2500,
-                "temperature": 0.7,
-                "system": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler.",
-                "messages": [{"role": "user", "content": prompt}],
-            }
-            
-            # Get session
-            session = await get_aiohttp_session(key="anthropic", timeout=ANTHROPIC_TIMEOUT)
-            
-            async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
-                if response.status != 200:
-                    error_text = await response.text()
-                    logger.error(f"Claude API error: {response.status}, {error_text}")
-                    raise APIConnectionError(f"Claude API fejl: {response.status}")
-                    
-                response_data = await response.json()
-                response_text = response_data['content'][0]['text']
+        # Update progress - check if progress_callback is callable
+        if progress_callback and callable(progress_callback):
+            await progress_callback(5)
         
-        # Update progress
-        if progress_callback:
-            await progress_callback(50)
-            
-        # Parse angles from response
-        angles = parse_angles_from_response(response_text)
+        # Convert profile into strings for prompt construction
+        principper = "\n".join([f"- {p}" for p in profile.kerneprincipper])
+        nyhedskriterier = "\n".join([f"- {k}: {v}" for k, v in profile.nyhedsprioritering.items()])
+        fokusomrader = "\n".join([f"- {f}" for f in profile.fokusOmrader])
+        nogo_omrader = "\n".join([f"- {n}" for n in profile.noGoOmrader]) if profile.noGoOmrader else "Ingen"
         
-        # Sources task (can run in parallel while parsing angles)
-        source_task = asyncio.create_task(
-            fetch_source_suggestions(topic, bypass_cache=bypass_cache)
+        # 1. Get topic information first since we need it for knowledge distillate
+        if progress_callback and callable(progress_callback):
+            await progress_callback(10)
+            
+        topic_info = await fetch_topic_information(
+            topic, 
+            bypass_cache=bypass_cache, 
+            progress_callback=progress_callback if callable(progress_callback) else None
         )
         
-        if not angles:
-            logger.error("No angles parsed from response")
-            return []
-            
-        # Add background info to each angle
-        perplexity_extract = topic_info[:1000] + ("..." if len(topic_info) > 1000 else "")
-        for angle in angles:
-            if isinstance(angle, dict):
-                angle['perplexityInfo'] = perplexity_extract
+        if not topic_info:
+            topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
         
-        # Update progress
-        if progress_callback:
-            await progress_callback(60)
+        # Update progress - check if progress_callback is callable
+        if progress_callback and callable(progress_callback):
+            await progress_callback(25)
         
-        # Wait for the source suggestions to complete
-        try:
-            source_text = await source_task
-            if source_text:
-                for angle in angles:
-                    if isinstance(angle, dict):
-                        angle['kildeForslagInfo'] = source_text
-        except Exception as e:
-            logger.error(f"Error getting source suggestions: {e}")
-            # Continue without source suggestions if they fail
-        
-        # Filter and rank angles
-        from angle_processor import filter_and_rank_angles
-        ranked_angles = filter_and_rank_angles(angles, profile, 5)
-        
-        # Update progress
-        if progress_callback:
-            await progress_callback(70)
-        
-        # Get knowledge distillate result if the task was started
+        # 2. Generate knowledge distillate BEFORE generating angles
         knowledge_distillate = None
-        if knowledge_distillate_task:
+        knowledge_distillate_task = None
+        if include_knowledge_distillate:
             try:
-                knowledge_distillate = await knowledge_distillate_task
-                # Add knowledge distillate to each angle
-                if knowledge_distillate:
-                    # Check if the result has an error field, and log it but still attach the partial result
-                    if isinstance(knowledge_distillate, dict) and "error" in knowledge_distillate:
-                        logger.warning(f"Knowledge distillate contains error: {knowledge_distillate.get('error')}")
-                        # Still attach the result with the error field, as it contains empty arrays
-                        # This prevents null reference errors in the UI
-                        
-                    for angle in ranked_angles:
-                        if isinstance(angle, dict):
-                            angle['videnDistillat'] = knowledge_distillate
+                if progress_callback and callable(progress_callback):
+                    await progress_callback(30)
+                    
+                knowledge_distillate_task = asyncio.create_task(generate_knowledge_distillate(
+                    topic_info=topic_info,
+                    topic=topic,
+                    bypass_cache=bypass_cache,
+                    progress_callback=progress_callback if callable(progress_callback) else None
+                ))
+                
+                if progress_callback and callable(progress_callback):
+                    await progress_callback(40)
+                    
             except Exception as e:
-                logger.error(f"Error generating knowledge distillate: {e}")
-                # Create a safe fallback distillate with error information
-                fallback_distillate = {
-                    "error": f"Kunne ikke generere videndistillat: {str(e)}",
-                    "key_statistics": [],
-                    "key_claims": [],
-                    "perspectives": [],
-                    "important_dates": []
+                logger.error(f"Failed to create knowledge distillate task: {e}")
+                # Continue without knowledge distillate
+        
+        # 3. Incorporate knowledge distillate into the angle generation prompt
+        knowledge_distillate_text = ""
+        if knowledge_distillate:
+            # Format the knowledge distillate for inclusion in the prompt
+            knowledge_distillate_text = "VIDENDISTILLAT OM EMNET:\n\n"
+            
+            # Add main points if available
+            if "hovedpunkter" in knowledge_distillate and knowledge_distillate["hovedpunkter"]:
+                knowledge_distillate_text += "Hovedpunkter:\n"
+                for point in knowledge_distillate["hovedpunkter"][:5]:  # Limit to 5
+                    knowledge_distillate_text += f"- {point}\n"
+                knowledge_distillate_text += "\n"
+                
+            # Add key statistics if available
+            if "noegletal" in knowledge_distillate and knowledge_distillate["noegletal"]:
+                knowledge_distillate_text += "Nøgletal:\n"
+                for stat in knowledge_distillate["noegletal"][:3]:  # Limit to 3
+                    if isinstance(stat, dict):
+                        tal = stat.get("tal", "")
+                        beskrivelse = stat.get("beskrivelse", "")
+                        knowledge_distillate_text += f"- {tal}: {beskrivelse}\n"
+                    else:
+                        knowledge_distillate_text += f"- {stat}\n"
+                knowledge_distillate_text += "\n"
+                
+            # Add key claims if available
+            if "centralePaastand" in knowledge_distillate and knowledge_distillate["centralePaastand"]:
+                knowledge_distillate_text += "Centrale påstande:\n"
+                for claim in knowledge_distillate["centralePaastand"][:3]:  # Limit to 3
+                    if isinstance(claim, dict):
+                        paastand = claim.get("paastand", "")
+                        knowledge_distillate_text += f"- {paastand}\n"
+                    else:
+                        knowledge_distillate_text += f"- {claim}\n"
+                knowledge_distillate_text += "\n"
+        
+        # Create the prompt for angle generation, now including knowledge distillate
+        prompt = construct_angle_prompt(
+            topic,
+            topic_info,
+            principper,
+            profile.tone_og_stil,
+            fokusomrader,
+            nyhedskriterier,
+            nogo_omrader,
+            additional_context=knowledge_distillate_text  # Add this param to your construct_angle_prompt function
+        )
+        
+        # Update progress - check if progress_callback is callable
+        if progress_callback and callable(progress_callback):
+            await progress_callback(50)
+        
+        # 4. Generate angles with Claude API
+        response_text = None
+        session = None
+        try:
+            if USE_STREAMING:
+                response_text = await _stream_claude_response(prompt)
+            else:
+                # Non-streaming version
+                headers = {
+                    "Content-Type": "application/json",
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01"
                 }
-                # Still add the fallback to prevent UI errors
-                for angle in ranked_angles:
-                    if isinstance(angle, dict):
-                        angle['videnDistillat'] = fallback_distillate
-        
-        # Update progress
-        if progress_callback:
-            await progress_callback(75)
-        
-        # Generate expert source suggestions for each angle if requested
-        if include_expert_sources:
-            expert_sources_tasks = []
-            
-            # Start expert source suggestions tasks for each angle
-            for i, angle in enumerate(ranked_angles):
-                if not isinstance(angle, dict):
-                    continue
-                    
-                # Only process top angles to avoid too many API calls
-                if i >= 3:  # Limit to top 3 angles
-                    break
-                    
-                try:
-                    # Extract headline and description for the expert source suggestion
-                    headline = angle.get('overskrift', f"Vinkel om {topic}")
-                    description = angle.get('beskrivelse', "")
-                    
-                    # Create task for expert source suggestions
-                    task = asyncio.create_task(
-                        generate_expert_source_suggestions(
-                            topic=topic,
-                            angle_headline=headline,
-                            angle_description=description,
-                            bypass_cache=bypass_cache
-                        )
-                    )
-                    
-                    # Store task with its angle index
-                    expert_sources_tasks.append((i, task))
-                except Exception as e:
-                    logger.error(f"Failed to start expert source suggestions task for angle {i}: {e}")
-            
-            # Update progress
-            if progress_callback:
-                await progress_callback(85)
-            
-            # Wait for all expert source tasks to complete
-            for i, task in expert_sources_tasks:
-                try:
-                    expert_sources = await task
-                    if expert_sources and i < len(ranked_angles):
-                        # Check if there's an error in the expert sources
-                        if isinstance(expert_sources, dict) and "error" in expert_sources:
-                            logger.warning(f"Expert sources for angle {i} contains error: {expert_sources.get('error')}")
-                            # Still attach it as it has empty arrays for experts, institutions, etc.
+                
+                payload = {
+                    "model": "claude-3-opus-20240229",
+                    "max_tokens": 2500,
+                    "temperature": 0.7,
+                    "system": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler.",
+                    "messages": [{"role": "user", "content": prompt}],
+                }
+                
+                # Get session
+                session = await get_aiohttp_session(key="anthropic", timeout=ANTHROPIC_TIMEOUT)
+                
+                async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
+                    if response.status != 200:
+                        error_text = await response.text()
+                        logger.error(f"Claude API error: {response.status}, {error_text}")
+                        raise APIConnectionError(f"Claude API fejl: {response.status}")
                         
-                        # Add expert sources to the angle
-                        ranked_angles[i]['ekspertKilder'] = expert_sources
+                    response_data = await response.json()
+                    response_text = response_data['content'][0]['text']
+            
+            # Update progress - check if progress_callback is callable
+            if progress_callback and callable(progress_callback):
+                await progress_callback(60)
+                
+            # Parse angles from response
+            angles = parse_angles_from_response(response_text)
+            
+            if not angles or len(angles) == 0:
+                logger.error(f"No angles parsed from response. Raw response text (first 200 chars): {response_text[:200]}")
+                return [{
+                    "overskrift": "Fejl under generering af vinkler",
+                    "beskrivelse": "Kunne ikke generere vinkler fra AI-svaret. Se log for detaljer.",
+                    "nyhedskriterier": ["aktualitet"],
+                    "error": "No angles could be parsed from the response"
+                }]
+                
+            # Sources task (can run in parallel while parsing angles)
+            source_task = asyncio.create_task(
+                fetch_source_suggestions(topic, bypass_cache=bypass_cache)
+            )
+            
+            # Add background info to each angle
+            perplexity_extract = topic_info[:1000] + ("..." if len(topic_info) > 1000 else "")
+            for angle in angles:
+                if isinstance(angle, dict):
+                    angle['perplexityInfo'] = perplexity_extract
+            
+            # Update progress - check if progress_callback is callable
+            if progress_callback and callable(progress_callback):
+                await progress_callback(70)
+            
+            # Wait for the source suggestions to complete
+            try:
+                source_text = await source_task
+                if source_text:
+                    for angle in angles:
+                        if isinstance(angle, dict):
+                            angle['kildeForslagInfo'] = source_text
+            except Exception as e:
+                logger.error(f"Error getting source suggestions: {e}")
+                # Continue without source suggestions if they fail
+            
+            # Filter and rank angles
+            from angle_processor import filter_and_rank_angles
+            ranked_angles = filter_and_rank_angles(angles, profile, 5)
+            
+            if not ranked_angles or len(ranked_angles) == 0:
+                logger.error("No angles left after filtering")
+                return [{
+                    "overskrift": "Ingen vinkler efter filtrering",
+                    "beskrivelse": "Filtreringen fjernede alle vinkler. Dette kan skyldes at de genererede vinkler ikke passede til profilen.",
+                    "nyhedskriterier": ["aktualitet"],
+                    "error": "All angles were filtered out"
+                }]
+            
+            # Get knowledge distillate result if the task was started
+            knowledge_distillate = None
+            if knowledge_distillate_task:
+                try:
+                    knowledge_distillate = await knowledge_distillate_task
+                    # Add knowledge distillate to each angle
+                    if knowledge_distillate:
+                        # Check if the result has an error field, and log it but still attach the partial result
+                        if isinstance(knowledge_distillate, dict) and "error" in knowledge_distillate:
+                            logger.warning(f"Knowledge distillate contains error: {knowledge_distillate.get('error')}")
+                        
+                        # Make sure the knowledge distillate is properly attached to each angle
+                        for angle in ranked_angles:
+                            if isinstance(angle, dict):
+                                # Directly attach the knowledge distillate
+                                angle['videnDistillat'] = knowledge_distillate
+                                # Set the flag to indicate the angle has a knowledge distillate
+                                angle['harVidenDistillat'] = True
                 except Exception as e:
-                    logger.error(f"Error generating expert sources for angle {i}: {e}")
-                    # Create a fallback expert sources structure with error information
-                    fallback_sources = {
-                        "experts": [],
-                        "institutions": [],
-                        "data_sources": [],
-                        "error": f"Kunne ikke generere ekspertkilder: {str(e)}"
+                    logger.error(f"Error generating knowledge distillate: {e}")
+                    # Create a safe fallback distillate with error information
+                    fallback_distillate = {
+                        "error": f"Kunne ikke generere videndistillat: {str(e)}",
+                        "hovedpunkter": [],
+                        "noegletal": [],
+                        "centralePaastand": [],
+                        "vinkler": [],
+                        "datoer": []
                     }
                     # Still add the fallback to prevent UI errors
-                    if i < len(ranked_angles):
-                        ranked_angles[i]['ekspertKilder'] = fallback_sources
-        
-        # Update progress
-        if progress_callback:
-            await progress_callback(95)
-        
-        # Add metadata to angles about which features were included
-        for angle in ranked_angles:
-            if isinstance(angle, dict):
-                angle['harVidenDistillat'] = include_knowledge_distillate and 'videnDistillat' in angle
-                angle['harEkspertKilder'] = include_expert_sources and 'ekspertKilder' in angle
-        
-        # Final progress update
-        if progress_callback:
-            await progress_callback(100)
+                    for angle in ranked_angles:
+                        if isinstance(angle, dict):
+                            angle['videnDistillat'] = fallback_distillate
+                            angle['harVidenDistillat'] = True
             
-        return ranked_angles
-        
+            # Update progress - check if progress_callback is callable
+            if progress_callback and callable(progress_callback):
+                await progress_callback(80)
+            
+            # Generate expert source suggestions for each angle if requested
+            if include_expert_sources:
+                expert_sources_tasks = []
+                
+                # Start expert source suggestions tasks for each angle
+                for i, angle in enumerate(ranked_angles):
+                    if not isinstance(angle, dict):
+                        continue
+                        
+                    # Only process top angles to avoid too many API calls
+                    if i >= 3:  # Limit to top 3 angles
+                        break
+                        
+                    try:
+                        # Extract headline and description for the expert source suggestion
+                        headline = angle.get('overskrift', f"Vinkel om {topic}")
+                        description = angle.get('beskrivelse', "")
+                        
+                        # Create task for expert source suggestions
+                        task = asyncio.create_task(
+                            generate_expert_source_suggestions(
+                                topic=topic,
+                                angle_headline=headline,
+                                angle_description=description,
+                                bypass_cache=bypass_cache
+                            )
+                        )
+                        
+                        # Store task with its angle index
+                        expert_sources_tasks.append((i, task))
+                    except Exception as e:
+                        logger.error(f"Failed to start expert source suggestions task for angle {i}: {e}")
+                
+                # Update progress - check if progress_callback is callable
+                if progress_callback and callable(progress_callback):
+                    await progress_callback(90)
+                
+                # Wait for all expert source tasks to complete
+                for i, task in expert_sources_tasks:
+                    try:
+                        expert_sources = await task
+                        if expert_sources and i < len(ranked_angles):
+                            # Check if there's an error in the expert sources
+                            if isinstance(expert_sources, dict) and "error" in expert_sources:
+                                logger.warning(f"Expert sources for angle {i} contains error: {expert_sources.get('error')}")
+                                # Still attach it as it has empty arrays for experts, institutions, etc.
+                            
+                            # Add expert sources to the angle
+                            ranked_angles[i]['ekspertKilder'] = expert_sources
+                            ranked_angles[i]['harEkspertKilder'] = True
+                    except Exception as e:
+                        logger.error(f"Error generating expert sources for angle {i}: {e}")
+                        # Create a fallback expert sources structure with error information
+                        fallback_sources = {
+                            "experts": [],
+                            "institutions": [],
+                            "data_sources": [],
+                            "error": f"Kunne ikke generere ekspertkilder: {str(e)}"
+                        }
+                        # Still add the fallback to prevent UI errors
+                        if i < len(ranked_angles):
+                            ranked_angles[i]['ekspertKilder'] = fallback_sources
+                            ranked_angles[i]['harEkspertKilder'] = True
+            
+            # Add metadata to angles about which features were included
+            for angle in ranked_angles:
+                if isinstance(angle, dict):
+                    angle['harVidenDistillat'] = include_knowledge_distillate and 'videnDistillat' in angle
+                    angle['harEkspertKilder'] = include_expert_sources and 'ekspertKilder' in angle
+            
+            # Final progress update - check if progress_callback is callable
+            if progress_callback and callable(progress_callback):
+                await progress_callback(100)
+                
+            return ranked_angles
+            
+        except Exception as e:
+            logger.error(f"Error generating angles: {str(e)}")
+            # Return a minimal result with error information instead of raising
+            return [{
+                "overskrift": f"Fejl under vinkelgenerering: {str(e)}",
+                "beskrivelse": "Der opstod en fejl under generering af vinkler. Se logs for detaljer.",
+                "nyhedskriterier": ["aktualitet"],
+                "error": str(e)
+            }]
     except Exception as e:
-        logger.error(f"Error generating angles: {e}")
-        raise
+        logger.error(f"Unexpected error in process_generation_request: {str(e)}")
+        # Return a minimal result with error information
+        return [{
+            "overskrift": f"Uventet fejl: {str(e)}",
+            "beskrivelse": "Der opstod en uventet fejl. Se logs for detaljer.",
+            "nyhedskriterier": ["aktualitet"],
+            "error": str(e)
+        }]
 
 class APIPerformanceMetrics:
     """Track performance metrics for API calls."""
@@ -887,8 +1012,8 @@ async def generate_knowledge_distillate(
     if not ANTHROPIC_API_KEY:
         raise APIKeyMissingError("Anthropic API nøgle mangler. Sørg for at have en ANTHROPIC_API_KEY i din .env fil.")
     
-    # Update progress if callback provided
-    if progress_callback:
+    # Update progress if callback provided - check if it's actually callable
+    if progress_callback and callable(progress_callback):
         await progress_callback(25)
     
     # Optimized prompt for extracting structured knowledge
@@ -903,31 +1028,35 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
     BAGGRUNDSINFORMATION:
     {topic_info}
     
-    Formater dit svar som et JSON-objekt med følgende felter:
+    Formater dit svar som et JSON-objekt med følgende felter (bemærk: brug PRÆCIST disse danske feltnavne):
     
-    1. "noegletal": En liste med de 3-5 vigtigste statistikker/tal fra materialet. Hvert nøgletal har følgende struktur:
+    1. "hovedpunkter": En liste med de 3-5 vigtigste punkter fra materialet.
+    
+    2. "noegletal": En liste med de 3-5 vigtigste statistikker/tal fra materialet. Hvert nøgletal har følgende struktur:
        - "tal": Det faktiske tal/statistik
        - "beskrivelse": Kort beskrivelse af hvad tallet repræsenterer
        - "kilde": Kilden hvis angivet
     
-    2. "centralePaastand": En liste med 3-5 centrale påstande/fakta fra materialet. Hver påstand har følgende struktur:
+    3. "centralePaastand": En liste med 3-5 centrale påstande/fakta fra materialet. Hver påstand har følgende struktur:
        - "paastand": Den faktiske påstand/faktum
        - "kilde": Kilden hvis angivet
     
-    3. "vinkler": En liste med 3-4 forskellige perspektiver på emnet. Hvert perspektiv har følgende struktur:
+    4. "vinkler": En liste med 3-4 forskellige perspektiver på emnet. Hvert perspektiv har følgende struktur:
        - "vinkel": Kort beskrivelse af perspektivet
        - "aktør": Hvem der repræsenterer dette perspektiv
     
-    4. "datoer": En liste med 2-3 vigtige datoer relateret til emnet. Hver dato har følgende struktur:
+    5. "datoer": En liste med 2-3 vigtige datoer relateret til emnet. Hver dato har følgende struktur:
        - "dato": Den specifikke dato (format: YYYY-MM-DD eller beskrivelse hvis præcis dato ikke er kendt)
        - "begivenhed": Hvad der skete på denne dato
        - "betydning": Kort beskrivelse af hvorfor denne dato er vigtig
     
-    Brug KUN information der findes i baggrundsmaterialet. Hvis der mangler information til et af felterne, inkluder en kort liste med de felter der er tilgængelige. Svar med det rene JSON-objekt, uden forklarende tekst eller indledning.
+    Brug KUN information der findes i baggrundsmaterialet. Hvis der mangler information til et af felterne, inkluder en tom liste for det felt. Det er VIGTIGT at du bruger præcist de danske feltnavne som angivet ovenfor.
+    
+    Svar med det rene JSON-objekt, uden forklarende tekst eller indledning. Start med {{ og slut med }} uden andre tegn før eller efter.
     """
     
-    # Update progress if callback provided
-    if progress_callback:
+    # Update progress if callback provided - check if it's actually callable
+    if progress_callback and callable(progress_callback):
         await progress_callback(40)
     
     # Get session from pool
@@ -952,80 +1081,133 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
     try:
         # Make API request with timeout
         async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
-            # Update progress
-            if progress_callback:
+            # Update progress - check if progress_callback is callable
+            if progress_callback and callable(progress_callback):
                 await progress_callback(70)
                 
             if response.status != 200:
                 error_text = await response.text()
                 logger.error(f"Anthropic API error (knowledge distillate): status={response.status}, response={error_text}")
-                return {"error": f"API Error: Status {response.status}", "key_statistics": [], "key_claims": [], "perspectives": [], "important_dates": []}
+                return {
+                    "hovedpunkter": [],
+                    "noegletal": [],
+                    "centralePaastand": [], 
+                    "vinkler": [], 
+                    "datoer": [],
+                    "error": f"API Error: Status {response.status}"
+                }
             
             try:    
                 response_data = await response.json()
             except json.JSONDecodeError as e:
                 logger.error(f"Invalid JSON in Anthropic API response: {e}")
-                return {"error": "Response is not valid JSON", "key_statistics": [], "key_claims": [], "perspectives": [], "important_dates": []}
+                return {
+                    "hovedpunkter": [],
+                    "noegletal": [], 
+                    "centralePaastand": [], 
+                    "vinkler": [], 
+                    "datoer": [],
+                    "error": "Response is not valid JSON"
+                }
             
-            # Update progress
-            if progress_callback:
+            # Update progress - check if progress_callback is callable
+            if progress_callback and callable(progress_callback):
                 await progress_callback(85)
                 
             # Extract content with error handling
             try:
-                content = response_data['content'][0]['text']
+                content = ""
+                if 'content' in response_data and len(response_data['content']) > 0:
+                    content = response_data['content'][0].get('text', '')
                 if not content:
                     logger.error("Empty text content in Anthropic API response")
-                    return {"error": "Empty content received from API", "key_statistics": [], "key_claims": [], "perspectives": [], "important_dates": []}
+                    return {
+                        "hovedpunkter": [],
+                        "noegletal": [], 
+                        "centralePaastand": [], 
+                        "vinkler": [], 
+                        "datoer": [],
+                        "error": "Empty content received from API"
+                    }
             except (KeyError, IndexError, TypeError) as e:
                 logger.error(f"Failed to extract content from Anthropic API response: {e}")
-                return {"error": f"Failed to extract content: {str(e)}", "key_statistics": [], "key_claims": [], "perspectives": [], "important_dates": []}
+                return {
+                    "hovedpunkter": [],
+                    "noegletal": [], 
+                    "centralePaastand": [], 
+                    "vinkler": [], 
+                    "datoer": [],
+                    "error": f"Failed to extract content: {str(e)}"
+                }
+            
+            # Add after line 1322, before parsing the content
+            logger.debug(f"Raw knowledge distillate response: {content[:1000]}...")
             
             # Use the enhanced JSON parser for robust parsing
             from json_parser import safe_parse_json
             
-            # Define expected structure for knowledge distillate
-            expected_format = {
-                "key_statistics": [],  # or "noegletal": []
-                "key_claims": [],      # or "centralePaastand": []
-                "perspectives": [],    # or "vinkler": []
-                "important_dates": []  # or "datoer": []
+            # Define default distillate structure
+            fallback_distillate = {
+                "hovedpunkter": [],
+                "noegletal": [], 
+                "centralePaastand": [], 
+                "vinkler": [], 
+                "datoer": []
             }
             
-            # Parse the content using the robust parser
-            distillate = safe_parse_json(
-                content,
-                context="knowledge distillate",
-                fallback={
-                    "error": "Failed to parse knowledge distillate",
-                    "key_statistics": [],
-                    "key_claims": [],
-                    "perspectives": [],
-                    "important_dates": []
+            # Extra precaution: Check if content actually contains JSON
+            if not ('{' in content and '}' in content):
+                logger.error(f"Content does not appear to contain JSON: {content[:100]}...")
+                return {
+                    **fallback_distillate,
+                    "error": "Response did not contain valid JSON formatting"
                 }
-            )
+                
+            # Parse the content using the robust parser
+            try:
+                distillate = safe_parse_json(
+                    content,
+                    context="knowledge distillate",
+                    fallback=fallback_distillate
+                )
+                
+                if not isinstance(distillate, dict):
+                    logger.error(f"Parsed content is not a dictionary: {type(distillate)}")
+                    return fallback_distillate
+            except Exception as e:
+                logger.error(f"Error during JSON parsing: {e}")
+                return {
+                    **fallback_distillate,
+                    "error": f"JSON parsing error: {str(e)}"
+                }
             
-            # Normalize field names if they use Danish variants
-            if "noegletal" in distillate and "key_statistics" not in distillate:
-                distillate["key_statistics"] = distillate.pop("noegletal")
-            if "centralePaastand" in distillate and "key_claims" not in distillate:
-                distillate["key_claims"] = distillate.pop("centralePaastand")
-            if "vinkler" in distillate and "perspectives" not in distillate:
-                distillate["perspectives"] = distillate.pop("vinkler")
-            if "datoer" in distillate and "important_dates" not in distillate:
-                distillate["important_dates"] = distillate.pop("datoer")
+            # Normalize field names if they use English variants
+            field_mappings = {
+                "main_points": "hovedpunkter",
+                "key_statistics": "noegletal",
+                "key_claims": "centralePaastand",
+                "perspectives": "vinkler",
+                "important_dates": "datoer"
+            }
             
-            # Ensure all required fields exist
-            for field in expected_format:
+            for eng_field, dk_field in field_mappings.items():
+                if eng_field in distillate and dk_field not in distillate:
+                    distillate[dk_field] = distillate.pop(eng_field)
+            
+            # Ensure all required fields exist with proper types
+            for field in fallback_distillate:
                 if field not in distillate:
+                    distillate[field] = []
+                elif not isinstance(distillate[field], list):
+                    logger.warning(f"Field {field} is not a list, converting to empty list")
                     distillate[field] = []
             
             # Record latency
             latency = time.time() - start_time
             logger.info(f"Knowledge distillate generation completed in {latency:.2f} seconds")
             
-            # Final progress update
-            if progress_callback:
+            # Final progress update - check if progress_callback is callable
+            if progress_callback and callable(progress_callback):
                 await progress_callback(100)
                 
             return distillate
@@ -1038,7 +1220,16 @@ Dit output skal være kortfattet, struktureret og fokuseret på de mest relevant
                 del _session_pool["anthropic_knowledge"]
         except:
             pass
-        raise
+        
+        # Return a valid fallback structure
+        return {
+            "hovedpunkter": [],
+            "noegletal": [],
+            "centralePaastand": [], 
+            "vinkler": [], 
+            "datoer": [],
+            "error": f"Exception during API call: {str(e)}"
+        }
 
 @cached_api(ttl=43200)  # Cache for 12 hours - expert sources don't change often
 @retry_with_circuit_breaker(
@@ -1273,3 +1464,50 @@ async def shutdown_api_client():
         _connection_pool.shutdown(wait=True)
         
     logger.info("API client shut down successfully")
+
+async def generate_angles(
+    topic: str,
+    profile: RedaktionelDNA,
+    bypass_cache: bool = False,
+    progress_callback = None,
+    detailed: bool = False
+) -> List[Dict[str, Any]]:
+    """
+    Generate angles for a news topic based on an editorial profile.
+    
+    Args:
+        topic: News topic to generate angles for
+        profile: Editorial DNA profile to use
+        bypass_cache: If True, ignore cached results
+        progress_callback: Optional callback function for progress updates
+        detailed: If True, generate more detailed angles
+        
+    Returns:
+        List[Dict]: Generated angles with additional information
+    """
+    logger.info("generate_angles called - redirecting to process_generation_request")
+    
+    try:
+        # Ensure profile is a RedaktionelDNA object
+        if not isinstance(profile, RedaktionelDNA):
+            logger.error(f"Invalid profile type in generate_angles: {type(profile)}. Expected RedaktionelDNA object.")
+            raise TypeError(f"Profile must be a RedaktionelDNA object, not {type(profile)}")
+            
+        # Call the new implementation
+        return await process_generation_request(
+            topic=topic,
+            profile=profile,
+            bypass_cache=bypass_cache,
+            progress_callback=progress_callback if callable(progress_callback) else None,
+            include_expert_sources=True,
+            include_knowledge_distillate=True
+        )
+    except Exception as e:
+        logger.error(f"Error in generate_angles: {str(e)}")
+        # Return a simplified error result
+        return [{
+            "overskrift": f"Fejl under vinkelgenerering: {str(e)}",
+            "beskrivelse": "Der opstod en fejl under generering af vinkler. Se logs for detaljer.",
+            "nyhedskriterier": ["aktualitet"],
+            "error": str(e)
+        }]

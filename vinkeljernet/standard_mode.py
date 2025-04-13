@@ -38,6 +38,10 @@ async def run_standard_mode(args: Namespace) -> None:
     Args:
         args: Command-line arguments
     """
+    # Import early to have it available in the function
+    from vinkeljernet.core import process_generation_request
+    from api_clients_wrapper import initialize_api_client
+    
     # Print start message with nice formatting
     display_welcome_panel()
     
@@ -75,6 +79,9 @@ async def run_standard_mode(args: Namespace) -> None:
         tracker.update_progress(percent, message)
     
     try:
+        # Initialize the API client once at the beginning
+        await initialize_api_client()
+        
         # Begin with initialization
         tracker.set_stage(ProcessStage.INITIALIZING, "Starter Vinkeljernet op...")
         await asyncio.sleep(0.5)  # Short pause for visual effect
@@ -100,12 +107,14 @@ async def run_standard_mode(args: Namespace) -> None:
                     f"Indhenter information om '{args.emne}'..."
                 )
             ),
-            progress_stages={"FETCHING_INFO": tracker.set_stage, 
-                             "GENERATING_KNOWLEDGE": tracker.set_stage,
-                             "GENERATING_ANGLES": tracker.set_stage,
-                             "FILTERING_ANGLES": tracker.set_stage,
-                             "GENERATING_SOURCES": tracker.set_stage,
-                             "GENERATING_EXPERT_SOURCES": tracker.set_stage}
+            progress_stages={
+                "FETCHING_INFO": tracker.set_stage, 
+                "GENERATING_KNOWLEDGE": tracker.set_stage,
+                "GENERATING_ANGLES": tracker.set_stage,
+                "FILTERING_ANGLES": tracker.set_stage,
+                "GENERATING_SOURCES": tracker.set_stage,
+                "GENERATING_EXPERT_SOURCES": tracker.set_stage
+            }
         )
         
         # Finalizing
@@ -142,11 +151,14 @@ async def run_standard_mode(args: Namespace) -> None:
         # Stop the live display
         live.stop()
         console.print(f"[bold red]Unexpected error:[/bold red] {e}")
+        logger.exception("Unexpected error in standard mode")
         sys.exit(1)
     finally:
         # Ensure live display is stopped
         if live.is_started:
             live.stop()
+        
+        # No need to shut down the API client here, as it will be done in cli.py
 
 
 def display_circuit_stats() -> None:

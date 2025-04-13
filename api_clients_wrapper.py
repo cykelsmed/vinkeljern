@@ -1,19 +1,59 @@
 """
-API Client Wrapper Module for Vinkeljernet project.
-
-This module provides integration compatibility between the optimized API client
-and the original API client interface, ensuring seamless transition without
-breaking existing code.
+Wrapper module for API clients that abstracts the actual implementation.
+This allows switching between different implementations (optimized, mock, etc.)
+while maintaining the same interface.
 """
 
 import asyncio
 import logging
 from typing import Optional, Dict, Any, List, Callable
+from models import RedaktionelDNA  # Add missing import
 
-# Import from both client versions
-from models import RedaktionelDNA
-from config import USE_STREAMING, MAX_CONCURRENT_REQUESTS
-from error_handling import APIKeyMissingError, APIConnectionError
+# Client state management
+_main_event_loop = None
+
+# Import the actual implementation
+try:
+    from api_clients_optimized import (
+        fetch_topic_information,
+        process_generation_request,
+        generate_angles,
+        generate_knowledge_distillate,
+        generate_expert_source_suggestions,
+        generate_editorial_considerations,
+        initialize_api_client,
+        shutdown_api_client,
+        get_performance_metrics,
+        optimize_cache
+    )
+except ImportError:
+    from api_clients import (
+        fetch_topic_information,
+        process_generation_request,
+        generate_angles,
+        generate_knowledge_distillate,
+        generate_expert_source_suggestions,
+        generate_editorial_considerations,
+        initialize_api_client,
+        shutdown_api_client,
+        get_performance_metrics,
+        optimize_cache
+    )
+
+# Re-export the implementation
+__all__ = [
+    'fetch_topic_information',
+    'process_generation_request',
+    'generate_angles',
+    'generate_knowledge_distillate',
+    'generate_expert_source_suggestions',
+    'generate_editorial_considerations',
+    'initialize_api_client',
+    'shutdown_api_client',
+    'get_performance_metrics',
+    'optimize_cache',
+    'ensure_event_loop'
+]
 
 # Logger setup
 logger = logging.getLogger("vinkeljernet.api_wrapper")
@@ -42,6 +82,24 @@ def get_implementation():
         logger.info("Using original API client implementation")
         return api_clients
 
+def ensure_event_loop():
+    """Ensures that there is a running event loop, creating one if necessary."""
+    global _main_event_loop
+    
+    try:
+        # Try to get the current running loop
+        loop = asyncio.get_running_loop()
+        if _main_event_loop is None:
+            _main_event_loop = loop
+        return loop
+    except RuntimeError:
+        # No running loop, create a new one
+        if _main_event_loop is None or _main_event_loop.is_closed():
+            _main_event_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(_main_event_loop)
+            logger.info("Created new event loop as no running loop was found")
+        return _main_event_loop
+
 # ====== Main API Interface Functions ======
 
 async def fetch_topic_information(
@@ -64,6 +122,9 @@ async def fetch_topic_information(
     Returns:
         Optional[str]: The information retrieved or None if failed
     """
+    # Ensure we have a valid event loop
+    ensure_event_loop()
+    
     implementation = get_implementation()
     
     # Check if the implementation has the updated signature with 'detailed'
@@ -98,6 +159,7 @@ async def fetch_source_suggestions(
     Returns:
         Optional[str]: Source suggestions or None if failed
     """
+    ensure_event_loop()
     implementation = get_implementation()
     
     # Check if the implementation has this function
@@ -108,7 +170,7 @@ async def fetch_source_suggestions(
         logger.warning("fetch_source_suggestions not available in current implementation")
         return None
 
-def generate_angles(
+async def generate_angles(
     emne: str, 
     topic_info: str, 
     profile: RedaktionelDNA, 
@@ -126,10 +188,26 @@ def generate_angles(
     Returns:
         A list of angle dictionaries.
     """
+    ensure_event_loop()
     implementation = get_implementation()
     
     if hasattr(implementation, 'generate_angles'):
-        return implementation.generate_angles(emne, topic_info, profile, bypass_cache=bypass_cache)
+        logger.debug(f"Profile type before calling implementation: {type(profile)}")
+        if not isinstance(profile, RedaktionelDNA):
+            logger.error(f"Invalid profile type: {type(profile)}. Expected RedaktionelDNA object.")
+            raise TypeError(f"Profile must be a RedaktionelDNA object, not {type(profile)}")
+            
+        # Check the function signature to determine how to call it
+        if implementation.generate_angles.__code__.co_argcount >= 5:  # New signature (topic, profile, bypass_cache, progress_callback, detailed)
+            # For newer implementation with different signature
+            return await implementation.generate_angles(
+                topic=emne,
+                profile=profile,
+                bypass_cache=bypass_cache
+            )
+        else:
+            # For older implementation
+            return await implementation.generate_angles(emne, topic_info, profile, bypass_cache)
     else:
         raise NotImplementedError("generate_angles function not found in API client implementation")
 
@@ -151,6 +229,7 @@ async def generate_editorial_considerations(
     Returns:
         str: Editorial considerations text
     """
+    ensure_event_loop()
     implementation = get_implementation()
     
     # Check if the implementation has this function
@@ -187,6 +266,7 @@ async def process_generation_request(
     Returns:
         List[Dict]: Generated angles
     """
+    ensure_event_loop()
     implementation = get_implementation()
     
     # Check if the implementation has the optimized version with new parameters
@@ -231,7 +311,7 @@ async def process_generation_request(
             topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
         
         # Generate angles
-        angles = generate_angles(topic, topic_info, profile, bypass_cache=bypass_cache)
+        angles = await generate_angles(topic, topic_info, profile, bypass_cache)
         
         if progress_callback:
             await progress_callback(80)
@@ -284,6 +364,9 @@ def get_performance_metrics() -> Dict[str, Any]:
 
 async def initialize_api_client():
     """Initialize the API client for optimal performance."""
+    # Ensure we have a valid event loop
+    ensure_event_loop()
+    
     implementation = get_implementation()
     
     if hasattr(implementation, 'initialize_api_client'):

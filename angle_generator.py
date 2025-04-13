@@ -203,6 +203,21 @@ async def generate_angles(topic: str, profile: RedaktionelDNA) -> Optional[List[
     Returns:
         Optional[List[VinkelForslag]]: List of generated news angles or None if generation fails
     """
+    # Check if profile is a string and try to handle it
+    if isinstance(profile, str):
+        rprint(f"[yellow]WARNING: profile parameter was passed as a string. Attempting to handle.[/yellow]")
+        try:
+            from config_manager import load_profile
+            profile = load_profile(profile)
+        except Exception as e:
+            rprint(f"[red]Error converting profile string to RedaktionelDNA: {e}[/red]")
+            return None
+            
+    # Check if profile is a RedaktionelDNA object
+    if not isinstance(profile, RedaktionelDNA):
+        rprint(f"[red]Error: profile must be a RedaktionelDNA object, got {type(profile)}[/red]")
+        return None
+        
     # Get information about the topic
     information = await get_topic_information(topic)
     if not information:
@@ -212,62 +227,21 @@ async def generate_angles(topic: str, profile: RedaktionelDNA) -> Optional[List[
     rprint("[blue]Genererer vinkler baseret på emne og redaktionsprofil...[/blue]")
     
     # Format kerneprincipper for prompt
-    kerneprincipper_str = ", ".join([list(p.keys())[0] for p in profile.kerneprincipper])
+    try:
+        kerneprincipper_str = ", ".join([list(p.keys())[0] for p in profile.kerneprincipper])
+    except (AttributeError, TypeError) as e:
+        rprint(f"[red]Error accessing kerneprincipper: {e}[/red]")
+        rprint(f"[red]Profile type: {type(profile)}[/red]")
+        return None
     
     # DEAKTIVERET: Langchain har kompatibilitetsproblemer med nyeste OpenAI API
     # Dette vil kræve en opdatering af Langchain
     # I stedet for at bruge Langchain, bruger vi direkte OpenAI API i api_clients.py
     
-    # Fortæl brugeren at vi ikke understøtter denne metode længere
-    raise ValueError(
-        "Angle generator modulet er ikke længere kompatibelt med nyeste version af OpenAI API. "
-        "Brug venligst main.py med de anbefalede kommandoer i stedet."
-    )
-    
-    # Prepare the inputs
-    inputs = {
-        "emne": topic,
-        "information": information,
-        "kerneprincipper": kerneprincipper_str,
-        "nyhedsprioritering": str(profile.nyhedsprioritering),
-        "tone_og_stil": profile.tone_og_stil,
-        "fokusomraader": ", ".join(profile.fokusområder),
-        "nogo_omraader": ", ".join(profile.nogo_områder) if profile.nogo_områder else "Ingen"
-    }
-    
-    try:
-        # Run the chain
-        result = chain.run(**inputs)
-        
-        # Parse the response as JSON 
-        try:
-            # The output from LLM might be wrapped in ```json and ``` markers
-            if "```json" in result:
-                result = result.split("```json")[1].split("```")[0].strip()
-            elif "```" in result:
-                result = result.split("```")[1].split("```")[0].strip()
-                
-            # Parse JSON into our model
-            vinkel_liste = VinkelForslagListe.parse_raw(result)
-            
-            # Score and filter the angles
-            filtered_angles = score_and_filter_angles(
-                vinkel_liste.vinkler, 
-                profile.nyhedsprioritering
-            )
-            
-            rprint("[green]✓[/green] Vinkler er genereret")
-            
-            return filtered_angles, vinkel_liste.kilder
-            
-        except Exception as e:
-            rprint(f"[red]Fejl ved parsing af LLM output: {e}[/red]")
-            rprint(f"[yellow]Rå output fra LLM: {result}[/yellow]")
-            return None
-        
-    except Exception as e:
-        rprint(f"[red]Fejl ved generering af vinkler: {e}[/red]")
-        return None
+    # Fortæl brugeren at vi ikke understøtter denne metode længere og returner None
+    rprint("[yellow]Angle generator modulet er ikke længere kompatibelt med nyeste version af OpenAI API. "
+           "Brug venligst main.py med de anbefalede kommandoer i stedet.[/yellow]")
+    return None
 
 
 def format_angles_for_output(angles: List[VinkelForslag], kilder: List[str]) -> str:

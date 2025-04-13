@@ -1,59 +1,196 @@
-2025-04-04 02:54:34,677 - root - DEBUG - Logging initialized
-2025-04-04 02:54:34,677 - root - INFO - Vinkeljernet starting up
-2025-04-04 02:54:34,681 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
-2025-04-04 02:54:34,681 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
-2025-04-04 02:54:34,681 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
-2025-04-04 02:54:34,681 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
-2025-04-04 02:54:34,684 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-04-04 02:54:34,769 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-04 02:54:34,870 - vinkeljernet.api - INFO - API client initialized and ready
-2025-04-04 02:54:34,875 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: Arbejderen
-2025-04-04 02:54:34,878 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-04 02:54:34,878 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-04-04 02:54:34,878 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x107eb0a40>}
-2025-04-04 02:54:46,646 - vinkeljernet.api - INFO - Perplexity API request completed in 11.77 seconds
-2025-04-04 02:54:46,650 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
-2025-04-04 02:54:46,650 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nKommunalvalget i København 2025 handler om valget af kommunalbestyrelse, der skal træffe beslutninger om lokale forhold som skoler, ældrepleje og byudvikling. Valget finder sted den 18. november 2025. Partier som Radikale Venstre og Socialdemokratiet er allerede i gang med at opstille kandidater.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da partierne er i gang med at forberede sig til valget. Opstillingsprocessen er i fuld gang, og spidskandidater er ved at blive valgt. Dette indebærer, at der er en intens aktivitet omkring kandidatopstillinger og valgkampagneaktiviteter.\n\n## NØGLETAL\n- **Valgdato:** Tirsdag den 18. november 2025.\n- **Kandidatopstillinger:** Radikale Venstre har to opstillingsmøder, hvoraf det første finder sted to år før valget, og det andet ét år før[1].\n- **Socialdemokratiets liste:** Indeholder 35 navne og vedtages via urafstemning blandt medlemmerne[2].\n\n## PERSPEKTIVER\nForskellige partier har forskellige synspunkter på kommunalvalget. Radikale Venstre fokuserer på en åben proces for kandidatopstilling, mens Socialdemokratiet bruger urafstemning til at prioritere kandidater. Venstre har et fokus på lokale løsninger og stærke lokalsamfund[3]. Disse perspektiver afspejler partierne forskellige politiske mål og strategier for valgkampen.', 'topic': 'Kommunalvalg i København 2025'}
-2025-04-04 02:55:11,418 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+2025-04-14 00:36:01,326 - vinkeljernet.cli - INFO - Vinkeljernet starting up
+2025-04-14 00:36:01,326 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-04-14 00:36:01,326 - vinkeljernet.api_wrapper - INFO - Created new event loop as no running loop was found
+2025-04-14 00:36:01,326 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 00:36:01,343 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
+2025-04-14 00:36:01,359 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
+2025-04-14 00:36:01,374 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
+2025-04-14 00:36:01,388 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
+2025-04-14 00:36:01,403 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
+2025-04-14 00:36:01,417 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
+2025-04-14 00:36:01,431 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
+2025-04-14 00:36:01,434 - vinkeljernet.api - INFO - API client initialized and ready
+2025-04-14 00:36:01,437 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 00:36:01,437 - vinkeljernet.api - INFO - API client initialized and ready
+2025-04-14 00:36:02,448 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: TVflux
+2025-04-14 00:36:02,448 - vinkeljernet.core - INFO - Loaded profile: TVflux
+2025-04-14 00:36:02,448 - vinkeljernet.core - INFO - Fetching information for topic: Christiania uden hash
+2025-04-14 00:36:02,448 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 00:36:02,449 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-04-14 00:36:02,449 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'dev_mode': False, 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x105d8b1a0>}
+2025-04-14 00:36:13,246 - vinkeljernet.api - INFO - Perplexity API request completed in 10.80 seconds
+2025-04-14 00:36:13,249 - vinkeljernet.core - INFO - Generating knowledge distillate from background information
+2025-04-14 00:36:13,249 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-04-14 00:36:13,249 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nEmnet "Christiania uden hash" handler om den historiske transformation af Pusher Street i Christiania, hvor den åbne hashhandel er blevet fjernet, og gaden er blevet omdannet til en kulturel gågade. Dette skridt har ført til en markant reduktion i kriminaliteten og en ændring i områdets image.\n\n## AKTUEL STATUS\nDen nuværende situation er, at Pusher Street har været lukket og omdannet siden april 2024, efter en fælles indsats fra christianitter og politi. Emnet er relevant, da det markerer en betydelig ændring i Christianias historie og samfundets holdning til cannabis. Hashhandelen er i stigende grad rykket online, hvilket har ført til en debat om legalisering som en mulig løsning på de problemer, der har plaget området.\n\n## NØGLETAL\n- **April 2024**: Pusher Street blev lukket og gravet op som en del af en større indsats for at fjerne den åbne hashhandel.\n- **75% reduktion**: I 2016 oplevede Christiania en lignende reduktion i hashhandel, da lokale beboere fjernede boderne.\n- **0 åbenlyse hashboder**: Ifølge politiet er der ikke længere åbenlyse hashboder på Pusher Street, og kriminaliteten er faldet markant.\n\n## PERSPEKTIVER\nForskellige grupper har forskellige synspunkter på emnet:\n- **Christianitter**: Mange ser rydningen som en succes, da den har gjort området tryggere og reduceret kriminaliteten. Der er dog også bekymring for, om Christiania kan bevare sin unikke karakter.\n- **Politiet**: Ser indsatsen som en vigtig del af bekæmpelsen af organiseret kriminalitet og en mulig løsning på de langvarige problemer i området.\n- **Politikere og samfund**: Debatter om legalisering af cannabis som en måde at underminere det sorte marked på.', 'topic': 'Christiania uden hash', 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x105d8b1a0>}
+2025-04-14 00:36:42,531 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
+  "hovedpunkter": [
+    "Pusher Street i Christiania er blevet omdannet fra et område med åben hashhandel til en kulturel gågade.",
+    "Lukningen af Pusher Street har ført til en markant reduktion i kriminaliteten i området.",
+    "Hashhandelen er i stigende grad rykket online, hvilket har ført til en debat om legalisering af cannabis.",
+    "Christianitter og politi har samarbejdet om at fjerne den åbne hashhandel og transformere området."
+  ],
   "noegletal": [
     {
-      "tal": "18. november 2025",
-      "beskrivelse": "Valgdato for kommun...
-2025-04-04 02:55:11,419 - json_parser - INFO - Successfully parsed JSON directly: 3 items found
-2025-04-04 02:55:11,419 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 24.77 seconds
-2025-04-04 02:55:46,036 - vinkeljernet.cache - INFO - Cache hit for fetch_source_suggestions
-2025-04-04 02:55:46,039 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-04 02:55:46,039 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Kommunalvalg i København 2025', 'angle_headline': 'Aktivister: Valget mangler grøn dagsorden', 'angle_description': 'Miljøforkæmpere savner fokus på klima og bæredygtighed i valgkampen. Vi taler med aktivister om, hvad der skal til for en grønnere by.'}
-2025-04-04 02:55:46,039 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-04 02:55:46,039 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Kommunalvalg i København 2025', 'angle_headline': 'Socialistiske partier i kamp mod ulighed', 'angle_description': 'Hvilke partier har de mest progressive forslag til at bekæmpe social ulighed i København? Vi ser nærmere på deres politik og visioner.'}
-2025-04-04 02:55:46,040 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-04 02:55:46,040 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Kommunalvalg i København 2025', 'angle_headline': 'Udenforskab: De glemte stemmer i valget', 'angle_description': 'Socialt udsatte grupper er tit overset i valgkampen. Vi giver stemme til hjemløse, misbrugere og andre på kanten af samfundet.'}
-2025-04-04 02:56:05,897 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+      "tal": "April 2024",
+      "beskrivelse": "Tidspunktet hvor Pusher Street blev lukket og gravet op",
+      "kilde": ""
+    },
+    {
+      "tal": "75% reduktion",
+      "beskrivelse": "Reduktionen i hashhandel i Christiania i 2016, da lokale beboere fjernede boderne",
+      "kilde": ""
+    },
+    {
+      "tal": "0 åbenlyse hashboder",
+      "beskrivelse": "Antallet af åbenlyse hashboder på Pusher Street ifølge politiet efter lukningen",
+      "kilde": ""
+    }
+  ],
+  "centralePaastand": [
+    {
+      "paastand": "...
+2025-04-14 00:36:42,533 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+  "hovedpunkter": [
+    "Pusher Street i Christiania er blevet omdannet fra et område med åben has...
+2025-04-14 00:36:42,533 - json_parser - INFO - Successfully parsed JSON directly: 3 items found
+2025-04-14 00:36:42,533 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 29.28 seconds
+2025-04-14 00:36:42,535 - vinkeljernet.core - INFO - Knowledge distillate generated successfully
+2025-04-14 00:36:42,535 - vinkeljernet.core - INFO - Generating angles...
+2025-04-14 00:36:42,535 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 00:36:42,536 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-04-14 00:36:42,536 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x105d8b1a0>}
+2025-04-14 00:36:50,459 - vinkeljernet.api - INFO - Perplexity API request completed in 7.92 seconds
+2025-04-14 00:36:50,461 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-04-14 00:36:50,461 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nEmnet "Christiania uden hash" handler om den historiske transformation af Pusher Street i Christiania, hvor den åbne hashhandel er blevet lukket ned, og gaden er blevet omdannet til en byggeplads med planer om at skabe en kulturgade. Dette skridt er taget for at bekæmpe organiseret kriminalitet og voldelige konflikter i området.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da det er et år siden, at christianitterne og politiet samarbejdede om at rydde Pusher Street for hashboder og bander. Denne indsats har ført til et markant fald i kriminaliteten i området, selvom hashsalget nu er rykket online[1][3].\n\n## NØGLETAL\n- **2024**: Året hvor Pusher Street blev lukket og omdannet til en byggeplads som led i en større indsats mod hashhandel og kriminalitet[3][4].\n- **75%**: Den estimerede reduktion i hashhandel, da lokale beboere fjernede boderne i 2016[5].\n- **500.000**: Antallet af årlige turister, der besøger Christiania, hvilket gør det til en af Københavns største turistattraktioner[5].\n\n## PERSPEKTIVER\nForskellige synspunkter på emnet inkluderer:\n- **Christianitterne**: Ser rydningen som en succes, da den har gjort området tryggere og reduceret kriminaliteten[1].\n- **Politiet**: Støtter indsatsen som en måde at bekæmpe organiseret kriminalitet og vold[1][3].\n- **Kritikere**: Mener, at hashsalget blot er rykket online, og at legalisering kunne være en bedre løsning[1][3].', 'topic': 'Christiania uden hash', 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x105d8b1a0>}
+2025-04-14 00:37:18,576 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
+  "hovedpunkter": [
+    "Pusher Street i Christiania er blevet omdannet fra åben hashhandel til en byggeplads med planer om en kulturgade.",
+    "Indsatsen er et samarbejde mellem christianitter og politi for at bekæmpe organiseret kriminalitet og vold.",
+    "Hashhandlen er faldet markant, men er rykket online i stedet.",
+    "Christiania er en af Københavns største turistattraktioner med 500.000 årlige besøgende."
+  ],
+  "noegletal": [
+    {
+      "tal": "2024",
+      "beskrivelse": "Året hvor Pusher Street blev lukket og omdannet til en byggeplads",
+      "kilde": "[3][4]"
+    },
+    {
+      "tal": "75%",
+      "beskrivelse": "Den estimerede reduktion i hashhandel, da lokale beboere fjernede boderne i 2016",
+      "kilde": "[5]"
+    },
+    {
+      "tal": "500.000",
+      "beskrivelse": "Antallet af årlige turister, der besøger Christiania",
+      "kilde": "[5]"
+    }
+  ],
+  "centralePaastand": [
+    {
+      "paastand": "Indsatsen mod hashhandel i Pusher Street har ført til et mark...
+2025-04-14 00:37:18,578 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+  "hovedpunkter": [
+    "Pusher Street i Christiania er blevet omdannet fra åben hashhandel til en...
+2025-04-14 00:37:18,578 - json_parser - INFO - Successfully parsed JSON directly: 3 items found
+2025-04-14 00:37:18,578 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 28.12 seconds
+2025-04-14 00:38:05,988 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
+  {
+    "videnDistillat": {
+      "hovedpunkter": [
+        "Pusher Street i Christiania er blevet omdannet fra en åben hashgade til en byggeplads med planer om en kulturgade",
+        "Transformati...
+2025-04-14 00:38:05,990 - json_parser - DEBUG - Attempting to parse JSON from angle generation. Preview: [
+  {
+    "videnDistillat": {
+      "hovedpunkter": [
+        "Pusher Street i Christiania er blevet...
+2025-04-14 00:38:05,990 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-04-14 00:38:05,990 - prompt_engineering - DEBUG - Found 'vinkler' key with 8 items
+2025-04-14 00:38:05,990 - prompt_engineering - DEBUG - Successfully validated angle: Christianias frihedskamp: Fra hashgade til kulturoase
+2025-04-14 00:38:05,991 - prompt_engineering - DEBUG - Successfully validated angle: Bandekonflikten flytter online: Christiania-indsats skubber blot problemet
+2025-04-14 00:38:05,991 - prompt_engineering - DEBUG - Successfully validated angle: Fristaden 50 år efter: Fra samfundseksperiment til turistmagnet
+2025-04-14 00:38:05,991 - prompt_engineering - DEBUG - Successfully validated angle: Christianit efter Pusher Street: 'Vi er en bydel, ikke en hashgade'
+2025-04-14 00:38:05,991 - prompt_engineering - DEBUG - Successfully validated angle: Politiinspektør: 'Christiania-indsats er en sejr over organiseret kriminalitet'
+2025-04-14 00:38:05,991 - prompt_engineering - DEBUG - Successfully validated angle: Hashsalg i Pusher Street: Afkriminalisering som pragmatisk løsning?
+2025-04-14 00:38:05,991 - prompt_engineering - DEBUG - Successfully validated angle: Turister i Pusher Street: 'Vi købte hash i den gode sags tjeneste'
+2025-04-14 00:38:05,991 - prompt_engineering - DEBUG - Successfully validated angle: Christianias Pusher Street genopstår som kunstnerisk kraftcenter
+2025-04-14 00:38:05,991 - prompt_engineering - INFO - Successfully parsed 8 angles
+2025-04-14 00:38:05,992 - vinkeljernet.cache - INFO - Cache miss for fetch_source_suggestions, calling function
+2025-04-14 00:38:08,135 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 00:38:08,135 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Christiania uden hash', 'angle_headline': 'Christianias frihedskamp: Fra hashgade til kulturoase', 'angle_description': 'Et år efter lukningen af Pusher Street ser christianitterne tilbage på transformationen. De drømmer om en kreativ fremtid fri for kriminalitet.'}
+2025-04-14 00:38:08,135 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 00:38:08,136 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Christiania uden hash', 'angle_headline': 'Fristaden 50 år efter: Fra samfundseksperiment til turistmagnet', 'angle_description': 'Christiania tiltrækker en halv million turister årligt. Fristaden er gået fra at være et radikalt modsvar til storsamfundet til en etableret seværdighed.'}
+2025-04-14 00:38:08,136 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 00:38:08,136 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Christiania uden hash', 'angle_headline': 'Bandekonflikten flytter online: Christiania-indsats skubber blot problemet', 'angle_description': 'Hashhandlen er ikke forsvundet, men blot rykket fra gaden til internettet. Kritikere mener, at indsatsen på Christiania ikke løser de underliggende problemer.'}
+2025-04-14 00:38:31,898 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
 {
   "eksperter": [
     {
-      "navn": "Sisse Marie Welling",
-      "titel": "Sundheds- og o...
-2025-04-04 02:56:05,899 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-04 02:56:05,899 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-04 02:56:05,899 - vinkeljernet.api - INFO - Expert source suggestions generated in 19.86 seconds
-2025-04-04 02:56:07,894 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+      "navn": "David Sausdal",
+      "titel": "Kriminolog og politi...
+2025-04-14 00:38:31,900 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 00:38:31,901 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 00:38:31,901 - vinkeljernet.api - INFO - Expert source suggestions generated in 23.77 seconds
+2025-04-14 00:38:32,714 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
 {
   "eksperter": [
     {
-      "navn": "Maria Reumert Gjerding",
-      "titel": "Præsident",...
-2025-04-04 02:56:07,895 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-04 02:56:07,897 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-04 02:56:07,897 - vinkeljernet.api - INFO - Expert source suggestions generated in 21.86 seconds
-2025-04-04 02:56:09,458 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+      "navn": "Ditlev Tamm",
+      "titel": "Professor Emeritus i J...
+2025-04-14 00:38:32,715 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 00:38:32,716 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 00:38:32,716 - vinkeljernet.api - INFO - Expert source suggestions generated in 24.58 seconds
+2025-04-14 00:38:37,322 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
 {
   "eksperter": [
     {
-      "navn": "Jan Salling Kristensen",
-      "titel": "Ansvarshave...
-2025-04-04 02:56:09,458 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-04 02:56:09,458 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-04 02:56:09,458 - vinkeljernet.api - INFO - Expert source suggestions generated in 23.42 seconds
-2025-04-04 02:56:09,483 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-04 02:56:09,490 - vinkeljernet.api - INFO - API client shut down successfully
+      "navn": "Henrik Ravn",
+      "titel": "Professor i Kriminolog...
+2025-04-14 00:38:37,323 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 00:38:37,323 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 00:38:37,324 - vinkeljernet.api - INFO - Expert source suggestions generated in 29.19 seconds
+2025-04-14 00:38:37,325 - vinkeljernet.core - INFO - Generated 5 raw angles
+2025-04-14 00:38:37,326 - vinkeljernet.core - INFO - Filtering and ranking angles...
+2025-04-14 00:38:37,326 - vinkeljernet.core - INFO - Ranked and filtered to 5 angles
+2025-04-14 00:38:37,326 - vinkeljernet.core - INFO - Generating general source suggestions...
+2025-04-14 00:38:37,326 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 00:38:37,326 - vinkeljernet.cache - INFO - Cache miss for fetch_source_suggestions, calling function
+2025-04-14 00:38:39,884 - vinkeljernet.core - INFO - Generating expert sources for each angle...
+2025-04-14 00:38:39,884 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 00:38:39,884 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Christiania uden hash', 'angle_headline': 'Christianias frihedskamp: Fra hashgade til kulturoase', 'angle_description': 'Et år efter lukningen af Pusher Street ser christianitterne tilbage på transformationen. De drømmer om en kreativ fremtid fri for kriminalitet.'}
+2025-04-14 00:38:57,083 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+{
+  "eksperter": [
+    {
+      "navn": "Hulda Mader",
+      "titel": "Talsperson",
+      "or...
+2025-04-14 00:38:57,084 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 00:38:57,084 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 00:38:57,085 - vinkeljernet.api - INFO - Expert source suggestions generated in 17.20 seconds
+2025-04-14 00:38:57,085 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 00:38:57,085 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Christiania uden hash', 'angle_headline': 'Bandekonflikten flytter online: Christiania-indsats skubber blot problemet', 'angle_description': 'Hashhandlen er ikke forsvundet, men blot rykket fra gaden til internettet. Kritikere mener, at indsatsen på Christiania ikke løser de underliggende problemer.'}
+2025-04-14 00:39:27,379 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+{
+  "eksperter": [
+    {
+      "navn": "Henrik Thambo Madsen",
+      "titel": "Professor i K...
+2025-04-14 00:39:27,379 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 00:39:27,380 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 00:39:27,380 - vinkeljernet.api - INFO - Expert source suggestions generated in 30.29 seconds
+2025-04-14 00:39:27,380 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 00:39:27,380 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Christiania uden hash', 'angle_headline': "Politiinspektør: 'Christiania-indsats er en sejr over organiseret kriminalitet'", 'angle_description': 'Politiet roser samarbejdet med christianitterne og ser lukningen af Pusher Street som et vigtigt skridt i kampen mod kriminalitet.'}
+2025-04-14 00:39:53,506 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+{
+  "eksperter": [
+    {
+      "navn": "Anne Tønnes",
+      "titel": "Politidirektør",
+     ...
+2025-04-14 00:39:53,506 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 00:39:53,507 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 00:39:53,507 - vinkeljernet.api - INFO - Expert source suggestions generated in 26.13 seconds
+2025-04-14 00:39:53,559 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 00:39:53,566 - vinkeljernet.api - INFO - API client shut down successfully

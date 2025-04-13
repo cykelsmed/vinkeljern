@@ -494,6 +494,9 @@ def call_angle_api(emne: str, topic_info: str, profile: Any, bypass_cache: bool 
         # Import directly to ensure we're using the most recent version
         from openai import OpenAI
         
+        # Import the new robust parser
+        from json_parser import parse_angles_from_llm_response
+        
         # Use minimal client initialization
         client = OpenAI(api_key=OPENAI_API_KEY)
         
@@ -533,8 +536,12 @@ def call_angle_api(emne: str, topic_info: str, profile: Any, bypass_cache: bool 
         # Extract the response text
         response_text = response.choices[0].message.content
         
-        # Parse the angles from the response
-        angles = parse_angles_from_response(response_text)
+        # Log a preview of the response for debugging
+        log_preview = response_text[:200] + ("..." if len(response_text) > 200 else "")
+        log_info(f"Modtog svar fra OpenAI API (preview): {log_preview}")
+        
+        # Parse the angles using the more robust parser
+        angles = parse_angles_from_llm_response(response_text)
         
         # Log success
         log_info(f"Genereret {len(angles)} vinkler succesfuldt")
@@ -547,3 +554,98 @@ def call_angle_api(emne: str, topic_info: str, profile: Any, bypass_cache: bool 
             f"Uventet fejl ved generering af vinkler: {e}. "
             "Kontakt venligst support hvis problemet fortsætter."
         )
+
+@cached_api(ttl=300)  # Cache for 5 minutes
+@retry_with_circuit_breaker(
+    max_retries=2,
+    initial_backoff=1.0,
+    backoff_factor=2.0,
+    exceptions=[requests.RequestException, asyncio.TimeoutError, ConnectionError],
+    circuit_name="json_repair_api"
+)
+def call_json_repair_api(prompt_text: str) -> str:
+    """
+    Calls an AI model to repair broken JSON with more robust formatting.
+    
+    Args:
+        prompt_text: Prompt containing the broken JSON and instructions
+        
+    Returns:
+        str: Repaired JSON string or empty JSON array "[]" if repair failed
+    """
+    if not OPENAI_API_KEY and not ANTHROPIC_API_KEY:
+        log_warning("Ingen AI API nøgle tilgængelig til JSON-reparation, bruger manuel reparation")
+        from json_parser import manual_json_repair
+        return manual_json_repair(prompt_text)
+    
+    log_info("Forsøger at reparere beskadiget JSON med AI")
+    
+    # Trim the prompt if it's too long
+    max_prompt_length = 12000
+    if len(prompt_text) > max_prompt_length:
+        # Keep first and last parts to retain context and the JSON structure
+        beginning = prompt_text[:5000]
+        ending = prompt_text[-6000:]
+        prompt_text = f"{beginning}\n...[trimmed content]...\n{ending}"
+        
+    try:
+        # Try Anthropic if available (better at JSON formatting)
+        if ANTHROPIC_API_KEY:
+            from anthropic import Anthropic
+            
+            client = Anthropic(api_key=ANTHROPIC_API_KEY)
+            
+            response = client.messages.create(
+                model="claude-3-haiku-20240307",
+                max_tokens=2000,
+                temperature=0.2,
+                system="Du er en JSON-reparationsassistent. Dit formål er at reparere JSON med syntaksfejl. Returner kun det reparerede JSON og intet andet.",
+                messages=[
+                    {"role": "user", "content": prompt_text}
+                ]
+            )
+            
+            result = response.content[0].text
+            
+        # Fallback to OpenAI
+        elif OPENAI_API_KEY:
+            from openai import OpenAI
+            
+            client = OpenAI(api_key=OPENAI_API_KEY)
+            
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Du er en JSON-reparationsassistent. Dit formål er at reparere JSON med syntaksfejl. Returner kun det reparerede JSON og intet andet."},
+                    {"role": "user", "content": prompt_text}
+                ],
+                temperature=0.2,
+                max_tokens=2000
+            )
+            
+            result = response.choices[0].message.content
+            
+        # Extract just the JSON part if there's any additional text
+        import re
+        json_pattern = r'```(?:json)?\s*([\s\S]*?)\s*```'
+        json_match = re.search(json_pattern, result)
+        if json_match:
+            clean_result = json_match.group(1).strip()
+        else:
+            clean_result = result.strip()
+        
+        # Validate that the result is valid JSON
+        try:
+            json.loads(clean_result)
+            log_info("JSON reparation lykkedes")
+            return clean_result
+        except json.JSONDecodeError as e:
+            log_warning(f"AI returnerede stadig ugyldigt JSON: {e}")
+            
+    except Exception as e:
+        log_error(f"Fejl under AI JSON-reparation: {str(e)}")
+    
+    # If all else fails, try manual repair
+    log_warning("AI JSON-reparation fejlede, prøver manuel reparation")
+    from json_parser import manual_json_repair
+    return manual_json_repair(prompt_text)

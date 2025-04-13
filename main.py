@@ -34,7 +34,7 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.shortcuts import clear, message_dialog, button_dialog
 from prompt_toolkit.application import run_in_terminal
 
-from models import RedaktionelDNA, ExpertSource, KnowledgeDistillate  # <--- Updated imports
+from models import RedaktionelDNA, KildeModel, KnowledgeDistillate  # <--- Updated imports
 
 # Configure root logger
 logging.basicConfig(
@@ -782,7 +782,7 @@ async def run_interactive_cli() -> None:
                     table.add_row("Tone og stil", profile.tone_og_stil)
                     table.add_row("Antal nyhedskriterier", str(len(profile.nyhedsprioritering)))
                     table.add_row("Antal fokusområder", str(len(profile.fokusOmrader)))
-                    table.add_row("Antal no-go områder", str(len(profile.noGoOmrader)))
+                    table.add.row("Antal no-go områder", str(len(profile.noGoOmrader)))
                     
                     console.print(table)
                 except FileNotFoundError:
@@ -851,14 +851,14 @@ async def run_interactive_cli() -> None:
                 
                 circuit_table = Table(show_header=True, header_style="bold blue")
                 circuit_table.add_column("API", style="dim")
-                circuit_table.add_column("Tilstand")
-                circuit_table.add_column("Succesfulde kald")
-                circuit_table.add_column("Fejlslagne kald")
-                circuit_table.add_column("Konsekutive fejl")
+                circuit_table.add.column("Tilstand")
+                circuit_table.add.column("Succesfulde kald")
+                circuit_table.add.column("Fejlslagne kald")
+                circuit_table.add.column("Konsekutive fejl")
                 
                 for name, data in stats.items():
                     state_style = "green" if data["state"] == "closed" else "red" if data["state"] == "open" else "yellow"
-                    circuit_table.add_row(
+                    circuit_table.add.row(
                         name,
                         f"[{state_style}]{data['state']}[/{state_style}]",
                         str(data["success_count"]),

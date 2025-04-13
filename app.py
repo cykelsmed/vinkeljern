@@ -52,6 +52,9 @@ from config import (
 # Configure logging
 logger = logging.getLogger("vinkeljernet.app")
 
+# Define DEBUG mode based on environment
+DEBUG = APP_ENV == "development"  # True if in development mode, False otherwise
+
 # Initialize Flask app with security settings
 app = Flask(__name__)
 app.config.from_mapping(
@@ -101,7 +104,7 @@ app.logger.setLevel(logging.INFO)
 # Set up security audit log
 audit_handler = logging.FileHandler(os.path.join(log_dir, 'security_audit.log'))
 audit_handler.setFormatter(logging.Formatter(
-    '%(asctime)s - %(levelname)s - %(message)s'
+    '%(asctime)s - %(levellevel)s - %(message)s'
 ))
 audit_handler.setLevel(logging.INFO)
 security_logger = logging.getLogger('vinkeljernet.security')
@@ -404,8 +407,7 @@ def enhanced_rate_limit(limit=RATE_LIMIT_DEFAULT, window=60, block_after=5):
     return decorator
 
 # Scheduled cleanup
-@app.before_first_request
-def setup_cleanup():
+def initialize():
     """Set up scheduled cleanup of tracking data."""
     def schedule_cleanup():
         while True:
@@ -416,6 +418,9 @@ def setup_cleanup():
     cleanup_thread = threading.Thread(target=schedule_cleanup)
     cleanup_thread.daemon = True
     cleanup_thread.start()
+
+with app.app_context():
+    initialize()
 
 #
 # Form Classes
@@ -429,10 +434,10 @@ class SecurityForm(FlaskForm):
         # Store form submission time for time-based attacks detection
         self.submission_time = time.time()
         
-    def validate(self):
+    def validate(self, extra_validators=None):
         """Enhanced validation with security checks"""
         # First run the standard validation
-        if not super(SecurityForm, self).validate():
+        if not super(SecurityForm, self).validate(extra_validators=extra_validators):
             return False
             
         # Add additional security checks
@@ -2232,4 +2237,4 @@ if __name__ == '__main__':
 """)
     
     # Run the Flask application
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=5001)

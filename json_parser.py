@@ -487,3 +487,272 @@ def safe_parse_json(
         logger.error(f"Unexpected error in safe_parse_json ({context}): {str(e)}")
         fallback["error"] = f"Unexpected parsing error: {str(e)}"
         return fallback
+
+def validate_angles(angles_data) -> List[Dict[str, Any]]:
+    """
+    Validerer og normaliserer vinkelforslag for at sikre at de overholder det forventede format.
+    
+    Args:
+        angles_data: Rå vinkeldata fra JSON-parsing
+        
+    Returns:
+        List[Dict[str, Any]]: Liste af validerede vinkelforslag
+    """
+    validated_angles = []
+    
+    if not angles_data:
+        logger.warning("Empty angles data received")
+        return []
+        
+    # Hvis vi ikke har en liste, prøv at konvertere til en liste
+    if not isinstance(angles_data, list):
+        if isinstance(angles_data, dict):
+            # Tjek efter almindelige liste-container formater
+            if "vinkler" in angles_data and isinstance(angles_data["vinkler"], list):
+                angles_data = angles_data["vinkler"]
+            elif "angles" in angles_data and isinstance(angles_data["angles"], list):
+                angles_data = angles_data["angles"]
+            else:
+                # Enkelt vinkel som dict
+                angles_data = [angles_data]
+        else:
+            logger.error(f"Unexpected data type for angles: {type(angles_data)}")
+            return []
+    
+    required_fields = ["overskrift", "beskrivelse", "begrundelse", "nyhedskriterier", "startSpørgsmål"]
+    
+    for angle in angles_data:
+        if not isinstance(angle, dict):
+            logger.warning(f"Skipping non-dict angle: {type(angle)}")
+            continue
+            
+        # Kontroller for påkrævede felter
+        missing_fields = [field for field in required_fields if field not in angle]
+        
+        # Afvist hvis kritiske felter mangler
+        if "overskrift" not in angle or "beskrivelse" not in angle:
+            logger.warning(f"Rejecting angle missing critical fields: {missing_fields}")
+            continue
+            
+        # Fiks manglende ikke-kritiske felter
+        angle_copy = angle.copy()
+        
+        if "begrundelse" not in angle_copy:
+            angle_copy["begrundelse"] = f"Automatisk genereret begrundelse for '{angle_copy['overskrift']}'"
+            
+        if "nyhedskriterier" not in angle_copy:
+            angle_copy["nyhedskriterier"] = ["aktualitet"]
+        elif not isinstance(angle_copy["nyhedskriterier"], list):
+            # Konverter til liste hvis det er en streng
+            if isinstance(angle_copy["nyhedskriterier"], str):
+                criteria = angle_copy["nyhedskriterier"].split(",")
+                angle_copy["nyhedskriterier"] = [c.strip() for c in criteria]
+            else:
+                angle_copy["nyhedskriterier"] = ["aktualitet"]
+                
+        if "startSpørgsmål" not in angle_copy and "startspørgsmål" in angle_copy:
+            # Håndter almindelige varianter af feltnavne
+            angle_copy["startSpørgsmål"] = angle_copy["startspørgsmål"]
+        elif "startSpørgsmål" not in angle_copy:
+            angle_copy["startSpørgsmål"] = [
+                f"Hvordan påvirker {angle_copy['overskrift']} samfundet?",
+                "Hvad er de vigtigste aspekter af denne problemstilling?"
+            ]
+        elif not isinstance(angle_copy["startSpørgsmål"], list):
+            # Konverter til liste hvis det er en streng
+            if isinstance(angle_copy["startSpørgsmål"], str):
+                angle_copy["startSpørgsmål"] = [angle_copy["startSpørgsmål"]]
+            else:
+                angle_copy["startSpørgsmål"] = ["Hvad er de vigtigste aspekter af denne problemstilling?"]
+        
+        # Valider med Pydantic model hvis tilgængelig
+        try:
+            from models import VinkelForslag
+            validated_angle = VinkelForslag(**angle_copy).dict()
+            validated_angles.append(validated_angle)
+        except Exception as e:
+            # Hvis Pydantic validering fejler, brug den fiksede kopi alligevel
+            logger.warning(f"Pydantic validation failed for angle: {str(e)}")
+            validated_angles.append(angle_copy)
+            
+    if not validated_angles:
+        logger.error("No valid angles found after validation")
+        
+    return validated_angles
+    
+def repair_json_with_claude(response_text: str) -> str:
+    """
+    Forsøger at reparere beskadiget JSON ved hjælp af Claude eller en anden AI-model.
+    
+    Args:
+        response_text: Den beskadigede JSON-tekst
+        
+    Returns:
+        str: Repareret JSON-tekst
+    """
+    try:
+        from api_clients import call_json_repair_api
+        
+        prompt = f"""
+        Nedenstående er et forsøg på at generere JSON, men det har syntaksfejl.
+        Reparer JSON'en så den overholder gyldig syntax. Output skal KUN være det reparerede JSON-objekt, intet andet.
+        
+        Beskadiget JSON:
+        ```
+        {response_text}
+        ```
+        
+        Det forventede format er et array af vinkelobjekter med følgende struktur:
+        [
+          {{
+            "overskrift": "string",
+            "beskrivelse": "string",
+            "begrundelse": "string",
+            "nyhedskriterier": ["string", "string"],
+            "startSpørgsmål": ["string", "string"]
+          }},
+          // yderligere vinkler...
+        ]
+        """
+        
+        repaired_json = call_json_repair_api(prompt)
+        logger.info("Successfully repaired JSON with AI")
+        return repaired_json
+    except ImportError:
+        logger.warning("Could not import call_json_repair_api, using fallback repair method")
+        return manual_json_repair(response_text)
+    except Exception as e:
+        logger.error(f"Error in repair_json_with_claude: {str(e)}")
+        return manual_json_repair(response_text)
+        
+def manual_json_repair(response_text: str) -> str:
+    """
+    Manuelt forsøg på at reparere beskadiget JSON uden brug af eksterne API'er.
+    
+    Args:
+        response_text: Den beskadigede JSON-tekst
+        
+    Returns:
+        str: Repareret JSON-tekst eller tom liste hvis reparation fejler
+    """
+    # Fjern alt før første [ og efter sidste ]
+    text = response_text.strip()
+    start = text.find('[')
+    end = text.rfind(']')
+    
+    if start != -1 and end != -1 and end > start:
+        text = text[start:end+1]
+    
+    # Almindelige erstatninger
+    replacements = [
+        (r'(\w+):', r'"\1":'),              # Sæt anførselstegn omkring keys
+        (r"'([^']*)'", r'"\1"'),            # Erstat enkelte anførselstegn med dobbelte
+        (r',\s*}', '}'),                    # Fjern trailing kommaer i objekter
+        (r',\s*\]', ']'),                   # Fjern trailing kommaer i arrays
+        (r'//.*?(?=\n|$)', ''),             # Fjern kommentarer
+        (r'True', 'true'),                  # Konverter Python booleans
+        (r'False', 'false'),
+        (r'None', 'null'),
+    ]
+    
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text)
+        
+    # Forsøg at parse det reparerede JSON
+    try:
+        json.loads(text)
+        return text
+    except json.JSONDecodeError:
+        logger.error("Manual JSON repair failed")
+        return "[]"  # Returner en tom liste som fallback
+
+def generate_fallback_angles() -> List[Dict[str, Any]]:
+    """
+    Genererer fallback vinkler når parsing helt fejler.
+    
+    Returns:
+        List[Dict[str, Any]]: Liste med en enkelt fejl-vinkel
+    """
+    error_angle = {
+        "overskrift": "Fejl under generering af vinkler",
+        "beskrivelse": "Der opstod en fejl under parsing af AI-modellens svar. Prøv at køre vinkelgeneratoren igen.",
+        "begrundelse": "Ingen begrundelse tilgængelig grundet parsing-fejl.",
+        "nyhedskriterier": ["aktualitet"],
+        "startSpørgsmål": ["Hvad er de vigtigste aspekter af denne problemstilling?"]
+    }
+    
+    try:
+        from models import VinkelForslag
+        validated_error = VinkelForslag(**error_angle).dict()
+        return [validated_error]
+    except Exception:
+        return [error_angle]
+
+def parse_angles_from_llm_response(response_text: str) -> List[Dict[str, Any]]:
+    """
+    Robust parsing af vinkelforslag fra LLM-respons med omfattende fejlhåndtering.
+    
+    Args:
+        response_text: Rå tekst-svar fra LLM
+        
+    Returns:
+        List[Dict[str, Any]]: Liste af strukturerede vinkelforslag
+    """
+    if not response_text or not response_text.strip():
+        logger.error("Empty response received")
+        return generate_fallback_angles()
+        
+    logger.info(f"Parsing angles from response ({len(response_text)} chars)")
+    logger.debug(f"Response preview: {response_text[:200]}...")
+    
+    try:
+        # Forsøg direkte parsing først
+        angles = json.loads(response_text)
+        validated_angles = validate_angles(angles)
+        if validated_angles:
+            logger.info(f"Successfully parsed {len(validated_angles)} angles directly")
+            return validated_angles
+    except json.JSONDecodeError as e:
+        logger.warning(f"Direct JSON parsing failed: {e}")
+    
+    # Forsøg at reparere JSON med regex
+    try:
+        # Regex til at finde JSON-array
+        pattern = r'\[\s*\{.*\}\s*\]'
+        match = re.search(pattern, response_text, re.DOTALL)
+        if match:
+            fixed_json = match.group(0)
+            try:
+                angles = json.loads(fixed_json)
+                validated_angles = validate_angles(angles)
+                if validated_angles:
+                    logger.info(f"Successfully parsed {len(validated_angles)} angles with regex repair")
+                    return validated_angles
+            except json.JSONDecodeError:
+                logger.warning("JSON parsing failed after regex repair attempt")
+    except Exception as e:
+        logger.warning(f"Regex repair failed: {e}")
+        
+    # Prøv mere robust parsing med eksisterende funktion
+    parsed_data, error = robust_json_parse(response_text, "angle generation")
+    if parsed_data:
+        validated_angles = validate_angles(parsed_data)
+        if validated_angles:
+            logger.info(f"Successfully parsed {len(validated_angles)} angles with robust parser")
+            return validated_angles
+            
+    # Som sidste udvej, brug Claude til at reparere JSON
+    logger.info("Attempting to repair JSON with Claude")
+    repaired_json = repair_json_with_claude(response_text)
+    try:
+        angles = json.loads(repaired_json)
+        validated_angles = validate_angles(angles)
+        if validated_angles:
+            logger.info(f"Successfully parsed {len(validated_angles)} angles after AI repair")
+            return validated_angles
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parsing failed even after AI repair: {e}")
+        
+    # Generer fejlvinkler som fallback
+    logger.error("All parsing attempts failed, returning fallback angles")
+    return generate_fallback_angles()

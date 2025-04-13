@@ -62,6 +62,7 @@ class ProgressTracker:
             ProcessStage.GENERATING_SOURCES: {"weight": 10, "progress": 0, "start_time": None, "end_time": None, "message": ""},
             ProcessStage.GENERATING_EXPERT_SOURCES: {"weight": 15, "progress": 0, "start_time": None, "end_time": None, "message": ""},
             ProcessStage.FINALIZING: {"weight": 5, "progress": 0, "start_time": None, "end_time": None, "message": ""},
+            ProcessStage.COMPLETE: {"weight": 0, "progress": 100, "start_time": None, "end_time": None, "message": "Færdig"}
         }
         self.current_stage = ProcessStage.INITIALIZING
         self.start_time = time.time()

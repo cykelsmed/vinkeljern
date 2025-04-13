@@ -19,7 +19,8 @@ from vinkeljernet.ui_utils import (
     display_profile_info,
     create_progress_spinner,
     display_angles_table,
-    display_angles_panels
+    display_angles_panels,
+    ProcessStage  # Import ProcessStage enum here
 )
 
 from config_manager import get_config
@@ -49,230 +50,207 @@ async def process_generation_request(
     dev_mode: bool = False,
     bypass_cache: bool = False,
     debug: bool = False,
-    progress_callback: Optional[Callable[[int], None]] = None,
+    progress_callback: Optional[Callable[[int], Any]] = None,
     progress_stages: Optional[Dict[str, Callable]] = None
-) -> Tuple[List[Dict[str, Any]], RedaktionelDNA, str]:
+) -> Tuple[List[Dict], RedaktionelDNA, str]:
     """
-    Process a request to generate angles.
+    Process a generation request with all necessary steps.
     
     Args:
-        topic: The news topic to generate angles for
+        topic: News topic to generate angles for
         profile_path: Path to the profile YAML file
-        format_type: Output format type (json, markdown, html)
-        output_path: Path to save output (optional)
-        dev_mode: Whether to run in development mode
-        bypass_cache: Whether to bypass cache
-        debug: Whether to enable debug mode
-        progress_callback: Optional callback for progress updates
-        progress_stages: Optional dict of stage name to stage callback function
+        format_type: Output format (json, markdown, html)
+        output_path: Optional path to save output
+        dev_mode: If True, disables SSL verification (for development only)
+        bypass_cache: If True, bypass cache
+        debug: Enable debug output
+        progress_callback: Optional progress callback function
+        progress_stages: Dict of stage name to setter function
         
     Returns:
-        Tuple containing:
-        - List of ranked angles
-        - RedaktionelDNA profile
-        - Background information
-    
-    Raises:
-        FileNotFoundError: If profile file doesn't exist
-        ValueError: If validation fails or no angles can be generated
+        Tuple containing angles list, profile object, and topic info
     """
-    # Load and validate profile
-    profile = load_and_validate_profile(Path(profile_path))
-    logger.info(f"Loaded profile: {profile.navn}")
-    
-    # Notify of stage change if callback provided
-    if progress_stages and "FETCHING_INFO" in progress_stages:
-        # Try to import the stage enum for a richer message
-        try:
-            from vinkeljernet.ui_utils import ProcessStage
-            progress_stages["FETCHING_INFO"](
-                ProcessStage.FETCHING_INFO, 
-                f"Indhenter baggrundsinformation om '{topic}'..."
-            )
-        except (ImportError, KeyError):
-            # If import fails or enum value not found, pass a simpler message
-            progress_stages["FETCHING_INFO"]("FETCHING_INFO", f"Indhenter information om '{topic}'...")
-    
-    # Get information about the topic
-    logger.info(f"Fetching information for topic: {topic}")
-    topic_info = await fetch_topic_information(
-        topic, 
-        dev_mode=dev_mode, 
-        bypass_cache=bypass_cache,
-        progress_callback=progress_callback
-    )
-    
-    if topic_info:
-        logger.info("Background information retrieved successfully")
-    else:
-        logger.warning("Could not retrieve detailed background information")
-        # Set a minimal fallback for topic_info
-        topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
-    
-    # Notify of stage change if callback provided - generate knowledge distillate
-    if progress_stages and "GENERATING_KNOWLEDGE" in progress_stages:
-        try:
-            from vinkeljernet.ui_utils import ProcessStage
-            progress_stages["GENERATING_KNOWLEDGE"](
-                ProcessStage.GENERATING_KNOWLEDGE, 
-                f"Genererer videndistillat om '{topic}'..."
-            )
-        except (ImportError, KeyError):
-            progress_stages["GENERATING_KNOWLEDGE"]("GENERATING_KNOWLEDGE", f"Genererer videndistillat...")
-    
-    # Generate knowledge distillate from background information
-    logger.info("Generating knowledge distillate from background information")
+    # Load the editorial DNA profile
+    profile = None
+    topic_info = None
     knowledge_distillate = None
+    progress_stages = progress_stages or {}
+    
     try:
-        knowledge_distillate = await generate_knowledge_distillate(
-            topic_info=topic_info,
-            topic=topic,
-            bypass_cache=bypass_cache,
-            progress_callback=progress_callback
-        )
-        if knowledge_distillate:
-            logger.info("Knowledge distillate generated successfully")
-        else:
-            logger.warning("Could not generate knowledge distillate")
-    except Exception as e:
-        logger.error(f"Error generating knowledge distillate: {e}")
-        # Continue without knowledge distillate
-    
-    # Notify of stage change if callback provided
-    if progress_stages and "GENERATING_ANGLES" in progress_stages:
+        # Load profile first - this doesn't require any API calls
+        profile = load_and_validate_profile(profile_path)
+        # Use profile.navn instead of profile.name (Danish for 'name')
+        logger.info(f"Loaded profile: {profile.navn}")
+        
+        # Set stage to fetching background info if callback provided
+        if "FETCHING_INFO" in progress_stages:
+            progress_stages["FETCHING_INFO"](ProcessStage.FETCHING_INFO, 
+                                           f"Henter baggrundsinformation om '{topic}'...")
+        
+        # Get background information about the topic
+        logger.info(f"Fetching information for topic: {topic}")
         try:
-            from vinkeljernet.ui_utils import ProcessStage
-            progress_stages["GENERATING_ANGLES"](
-                ProcessStage.GENERATING_ANGLES, 
-                f"Genererer vinkler for '{topic}' med {profile.navn} profilen..."
-            )
-        except (ImportError, KeyError):
-            progress_stages["GENERATING_ANGLES"]("GENERATING_ANGLES", f"Genererer vinkler...")
-    
-    # Generate angles
-    logger.info("Generating angles...")
-    angles = generate_angles(topic, topic_info, profile, bypass_cache=bypass_cache)
-    
-    if not angles:
-        error_msg = "No angles could be generated."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info(f"Generated {len(angles)} raw angles")
-    
-    # Notify of stage change if callback provided
-    if progress_stages and "FILTERING_ANGLES" in progress_stages:
-        try:
-            from vinkeljernet.ui_utils import ProcessStage
-            progress_stages["FILTERING_ANGLES"](
-                ProcessStage.FILTERING_ANGLES, 
-                f"Filtrerer og rangerer de genererede vinkler..."
-            )
-        except (ImportError, KeyError):
-            progress_stages["FILTERING_ANGLES"]("FILTERING_ANGLES", f"Filtrerer og rangerer vinkler...")
-    
-    # Filter and rank angles
-    logger.info("Filtering and ranking angles...")
-    ranked_angles = filter_and_rank_angles(angles, profile, config.app.num_angles)
-    
-    if not ranked_angles:
-        error_msg = "No angles left after filtering."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info(f"Ranked and filtered to {len(ranked_angles)} angles")
-    
-    # Add a process stage for source suggestion generation
-    if progress_stages and "GENERATING_SOURCES" in progress_stages:
-        try:
-            from vinkeljernet.ui_utils import ProcessStage
-            progress_stages["GENERATING_SOURCES"](
-                ProcessStage.GENERATING_SOURCES,
-                f"Finder relevante kilder til vinkelforslag..."
-            )
-        except (ImportError, KeyError):
-            progress_stages["GENERATING_SOURCES"]("GENERATING_SOURCES", 
-                                             "Finder relevante kilder...")
-    
-    # Enrich each angle with expert and source suggestions
-    logger.info("Generating general source suggestions...")
-    
-    # Add the knowledge distillate to each angle if available
-    if knowledge_distillate:
-        for angle in ranked_angles:
-            angle['videnDistillat'] = knowledge_distillate
-            angle['harVidenDistillat'] = True
-    
-    # Add a process stage for expert source generation
-    if progress_stages and "GENERATING_EXPERT_SOURCES" in progress_stages:
-        try:
-            from vinkeljernet.ui_utils import ProcessStage
-            progress_stages["GENERATING_EXPERT_SOURCES"](
-                ProcessStage.GENERATING_EXPERT_SOURCES,
-                f"Finder ekspertkilder til specifikke vinkler..."
-            )
-        except (ImportError, KeyError):
-            progress_stages["GENERATING_EXPERT_SOURCES"]("GENERATING_EXPERT_SOURCES", 
-                                                    "Finder ekspertkilder...")
-    
-    # Generate expert sources for each angle
-    logger.info("Generating expert sources for each angle...")
-    
-    # Define progress tracking for expert source generation
-    expert_source_tasks = []
-    expert_progress_callback = None
-    if progress_callback:
-        async def expert_progress_callback(percent):
-            # Adjust the percent to fit within 0-100 range
-            # We're not doing anything with the percent in this case since it's per-angle
-            pass
-    
-    # Create task for each angle
-    for angle in ranked_angles[:3]:  # Limit to top 3 angles to reduce API load
-        task = asyncio.create_task(
-            generate_expert_source_suggestions(
+            from api_clients_wrapper import fetch_topic_information
+            topic_info = await fetch_topic_information(
                 topic=topic,
-                angle_headline=angle.get('overskrift', ''),
-                angle_description=angle.get('beskrivelse', ''),
+                dev_mode=dev_mode,
                 bypass_cache=bypass_cache,
-                progress_callback=expert_progress_callback
+                progress_callback=progress_callback,
+                detailed=True
             )
-        )
-        expert_source_tasks.append((angle, task))
-    
-    # Process results as they complete
-    for i, (angle, task) in enumerate(expert_source_tasks):
-        try:
-            # Set progress for every angle if progress_callback is provided
-            if progress_callback:
-                progress_value = int((i / len(expert_source_tasks)) * 100)
-                await progress_callback(progress_value)
+            
+            if not topic_info:
+                logger.warning("Could not retrieve detailed background information")
+                topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
                 
-            expert_sources = await task
-            if expert_sources:
-                angle['ekspertKilder'] = expert_sources
-                angle['harEkspertKilder'] = True
-                logger.info(f"Added expert sources to angle: {angle.get('overskrift', '')}")
-            else:
-                # Add empty object if no expert sources were generated
-                angle['ekspertKilder'] = {"experts": [], "institutions": [], "data_sources": []}
-                angle['harEkspertKilder'] = False
-                logger.warning(f"Failed to generate expert sources for angle: {angle.get('overskrift', '')}")
         except Exception as e:
-            logger.error(f"Error generating expert sources for angle: {e}")
-            # Add empty object for this angle
-            angle['ekspertKilder'] = {"experts": [], "institutions": [], "data_sources": []}
-            angle['harEkspertKilder'] = False
-    
-    # Final progress update if callback is provided
-    if progress_callback:
-        await progress_callback(100)
-    
-    # Save to output file if specified
-    if output_path:
-        save_output(ranked_angles, profile, topic, format_type, output_path)
-    
-    return ranked_angles, profile, topic_info
+            logger.error(f"Error fetching topic information: {str(e)}")
+            topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
+
+        # Set stage to generating knowledge distillate if callback provided
+        if "GENERATING_KNOWLEDGE" in progress_stages:
+            progress_stages["GENERATING_KNOWLEDGE"](
+                ProcessStage.GENERATING_KNOWLEDGE,
+                "Genererer videndistillat fra baggrundsinformation..."
+            )
+            
+        # Generate knowledge distillate from background info
+        try:
+            logger.info("Generating knowledge distillate from background information")
+            from api_clients_wrapper import generate_knowledge_distillate
+            knowledge_distillate = await generate_knowledge_distillate(
+                topic_info=topic_info,
+                topic=topic,
+                bypass_cache=bypass_cache,
+                progress_callback=progress_callback
+            )
+            logger.info("Knowledge distillate generated successfully")
+        except Exception as e:
+            logger.error(f"Error generating knowledge distillate: {str(e)}")
+            knowledge_distillate = None
+            
+        # Set stage to generating angles if callback provided
+        if "GENERATING_ANGLES" in progress_stages:
+            progress_stages["GENERATING_ANGLES"](ProcessStage.GENERATING_ANGLES, 
+                                              f"Genererer vinkler for '{topic}' med {profile.navn} profilen...")
+                                              
+        # Generate angles from the topic and profile
+        logger.info("Generating angles...")
+        
+        # Use optimized process_generation_request directly if available
+        raw_angles = []
+        try:
+            from api_clients_wrapper import process_generation_request
+            # Try to use the optimized version first
+            raw_angles = await process_generation_request(
+                topic=topic,
+                profile=profile,
+                bypass_cache=bypass_cache,
+                progress_callback=progress_callback,
+                include_expert_sources=True,
+                include_knowledge_distillate=True
+            )
+            
+        except (ImportError, AttributeError, NotImplementedError) as e:
+            logger.warning(f"Could not use optimized process_generation_request: {str(e)}")
+            try:
+                # Fall back to standard generate_angles if optimized version fails
+                from api_clients_wrapper import generate_angles
+                raw_angles = await generate_angles(
+                    emne=topic,
+                    topic_info=topic_info,
+                    profile=profile,
+                    bypass_cache=bypass_cache
+                )
+            except Exception as e:
+                logger.error(f"Error in generate_angles: {str(e)}")
+                # Return a minimal result with error information
+                raw_angles = [{
+                    "overskrift": f"Fejl under vinkelgenerering: {str(e)}",
+                    "beskrivelse": "Der opstod en fejl under generering af vinkler. Se logs for detaljer.",
+                    "nyhedskriterier": ["aktualitet"],
+                    "error": str(e)
+                }]
+        
+        logger.info(f"Generated {len(raw_angles)} raw angles")
+        
+        # Set stage to filtering and ranking angles if callback provided
+        if "FILTERING_ANGLES" in progress_stages:
+            progress_stages["FILTERING_ANGLES"](ProcessStage.FILTERING_ANGLES, 
+                                             "Filtrerer og rangerer vinkler...")
+                                             
+        # Filter and rank the angles
+        logger.info("Filtering and ranking angles...")
+        from angle_processor import filter_and_rank_angles
+        ranked_angles = filter_and_rank_angles(raw_angles, profile, 5)
+        logger.info(f"Ranked and filtered to {len(ranked_angles)} angles")
+        
+        # Set stage to generating source suggestions if callback provided
+        if "GENERATING_SOURCES" in progress_stages:
+            progress_stages["GENERATING_SOURCES"](ProcessStage.GENERATING_SOURCES, 
+                                               "Finder eksperter og kilder...")
+                                               
+        # Generate source suggestions
+        logger.info("Generating general source suggestions...")
+        try:
+            from api_clients_wrapper import fetch_source_suggestions
+            source_text = await fetch_source_suggestions(topic, bypass_cache=bypass_cache)
+            if source_text:
+                for angle in ranked_angles:
+                    if isinstance(angle, dict):
+                        angle['kildeForslagInfo'] = source_text
+        except Exception as e:
+            logger.error(f"Error fetching source suggestions: {str(e)}")
+            # Continue without source suggestions
+            
+        # Set stage to generating expert sources if callback provided
+        if "GENERATING_EXPERT_SOURCES" in progress_stages:
+            progress_stages["GENERATING_EXPERT_SOURCES"](ProcessStage.GENERATING_EXPERT_SOURCES, 
+                                                     "Finder ekspertkilder til vinkler...")
+                                                     
+        # Generate expert sources for each angle
+        logger.info("Generating expert sources for each angle...")
+        for i, angle in enumerate(ranked_angles):
+            if not isinstance(angle, dict):
+                continue
+                
+            # Only process top 3 angles to limit API calls
+            if i >= 3:
+                break
+                
+            try:
+                headline = angle.get('overskrift', f"Vinkel om {topic}")
+                description = angle.get('beskrivelse', "")
+                
+                from api_clients_wrapper import generate_expert_source_suggestions
+                expert_sources = await generate_expert_source_suggestions(
+                    topic=topic,
+                    angle_headline=headline,
+                    angle_description=description,
+                    bypass_cache=bypass_cache
+                )
+                
+                if expert_sources:
+                    angle['ekspertKilder'] = expert_sources
+                    angle['harEkspertKilder'] = True
+                    
+            except Exception as e:
+                logger.warning(f"Failed to generate expert sources for angle: {headline}")
+                # Continue without expert sources for this angle
+        
+        # Save to file if requested
+        if output_path:
+            from formatters import save_results
+            save_results(ranked_angles, profile, topic_info, output_path, format_type)
+            
+        return ranked_angles, profile, topic_info
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {str(e)}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in process_generation_request: {str(e)}", exc_info=True)
+        raise
 
 
 def safe_process_angles(angles: List[Dict[str, Any]], profile: RedaktionelDNA, num_angles: int = 5) -> List[Dict[str, Any]]:

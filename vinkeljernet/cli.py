@@ -129,15 +129,54 @@ def main() -> None:
         setup_logging(debug=args.debug)
         logger.info("Vinkeljernet starting up")
         
+        # Import API client wrapper functions
+        from api_clients_wrapper import initialize_api_client, shutdown_api_client, ensure_event_loop
+        
+        # Create and manage a single event loop for the entire application
+        loop = ensure_event_loop()
+        
         # Check if we should run in interactive mode
         if args.interactive:
-            asyncio.run(run_interactive_cli(args))
+            try:
+                # Initialize the API client in this loop
+                loop.run_until_complete(initialize_api_client())
+                
+                # Run the interactive CLI in the same loop
+                loop.run_until_complete(run_interactive_cli(args))
+            finally:
+                # Make sure we clean up properly
+                loop.run_until_complete(shutdown_api_client())
+                # Don't close the loop yet, as we might use it again
         else:
-            # Traditional CLI mode
-            asyncio.run(run_standard_mode(args))
+            try:
+                # Initialize the API client in this loop
+                loop.run_until_complete(initialize_api_client())
+                
+                # Run standard mode in the same loop
+                loop.run_until_complete(run_standard_mode(args))
+            finally:
+                # Make sure we clean up properly
+                loop.run_until_complete(shutdown_api_client())
+                # Don't close the loop yet, as we might use it again
+                
+        # Now we can safely close the loop
+        if not loop.is_closed():
+            loop.close()
             
     except KeyboardInterrupt:
+        # Handle keyboard interrupt
         rprint("\n[yellow]Program afbrudt af bruger.[/yellow]")
+        
+        # Clean up sessions even on keyboard interrupt
+        try:
+            from api_clients_wrapper import shutdown_api_client, ensure_event_loop
+            loop = ensure_event_loop()
+            if not loop.is_closed():
+                loop.run_until_complete(shutdown_api_client())
+                loop.close()
+        except Exception as e:
+            logger.error(f"Error during cleanup after keyboard interrupt: {e}")
+            
         sys.exit(0)
     except ValueError as e:
         # Handle ValueError separately, as these are often expected errors
@@ -146,6 +185,18 @@ def main() -> None:
     except Exception as e:
         rprint(f"\n[bold red]Uventet fejl:[/bold red] {e}")
         rprint("[yellow]Dette er sandsynligvis en bug i programmet. Indsend venligst en fejlrapport.[/yellow]")
+        logger.exception("Unexpected error in main")
+        
+        # Try to clean up sessions even on unexpected errors
+        try:
+            from api_clients_wrapper import shutdown_api_client, ensure_event_loop
+            loop = ensure_event_loop()
+            if not loop.is_closed():
+                loop.run_until_complete(shutdown_api_client())
+                loop.close()
+        except Exception as cleanup_error:
+            logger.error(f"Error during cleanup after exception: {cleanup_error}")
+            
         sys.exit(1)
 
 

@@ -108,49 +108,103 @@ class KnowledgeDistillate(BaseModel):
         }
 
 
-class ExpertSource(BaseModel):
+class VidendistillatModel(BaseModel):
     """
-    Model for an expert source that can be consulted for a specific news angle.
+    Model for a comprehensive knowledge distillate with more structured data.
+    
+    This model expands on the KnowledgeDistillate model to include additional structured data
+    like main points, timeline, key statistics and identified conflicts.
     """
-    navn: str = Field(..., description="Ekspertens fulde navn")
-    titel: str = Field(..., description="Ekspertens titel og rolle")
-    organisation: str = Field(..., description="Arbejdsplads eller tilknytning")
-    ekspertise: str = Field(..., description="Kort beskrivelse af relevant ekspertise")
+    hovedpunkter: List[str] = Field(
+        ..., 
+        description="Liste af de vigtigste fakta om emnet"
+    )
+    tidslinje: Optional[List[Dict[str, str]]] = Field(
+        default=None,
+        description="Relevante datoer og begivenheder i kronologisk rækkefølge"
+    )
+    nøglestatistikker: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Vigtige tal og statistikker relateret til emnet"
+    )
+    centrale_modsætninger: Optional[List[str]] = Field(
+        default=None,
+        description="Identificerede konflikter eller modstridende synspunkter"
+    )
+    
+    class Config:
+        """Configuration for the VidendistillatModel model."""
+        json_schema_extra = {
+            "example": {
+                "hovedpunkter": [
+                    "Klimaforandringer har reduceret dansk landbrugsudbytte med 22% i 2023",
+                    "Tørke og oversvømmelser er blevet hyppigere i Danmark de seneste 5 år",
+                    "Regeringen har afsat 1.2 milliarder til klimatilpasning i landbruget"
+                ],
+                "tidslinje": [
+                    {"dato": "2023-06", "begivenhed": "Start på historisk tørkeperiode i Danmark"},
+                    {"dato": "2023-07-15", "begivenhed": "Højeste temperatur nogensinde målt i Danmark"},
+                    {"dato": "2023-09", "begivenhed": "Regeringen annoncerer klimatilpasningspakke"}
+                ],
+                "nøglestatistikker": {
+                    "Reduktion i udbytte": "22%",
+                    "Økonomisk tab": "3.7 milliarder kr.",
+                    "Berørte landmænd": "68% af alle danske landbrugsbedrifter"
+                },
+                "centrale_modsætninger": [
+                    "Landbrugslobby vs. miljøorganisationer om årsager og ansvar", 
+                    "Konventionelt vs. økologisk landbrug om tilpasningsstrategier",
+                    "Regering vs. opposition om tilstrækkeligheden af hjælpepakker"
+                ]
+            }
+        }
+
+
+class KildeModel(BaseModel):
+    """
+    Model for a source that can be consulted for a specific news angle.
+    This expands the ExpertSource model with additional fields and renames it
+    to better reflect its broader usage.
+    """
+    navn: str = Field(..., description="Kildens navn")
+    stilling: str = Field(..., description="Kildens titel/funktion")
+    organisation: str = Field(..., description="Kildens organisation")
     kontakt: Optional[str] = Field(
         default=None, 
         description="Kontaktinformation, hvis tilgængelig (email, telefon)"
     )
-    relevans: Optional[str] = Field(
-        default=None,
-        description="Kort forklaring på hvorfor denne ekspert er relevant for vinklen"
+    relevans: str = Field(..., description="Kort beskrivelse af kildens relevans for vinklen")
+    type: str = Field(..., description="Type af kilde (ekspert, politiker, organisation, borger, osv.)")
+    ekspertise: Optional[str] = Field(
+        default=None, 
+        description="Kort beskrivelse af relevant ekspertise"
     )
     
     @field_validator('navn')
     def validate_navn(cls, value):
         """Validate that name is not empty and looks like a real name."""
         if not value.strip():
-            raise ValueError("Ekspertens navn må ikke være tomt")
-        if len(value.split()) < 2:
-            raise ValueError("Ekspertens navn skal indeholde både fornavn og efternavn")
+            raise ValueError("Kildens navn må ikke være tomt")
         return value
     
-    @field_validator('titel')
-    def validate_titel(cls, value):
+    @field_validator('stilling')
+    def validate_stilling(cls, value):
         """Validate that title is not empty."""
         if not value.strip():
-            raise ValueError("Ekspertens titel må ikke være tom")
+            raise ValueError("Kildens stilling må ikke være tom")
         return value
     
     class Config:
-        """Configuration for the ExpertSource model."""
+        """Configuration for the KildeModel model."""
         json_schema_extra = {
             "example": {
                 "navn": "Jens Hansen",
-                "titel": "Professor i Klimaforandringer",
+                "stilling": "Professor i Klimaforandringer",
                 "organisation": "Københavns Universitet, Institut for Miljø og Ressourcer",
-                "ekspertise": "Klimaforandringers påvirkning på det nordiske landbrug",
                 "kontakt": "jens.hansen@ku.dk",
-                "relevans": "Har forsket i klimaforandringer og landbrug i over 15 år"
+                "relevans": "Har forsket i klimaforandringer og landbrug i over 15 år",
+                "type": "ekspert",
+                "ekspertise": "Klimaforandringers påvirkning på det nordiske landbrug"
             }
         }
 
@@ -206,6 +260,32 @@ class DataSource(BaseModel):
                 "beskrivelse": "Omfattende statistik over nedbør, temperaturer og ekstremvejr i Danmark",
                 "link": "https://www.dmi.dk/klimastatistik-2024",
                 "senest_opdateret": "2024-03-15"
+            }
+        }
+
+
+class DatakildeModel(BaseModel):
+    """
+    Model for a data source that provides data for a news angle.
+    This complements the DataSource model with additional fields about
+    accessibility and relevance.
+    """
+    navn: str = Field(..., description="Datakildens navn")
+    beskrivelse: str = Field(..., description="Kort beskrivelse af hvad datakilden indeholder")
+    relevans: str = Field(..., description="Hvorfor denne datakilde er relevant for vinklen")
+    adgang: Optional[str] = Field(
+        default=None, 
+        description="Information om hvordan man får adgang til datakilden"
+    )
+    
+    class Config:
+        """Configuration for the DatakildeModel model."""
+        json_schema_extra = {
+            "example": {
+                "navn": "Danmarks Statistik - Landbrugsøkonomisk Oversigt 2024",
+                "beskrivelse": "Omfattende statistisk analyse af dansk landbrugs økonomiske situation",
+                "relevans": "Indeholder data om klimaforandringernes økonomiske konsekvenser for landbruget",
+                "adgang": "Tilgængelig online på dst.dk/landbrug med login, eller via forskningsbiblioteker"
             }
         }
 
@@ -271,30 +351,26 @@ class VinkelForslag(BaseModel):
         description="Beregnet score baseret på matchende nyhedskriterier"
     )
     
-    # Nye felter til videndistillat og ekspertkilder
-    videnDistillat: Optional[KnowledgeDistillate] = Field(
+    # Opdaterede felter til videndistillat og kilder
+    videnDistillat: Optional[VidendistillatModel] = Field(
         default=None,
-        description="Destillat af den vigtigste viden fra baggrundsinformationen"
+        description="Struktureret videndistillat med hovedpunkter, tidslinje, mm."
     )
-    ekspertKilder: Optional[List[ExpertSource]] = Field(
-        default=None,
-        description="Liste med ekspertkilder specifikt relateret til denne vinkel"
+    kilder: List[KildeModel] = Field(
+        default_factory=list,
+        description="Kilder relevante for vinklen (eksperter, politikere, borgere, mm.)"
     )
-    institutioner: Optional[List[Institution]] = Field(
+    datakilder: Optional[List[DatakildeModel]] = Field(
         default=None,
-        description="Liste med relevante organisationer for denne vinkel"
-    )
-    datakilder: Optional[List[DataSource]] = Field(
-        default=None,
-        description="Liste med specifikke datakilder og rapporter relevante for vinklen"
+        description="Relevante datakilder for vinklen (rapporter, statistikker, mm.)"
     )
     harVidenDistillat: Optional[bool] = Field(
         default=False,
         description="Flag der indikerer om vinklen har et videndistillat tilknyttet"
     )
-    harEkspertKilder: Optional[bool] = Field(
+    harKilder: Optional[bool] = Field(
         default=False,
-        description="Flag der indikerer om vinklen har ekspertkilder tilknyttet"
+        description="Flag der indikerer om vinklen har kilder tilknyttet"
     )
     
     @field_validator('overskrift')
@@ -333,6 +409,33 @@ class VinkelForslag(BaseModel):
                 "flags": ["Kræver case", "Mulighed for grafik"],
                 "kriterieScore": 7.5,
                 "harVidenDistillat": True,
-                "harEkspertKilder": True
+                "harKilder": True,
+                "videnDistillat": {
+                    "hovedpunkter": [
+                        "Klimaforandringer har reduceret dansk landbrugsudbytte med 22% i 2023",
+                        "Ekstreme vejrfænomener bliver hyppigere i Danmark"
+                    ],
+                    "nøglestatistikker": {
+                        "Reduktion i udbytte": "22%",
+                        "Berørte landmænd": "En tredjedel"
+                    }
+                },
+                "kilder": [
+                    {
+                        "navn": "Jens Hansen",
+                        "stilling": "Professor i Klimaforandringer",
+                        "organisation": "Københavns Universitet",
+                        "relevans": "Ekspert i klimaforandringernes påvirkning af nordisk landbrug",
+                        "type": "ekspert"
+                    }
+                ],
+                "datakilder": [
+                    {
+                        "navn": "Danmarks Statistik - Landbrugsøkonomisk Oversigt 2024",
+                        "beskrivelse": "Omfattende statistisk analyse af landbrugets økonomi",
+                        "relevans": "Dokumenterer økonomiske tab fra klimarelaterede hændelser",
+                        "adgang": "Tilgængelig via dst.dk/landbrug"
+                    }
+                ]
             }
         }
