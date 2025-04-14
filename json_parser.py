@@ -756,3 +756,223 @@ def parse_angles_from_llm_response(response_text: str) -> List[Dict[str, Any]]:
     # Generer fejlvinkler som fallback
     logger.error("All parsing attempts failed, returning fallback angles")
     return generate_fallback_angles()
+
+def enhanced_safe_parse_json(
+    response_text: str,
+    context: str = "response",
+    fallback: Dict[str, Any] = None,
+    expected_structure: Optional[Dict[str, Any]] = None,
+    return_debug_info: bool = False
+) -> Union[Dict[str, Any], Tuple[Dict[str, Any], Dict[str, Any]]]:
+    """
+    En kraftigt forbedret version af safe_parse_json med mere detaljeret fejlhåndtering,
+    strukturvalidering, og mulighed for at returnere debug information.
+    
+    Args:
+        response_text: Tekst at parse som JSON
+        context: Beskrivelse til fejlmeddelelser
+        fallback: Fallback dictionary at returnere ved fejlet parsing
+        expected_structure: Forventet struktur at validere imod
+        return_debug_info: Hvis True, returner både resultatet og debug information
+        
+    Returns:
+        Hvis return_debug_info er False:
+            Dict[str, Any]: Parset JSON som dictionary, eller fallback ved fejl
+        Ellers:
+            Tuple[Dict[str, Any], Dict[str, Any]]: (resultat, debug_info)
+    """
+    if fallback is None:
+        fallback = {"error": f"Kunne ikke parse {context}"}
+    
+    # Debug info dict til detaljeret fejlanalyse
+    debug_info = {
+        "original_text_length": len(response_text) if response_text else 0,
+        "original_text_preview": response_text[:100] + "..." if response_text and len(response_text) > 100 else response_text,
+        "parsing_attempts": [],
+        "errors": [],
+        "success": False,
+        "repair_technique": None
+    }
+    
+    # Check for tom input
+    if not response_text or response_text.strip() == "":
+        error_msg = f"Modtog tomt {context}"
+        logger.error(error_msg)
+        fallback["error"] = error_msg
+        debug_info["errors"].append(error_msg)
+        
+        if return_debug_info:
+            return fallback, debug_info
+        return fallback
+    
+    # Forsøg 1: Direkte JSON parsing
+    try:
+        debug_info["parsing_attempts"].append("direct_json_parse")
+        parsed_data = json.loads(response_text)
+        debug_info["success"] = True
+        
+        result = parsed_data
+        # Hvis vi forventede en bestemt struktur, sikrer vi at den overholdes
+        if expected_structure and isinstance(parsed_data, dict):
+            for key, default_value in expected_structure.items():
+                if key not in parsed_data:
+                    parsed_data[key] = default_value
+        
+        if return_debug_info:
+            return result, debug_info
+        return result
+    except json.JSONDecodeError as e:
+        error_detail = f"Direkte JSON parsing fejlede: {str(e)}"
+        debug_info["errors"].append(error_detail)
+        logger.debug(error_detail)
+    
+    # Forsøg 2: Brug robust_json_parse
+    try:
+        debug_info["parsing_attempts"].append("robust_json_parse")
+        parsed_list, error = robust_json_parse(response_text, context)
+        
+        if parsed_list and not error:
+            debug_info["success"] = True
+            debug_info["repair_technique"] = "robust_json_parse"
+            
+            # Hvis vi fik en liste, men forventer et single objekt
+            if isinstance(parsed_list, list) and len(parsed_list) > 0:
+                result = parsed_list[0] if expected_structure else parsed_list
+                
+                # Hvis vi forventede en bestemt struktur, sikrer vi at den overholdes
+                if expected_structure and isinstance(result, dict):
+                    for key, default_value in expected_structure.items():
+                        if key not in result:
+                            result[key] = default_value
+            else:
+                result = parsed_list
+                
+            if return_debug_info:
+                return result, debug_info
+            return result
+        else:
+            debug_info["errors"].append(f"robust_json_parse fejlede: {error}")
+    except Exception as e:
+        error_detail = f"robust_json_parse fejlede med undtagelse: {str(e)}"
+        debug_info["errors"].append(error_detail)
+        logger.debug(error_detail)
+    
+    # Forsøg 3: Groft forsøg på at finde JSON-lignende strukturer med regex
+    try:
+        debug_info["parsing_attempts"].append("regex_extraction")
+        
+        # Find JSON-objekter eller arrays via regex
+        patterns = [
+            r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}',  # JSON object
+            r'\[[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*\]'  # JSON array
+        ]
+        
+        for pattern in patterns:
+            matches = re.finditer(pattern, response_text, re.DOTALL)
+            for match in matches:
+                potential_json = match.group(0)
+                try:
+                    result = json.loads(potential_json)
+                    debug_info["success"] = True
+                    debug_info["repair_technique"] = "regex_extraction"
+                    
+                    if isinstance(result, dict) and expected_structure:
+                        for key, default_value in expected_structure.items():
+                            if key not in result:
+                                result[key] = default_value
+                    
+                    if return_debug_info:
+                        return result, debug_info
+                    return result
+                except json.JSONDecodeError:
+                    continue
+        
+        debug_info["errors"].append("Regex extraction fandt ingen gyldig JSON")
+    except Exception as e:
+        error_detail = f"regex_extraction fejlede med undtagelse: {str(e)}"
+        debug_info["errors"].append(error_detail)
+        logger.debug(error_detail)
+    
+    # Forsøg 4: Reparer typiske JSON-fejl
+    try:
+        debug_info["parsing_attempts"].append("json_repair")
+        
+        fixed_text = response_text
+        replacements = [
+            (r'(\w+):', r'"\1":'),              # Fix manglende quotes omkring keys
+            (r"'([^']*)'", r'"\1"'),            # Enkelt quotes til dobbelt quotes
+            (r',\s*}', '}'),                    # Fjern trailing commas i objekter
+            (r',\s*\]', ']'),                   # Fjern trailing commas i arrays
+            (r'True', 'true'),                  # Fix Python booleans
+            (r'False', 'false'),
+            (r'None', 'null'),
+            (r'NaN', '"NaN"'),                  # Håndter specielle værdier
+            (r'//.*?(?=\n|$)', ''),             # Fjern kommentarer
+            # Fjern alt før første { eller [ og efter sidste } eller ]
+            (r'^[^{\[]*', ''),
+            (r'[^}\]]*$', '')
+        ]
+        
+        for pattern, replacement in replacements:
+            fixed_text = re.sub(pattern, replacement, fixed_text)
+        
+        try:
+            result = json.loads(fixed_text)
+            debug_info["success"] = True
+            debug_info["repair_technique"] = "json_repair"
+            
+            # Apply expected structure if provided
+            if expected_structure and isinstance(result, dict):
+                for key, default_value in expected_structure.items():
+                    if key not in result:
+                        result[key] = default_value
+            
+            if return_debug_info:
+                return result, debug_info
+            return result
+        except json.JSONDecodeError:
+            debug_info["errors"].append("JSON repair forsøg fejlede")
+    except Exception as e:
+        error_detail = f"json_repair fejlede med undtagelse: {str(e)}"
+        debug_info["errors"].append(error_detail)
+        logger.debug(error_detail)
+    
+    # Forsøg 5: Hvis vi har en AI-repair funktion tilgængelig
+    try:
+        debug_info["parsing_attempts"].append("ai_repair")
+        
+        ai_repaired_json = repair_json_with_claude(response_text)
+        result = json.loads(ai_repaired_json)
+        debug_info["success"] = True
+        debug_info["repair_technique"] = "ai_repair"
+        
+        if expected_structure and isinstance(result, dict):
+            for key, default_value in expected_structure.items():
+                if key not in result:
+                    result[key] = default_value
+        
+        if return_debug_info:
+            return result, debug_info
+        return result
+    except ImportError:
+        debug_info["errors"].append("AI repair ikke tilgængelig (repair_json_with_claude kunne ikke importeres)")
+    except Exception as e:
+        error_detail = f"AI repair fejlede med undtagelse: {str(e)}"
+        debug_info["errors"].append(error_detail)
+        logger.debug(error_detail)
+    
+    # Hvis vi når hertil, er alle forsøg fejlet
+    fallback["error"] = f"Kunne ikke parse {context} efter flere forsøg"
+    fallback["parsing_errors"] = debug_info["errors"]
+    
+    logger.error(f"Alle JSON parsing forsøg fejlede for {context}")
+    
+    # Hvis forventet struktur provided, anvend den på fallback
+    if expected_structure:
+        for key, value in expected_structure.items():
+            if key not in fallback:
+                fallback[key] = value
+    
+    if return_debug_info:
+        return fallback, debug_info
+    return fallback

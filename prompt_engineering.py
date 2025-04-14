@@ -82,6 +82,103 @@ def create_angle_generation_prompt(topic: str, distillate: Dict[str, Any], profi
     - Hold svaret kort og overskueligt (maks 8 vinkler)
     """
 
+def construct_json_structure_prompt(base_prompt: str, struct_type: str = "angles") -> str:
+    """
+    Tilføjer instruktioner til en prompt for at sikre korrekt JSON-formatering.
+    Denne funktion er specielt designet til at hjælpe LLM'er med at generere velformateret JSON.
+    
+    Args:
+        base_prompt: Den grundlæggende prompt der skal udvides
+        struct_type: Typen af struktur ("angles", "experts", "knowledge")
+        
+    Returns:
+        str: Udvidet prompt med JSON-formaterings instruktioner
+    """
+    # Struktur-specifikke instruktioner
+    json_structures = {
+        "angles": """
+        Dit svar skal være et gyldigt JSON-array med vinkelobjekter, der har følgende struktur:
+        [
+          {
+            "overskrift": "Tydelig overskrift",
+            "beskrivelse": "Detaljeret beskrivelse af vinklen",
+            "begrundelse": "Journalistisk begrundelse for vinklen",
+            "nyhedskriterier": ["aktualitet", "væsentlighed"],
+            "startSpørgsmål": ["Konkret spørgsmål 1?", "Konkret spørgsmål 2?"]
+          },
+          {
+            // Næste vinkel...
+          }
+        ]
+        """,
+        "experts": """
+        Dit svar skal være et gyldigt JSON-objekt med ekspertkilder, der har følgende struktur:
+        {
+          "eksperter": [
+            {
+              "navn": "Fuldt navn",
+              "titel": "Stillingsbetegnelse",
+              "organisation": "Arbejdssted",
+              "ekspertise": "Beskrivelse af ekspertområde",
+              "kontaktInfo": "Email eller anden kontaktinformation hvis relevant"
+            }
+          ],
+          "institutioner": [
+            {
+              "navn": "Institutionens fulde navn",
+              "type": "Type institution",
+              "relevans": "Hvorfor denne institution er relevant"
+            }
+          ]
+        }
+        """,
+        "knowledge": """
+        Dit svar skal være et gyldigt JSON-objekt med videndistillat, der har følgende struktur:
+        {
+          "hovedpunkter": ["Punkt 1", "Punkt 2", "Punkt 3"],
+          "noegletal": [
+            {
+              "tal": "42%",
+              "beskrivelse": "Beskrivelse af hvad tallet betyder",
+              "kilde": "Kilden til tallet"
+            }
+          ],
+          "centralePaastand": [
+            {
+              "paastand": "Den centrale påstand",
+              "kilde": "Kilden til påstanden"
+            }
+          ]
+        }
+        """
+    }
+    
+    # Generelle JSON-formaterings instruktioner
+    json_instructions = """
+    VIGTIGT OM JSON-FORMATERING:
+    1. Svar KUN med gyldig JSON, uden forklarende tekst før eller efter
+    2. Brug dobbelte anførselstegn (") omkring keys og string-værdier
+    3. Brug ikke enkelte anførselstegn (')
+    4. Brug ikke trailing komma i arrays eller objekter
+    5. Brug kun boolske værdier som true/false (ikke True/False)
+    6. Brug null for manglende værdier (ikke None)
+    7. Indlejr ikke andre formater i JSON (markdown, kommentarer, etc.)
+    8. Sørg for at alle brackets {} og [] er korrekt afsluttet 
+    
+    ### FORVENTET FORMAT:
+    """
+    
+    # Hent den struktur-specifikke instruktion
+    specific_structure = json_structures.get(
+        struct_type, 
+        json_structures["angles"]  # Brug angles som default
+    )
+    
+    # Sammensæt den endelige prompt
+    final_prompt = f"{base_prompt}\n\n{json_instructions}{specific_structure}\n\nHusk: Dit svar skal KUN være gyldig JSON uden forklarende tekst før, efter eller i midten af JSON-strukturen."
+    
+    return final_prompt
+
 def construct_angle_prompt(
     topic: str, 
     topic_info: str,
@@ -172,6 +269,66 @@ def construct_angle_prompt(
         prompt += f"\n\n# YDERLIGERE KONTEKST:\n{additional_context}\n"
         
     return prompt
+
+def construct_expert_prompt(topic: str, angle_headline: str, angle_description: str) -> str:
+    """
+    Konstruerer en prompt for ekspertkildeforslag med forbedret JSON-struktur instruktion.
+    
+    Args:
+        topic: Hovedemnet
+        angle_headline: Vinkel-overskrift
+        angle_description: Beskrivelse af vinklen
+        
+    Returns:
+        str: Optimeret prompt til ekspertkilder med JSON-instruktioner
+    """
+    base_prompt = f"""
+    Find konkrete ekspertkilder, institutioner og datakilder til følgende journalistiske vinkel:
+    
+    EMNE: {topic}
+    OVERSKRIFT: {angle_headline}
+    BESKRIVELSE: {angle_description}
+    
+    Jeg har brug for:
+    1. 4-6 konkrete eksperter med navn, titel og organisation
+    2. 3-5 relevante organisationer/institutioner
+    3. 2-4 specifikke datakilder der kan bruges i researchen
+    
+    Eksperterne skal være reelle personer med korrekte titler og institutioner. Prioriter danske eksperter.
+    """
+    
+    return construct_json_structure_prompt(base_prompt, "experts")
+
+def construct_knowledge_prompt(topic: str, topic_info: str) -> str:
+    """
+    Konstruerer en prompt for videndistillat med forbedret JSON-struktur instruktion.
+    
+    Args:
+        topic: Emnet
+        topic_info: Baggrundsinformation om emnet
+        
+    Returns:
+        str: Optimeret prompt til videndistillat med JSON-instruktioner
+    """
+    # Begræns længden af baggrundsinformation
+    if len(topic_info) > 3000:
+        topic_info = topic_info[:2997] + "..."
+    
+    base_prompt = f"""
+    Analyser denne information om '{topic}' og lav et videndistillat med de vigtigste fakta.
+    
+    BAGGRUNDSINFORMATION:
+    {topic_info}
+    
+    Jeg har brug for følgende information:
+    1. 4 hovedpunkter fra materialet
+    2. 3 nøgletal med tal, beskrivelse og kilde
+    3. 3 centrale påstande med kilde
+    
+    Brug KUN information fra baggrundsmaterialet.
+    """
+    
+    return construct_json_structure_prompt(base_prompt, "knowledge")
 
 def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
     """
@@ -368,3 +525,378 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
             "startSpørgsmål": ["Hvad er de vigtigste aspekter af denne sag?"]
         }
         return [error_angle]
+
+class OptimizedPromptEngineering:
+    """
+    Optimeret prompt engineering for hurtigere LLM-svar.
+    
+    Denne klasse indeholder metoder til at reducere størrelsen på prompts,
+    optimere kontekst-kompression, og bruge token-besparende teknikker for at
+    få hurtigere svar fra LLM-modeller.
+    """
+    
+    # Maksimale tegn for forskellige prompt-dele
+    MAX_TOPIC_INFO_CHARS = 2000  # Maks tegn for baggrundsinformation
+    MAX_PROFILE_CHARS = 1000     # Maks tegn for profilbeskrivelse
+    MAX_PRINCIPLES_CHARS = 500   # Maks tegn for kerneprincipper
+    
+    # Token-besparende dele der kan fjernes
+    REMOVABLE_PARTS = [
+        "# Baggrundsinformation:",
+        "# Redaktionel DNA-profil:",
+        "## Kerneprincipper:",
+        "## Tone og stil:",
+        "## Fokusområder:",
+        "## Nyhedskriterier vi prioriterer:",
+        "## No-go områder:",
+        "# Opgave:"
+    ]
+    
+    @staticmethod
+    def truncate_section(section: str, max_chars: int) -> str:
+        """Afkorter en sektion til max_chars med intelligent afkortning."""
+        if not section or len(section) <= max_chars:
+            return section
+            
+        # Hvis det er en liste, behold så mange hele punkter som muligt
+        if section.strip().startswith('-'):
+            lines = section.strip().split('\n')
+            result = []
+            current_length = 0
+            
+            for line in lines:
+                if current_length + len(line) + 1 <= max_chars:
+                    result.append(line)
+                    current_length += len(line) + 1  # +1 for newline
+                else:
+                    break
+                    
+            return '\n'.join(result)
+        else:
+            # Ellers afkort til max_chars og tilføj ellipsis
+            return section[:max_chars-3] + "..."
+    
+    @staticmethod
+    def optimize_prompt(prompt: str, target_length: int = 2500) -> str:
+        """
+        Optimerer en prompt ved at reducere længden intelligent.
+        
+        Args:
+            prompt: Original prompt
+            target_length: Mål-længde i tegn
+            
+        Returns:
+            str: Optimeret prompt
+        """
+        if len(prompt) <= target_length:
+            return prompt
+            
+        # Del prompt op i sektioner
+        sections = {}
+        current_section = "intro"
+        lines = prompt.split('\n')
+        sections[current_section] = []
+        
+        for line in lines:
+            if line.startswith('#'):
+                current_section = line.strip('# ')
+                sections[current_section] = [line]
+            else:
+                if current_section in sections:
+                    sections[current_section].append(line)
+                else:
+                    sections[current_section] = [line]
+        
+        # Prioriter sektioner for bevarelse af vigtig information
+        priority_order = [
+            "Opgave:", 
+            "Baggrundsinformation:", 
+            "Fokusområder:", 
+            "Nyhedskriterier vi prioriterer:", 
+            "Tone og stil:", 
+            "Kerneprincipper:", 
+            "No-go områder:"
+        ]
+        
+        # Maks længder for forskellige sektioner
+        max_lengths = {
+            "Baggrundsinformation:": OptimizedPromptEngineering.MAX_TOPIC_INFO_CHARS,
+            "Kerneprincipper:": OptimizedPromptEngineering.MAX_PRINCIPLES_CHARS,
+            "Tone og stil:": 300,
+            "Fokusområder:": 300,
+            "Nyhedskriterier vi prioriterer:": 300,
+            "No-go områder:": 200,
+            "Opgave:": 500,
+            "intro": 200
+        }
+        
+        # Rekonstruer prompt med afkortede sektioner
+        optimized_sections = {}
+        for section, content in sections.items():
+            content_str = '\n'.join(content)
+            max_len = max_lengths.get(section, 200)
+            optimized_sections[section] = OptimizedPromptEngineering.truncate_section(
+                content_str, max_len
+            )
+        
+        # Sammensæt i prioriteret rækkefølge
+        result = []
+        if "intro" in optimized_sections:
+            result.append(optimized_sections["intro"])
+            
+        for section in priority_order:
+            if section in optimized_sections:
+                result.append(optimized_sections[section])
+        
+        # Tilføj evt. resterende sektioner
+        for section, content in optimized_sections.items():
+            if section != "intro" and section not in priority_order:
+                result.append(content)
+                
+        return "\n".join(result)
+    
+    @staticmethod
+    def compress_context(context: str, max_length: int = 1500) -> str:
+        """
+        Komprimerer kontekst ved at fjerne redundans og unødvendig information.
+        
+        Args:
+            context: Original kontekst tekst
+            max_length: Maksimal længde i tegn
+            
+        Returns:
+            str: Komprimeret kontekst
+        """
+        if not context or len(context) <= max_length:
+            return context
+            
+        # Del kontekst op i afsnit
+        paragraphs = context.split('\n\n')
+        
+        # Hvis få afsnit, afkort hvert afsnit proportionalt
+        if len(paragraphs) <= 3:
+            total_reduction = len(context) - max_length
+            if total_reduction <= 0:
+                return context
+                
+            # Beregn hvor meget hvert afsnit skal reduceres
+            total_chars = sum(len(p) for p in paragraphs)
+            result = []
+            
+            for p in paragraphs:
+                # Proportional reduktion baseret på afsnittets længde
+                reduction_ratio = len(p) / total_chars
+                target_p_length = max(50, int(len(p) - (total_reduction * reduction_ratio)))
+                
+                if len(p) > target_p_length:
+                    # Afkort afsnit
+                    p = p[:target_p_length-3] + "..."
+                    
+                result.append(p)
+                
+            return '\n\n'.join(result)
+            
+        else:
+            # Ved mange afsnit, behold de vigtigste
+            # Prioriter første og sidste afsnit + nogle i midten
+            
+            # Behold første og sidste afsnit
+            essential = [paragraphs[0], paragraphs[-1]]
+            
+            # Find "vigtige" afsnit ved at se på nøgleord
+            important_keywords = ["vigtig", "central", "afgørende", "kritisk", 
+                                "hovedpunkt", "nøgle", "primær", "essentiel"]
+            
+            middle_paragraphs = paragraphs[1:-1]
+            scored_paragraphs = []
+            
+            for i, p in enumerate(middle_paragraphs):
+                # Score baseret på position (midten er mindre vigtig)
+                pos_score = 1.0 - abs((i - len(middle_paragraphs)/2) / (len(middle_paragraphs)/2))
+                
+                # Score baseret på nøgleord
+                keyword_score = sum(1 for kw in important_keywords if kw.lower() in p.lower()) * 0.2
+                
+                # Samlet score
+                total_score = pos_score + keyword_score
+                scored_paragraphs.append((p, total_score))
+                
+            # Sorter efter score (højest først)
+            scored_paragraphs.sort(key=lambda x: x[1], reverse=True)
+            
+            # Tilføj højest-scorede afsnit indtil vi når maks længde
+            current_length = sum(len(p) for p in essential) + (len(essential) - 1) * 2  # +2 for '\n\n'
+            
+            for p, _ in scored_paragraphs:
+                if current_length + len(p) + 2 <= max_length:
+                    essential.append(p)
+                    current_length += len(p) + 2
+                else:
+                    # Hvis vi ikke kan tilføje hele afsnittet, kan vi evt. tilføje en del
+                    space_left = max_length - current_length
+                    if space_left > 50:  # Kun hvis der er plads til et meningsfuldt uddrag
+                        essential.append(p[:space_left-3] + "...")
+                    break
+            
+            # Sorter afsnit i oprindelig rækkefølge
+            essential_set = set(essential)
+            result = [p for p in paragraphs if p in essential_set]
+            
+            return '\n\n'.join(result)
+    
+    @staticmethod
+    def create_efficient_angle_prompt(
+        topic: str,
+        topic_info: str,
+        profile: dict,
+        include_knowledge_distillate: bool = True
+    ) -> str:
+        """
+        Skaber en effektiv prompt til vinkelgenerering med minimalt token-forbrug.
+        
+        Args:
+            topic: Nyhedsemnet
+            topic_info: Baggrundsinformation om emnet
+            profile: Redaktionel profil som dictionary
+            include_knowledge_distillate: Om videndistillat skal inkluderes
+            
+        Returns:
+            str: Optimeret prompt
+        """
+        # Komprimér baggrundsinformation
+        compressed_info = OptimizedPromptEngineering.compress_context(
+            topic_info,
+            OptimizedPromptEngineering.MAX_TOPIC_INFO_CHARS
+        )
+        
+        # Pak profil-information sammen
+        profile_info = []
+        
+        # Ekstraher og afkort information fra profilen
+        principles = profile.get("kerneprincipper", [])
+        principles_str = "\n".join([f"- {p}" for p in principles[:5]])
+        
+        tone = profile.get("tone_og_stil", "")
+        if len(tone) > 300:
+            tone = tone[:297] + "..."
+            
+        focus_areas = profile.get("fokusOmrader", [])
+        focus_str = "\n".join([f"- {f}" for f in focus_areas[:5]])
+        
+        criteria = profile.get("nyhedsprioritering", {})
+        criteria_str = "\n".join([f"- {k}: {v}" for k, v in list(criteria.items())[:5]])
+        
+        nogo = profile.get("noGoOmrader", [])
+        nogo_str = "\n".join([f"- {n}" for n in nogo[:3]])
+        
+        # Byg en kompakt prompt
+        prompt = f"""Du er en erfaren nyhedsjournalist. Generer vinkler på emnet "{topic}".
+
+BAGGRUND:
+{compressed_info}
+
+PROFIL:
+- Principper: {principles_str.replace('\n', '; ')}
+- Tone: {tone}
+- Fokus: {focus_str.replace('\n', '; ')}
+- Vigtige nyhedskriterier: {criteria_str.replace('\n', '; ')}
+- No-go: {nogo_str.replace('\n', '; ')}
+
+OPGAVE:
+Lav 5-7 vinkler som JSON-array med følgende struktur:
+[
+  {{
+    "overskrift": "Kort og præcis overskrift",
+    "beskrivelse": "2-3 sætninger om vinklen",
+    "begrundelse": "Hvorfor denne vinkel passer til profilen",
+    "nyhedskriterier": ["kriterie1", "kriterie2"],
+    "startSpørgsmål": ["Spørgsmål 1", "Spørgsmål 2"]
+  }}
+]
+
+VIGTIGT: Returner KUN et JSON-array med vinkelobjekter.
+"""
+        
+        return prompt
+    
+    @staticmethod
+    def create_expert_sources_prompt(
+        topic: str, 
+        angle_headline: str,
+        angle_description: str
+    ) -> str:
+        """
+        Skaber en effektiv prompt til ekspert-kildeforslag med minimalt token-forbrug.
+        
+        Args:
+            topic: Nyhedsemnet
+            angle_headline: Vinkel-overskrift
+            angle_description: Beskrivelse af vinklen
+            
+        Returns:
+            str: Optimeret prompt
+        """
+        return f"""Find ekspertkilder til vinkel: "{angle_headline}" på emnet "{topic}".
+        
+VINKEL BESKRIVELSE: {angle_description}
+
+Returner JSON med dette format:
+{{
+  "eksperter": [
+    {{
+      "navn": "Fulde navn",
+      "titel": "Stillingsbetegnelse",
+      "organisation": "Arbejdssted",
+      "ekspertise": "Relevant ekspertområde"
+    }}
+  ],
+  "institutioner": [
+    {{
+      "navn": "Institutionens navn",
+      "type": "Type institution",
+      "relevans": "Hvorfor relevant"
+    }}
+  ],
+  "datakilder": [
+    {{
+      "titel": "Datakilde titel",
+      "udgiver": "Udgiver",
+      "beskrivelse": "Kort beskrivelse"
+    }}
+  ]
+}}
+
+KUN JSON, ingen forklarende tekst."""
+    
+    @staticmethod
+    def create_knowledge_distillate_prompt(topic: str, topic_info: str) -> str:
+        """
+        Skaber en effektiv prompt til videndistillat med minimalt token-forbrug.
+        
+        Args:
+            topic: Nyhedsemnet
+            topic_info: Baggrundsinformation om emnet
+            
+        Returns:
+            str: Optimeret prompt
+        """
+        # Komprimér baggrundsinformation
+        compressed_info = OptimizedPromptEngineering.compress_context(topic_info, 2000)
+        
+        return f"""Uddrag nøglefakta fra denne information om "{topic}".
+
+BAGGRUND:
+{compressed_info}
+
+Returner som JSON:
+{{
+  "hovedpunkter": ["Punkt 1", "Punkt 2", "Punkt 3", "Punkt 4"],
+  "noegletal": [
+    {{ "tal": "42%", "beskrivelse": "Af noget", "kilde": "Kilde" }}
+  ],
+  "centralePaastand": [
+    {{ "paastand": "Hovedpåstand", "kilde": "Kilde" }}
+  ]
+}}
+
+KUN JSON, ingen forklarende tekst."""

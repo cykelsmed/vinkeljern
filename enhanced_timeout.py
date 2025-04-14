@@ -1,381 +1,520 @@
 """
-Enhanced timeout and resilience manager for Vinkeljernet.
+Enhanced timeout and retry module for Vinkeljernet project.
 
-Provides adaptive timeout management, progressive fallback, and
-resilience patterns for API calls with statistics.
+This module provides advanced timeout handling and retry strategies 
+for API requests, particularly for LLM calls that may take longer time.
 """
 
-import asyncio
-import functools
-import logging
-import random
 import time
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, TypeVar, Union
+import asyncio
+import logging
+import functools
+from typing import Any, Callable, Optional, TypeVar, Dict, List, Tuple
+from datetime import datetime
+import aiohttp
+import random
 
-# Typing variables
+# Configure logging
+logger = logging.getLogger("vinkeljernet.timeout")
+
+# Type variables
 T = TypeVar('T')
 AsyncFunc = Callable[..., Any]
 
-# Configure logging
-logger = logging.getLogger("vinkeljernet.enhanced_timeout")
-
-class TimeoutStrategy(Enum):
-    """Strategies for timeout handling."""
-    FIXED = "fixed"  # Use a fixed timeout
-    ADAPTIVE = "adaptive"  # Adjust timeout based on recent performance
-    PROGRESSIVE = "progressive"  # Start low and increase if needed
-
-
-class FallbackStrategy(Enum):
-    """Strategies for handling timeouts and failures."""
-    NONE = "none"  # No fallback, just fail
-    RETRY = "retry"  # Retry the request
-    CACHED = "cached"  # Use cached data if available
-    DEGRADED = "degraded"  # Use a degraded/simplified response
-    SYNTHETIC = "synthetic"  # Generate a synthetic response
-
-
-@dataclass
-class TimeoutStats:
-    """Statistics for timeout management."""
-    total_calls: int = 0
-    successful_calls: int = 0
-    timed_out_calls: int = 0
-    avg_response_time: float = 0
-    p95_response_time: float = 0
-    recent_timeouts: List[datetime] = None
-    recent_response_times: List[float] = None
-    fallback_used_count: Dict[FallbackStrategy, int] = None
+# Timeout configuration
+class TimeoutConfig:
+    """Configurable timeouts for different request types."""
     
-    def __post_init__(self):
-        """Initialize mutable default fields."""
-        if self.recent_timeouts is None:
-            self.recent_timeouts = []
-        if self.recent_response_times is None:
-            self.recent_response_times = []
-        if self.fallback_used_count is None:
-            self.fallback_used_count = {strategy: 0 for strategy in FallbackStrategy}
+    # Standard timeouts (in seconds)
+    DEFAULT = 60
+    KNOWLEDGE_QUERY = 40
+    ANGLE_GENERATION = 90
+    EXPERT_SOURCES = 30
+    BACKGROUND_INFO = 25
+    EDITORIAL_FEEDBACK = 20
     
-    def record_success(self, response_time: float) -> None:
-        """Record a successful call."""
-        self.total_calls += 1
-        self.successful_calls += 1
+    # Timeout factors for fallback strategies
+    PRIMARY_FACTOR = 1.0     # Normal timeout
+    EXTEND_FACTOR = 1.5      # Extended timeout for retry
+    FALLBACK_FACTOR = 0.7    # Shorter timeout for fallback service
+    URGENT_FACTOR = 0.5      # Shorter timeout for urgent requests
+    
+    @staticmethod
+    def get_timeout(request_type: str, factor: float = 1.0) -> float:
+        """
+        Get timeout duration for request type.
         
-        # Track response time
-        self.recent_response_times.append(response_time)
-        if len(self.recent_response_times) > 100:
-            self.recent_response_times.pop(0)
+        Args:
+            request_type: Type of request 
+            factor: Multiplier for standard timeout
             
-        # Update average
-        if self.recent_response_times:
-            self.avg_response_time = sum(self.recent_response_times) / len(self.recent_response_times)
+        Returns:
+            float: Timeout in seconds
+        """
+        timeouts = {
+            "default": TimeoutConfig.DEFAULT,
+            "knowledge_query": TimeoutConfig.KNOWLEDGE_QUERY,
+            "angle_generation": TimeoutConfig.ANGLE_GENERATION,
+            "expert_sources": TimeoutConfig.EXPERT_SOURCES,
+            "background_info": TimeoutConfig.BACKGROUND_INFO,
+            "editorial_feedback": TimeoutConfig.EDITORIAL_FEEDBACK
+        }
+        
+        base_timeout = timeouts.get(request_type.lower(), TimeoutConfig.DEFAULT)
+        return base_timeout * factor
+
+class RetryStrategy:
+    """Smart retry strategies for different types of failures."""
+    
+    # Maximum retry attempts
+    MAX_RETRIES = 3
+    
+    # Backoff factors
+    LINEAR_BACKOFF = "linear"     # Retry after n, 2n, 3n seconds
+    EXPONENTIAL_BACKOFF = "expo"  # Retry after n, n^2, n^3 seconds
+    FIBONACCI_BACKOFF = "fib"     # Retry after n, n, 2n, 3n, 5n seconds
+    
+    # Jitter settings
+    JITTER_RANGE = 0.2  # ±20% randomness to avoid thundering herd
+    
+    @staticmethod
+    def calculate_delay(attempt: int, base_delay: float, strategy: str) -> float:
+        """
+        Calculate delay before next retry.
+        
+        Args:
+            attempt: Current attempt number (1-based)
+            base_delay: Base delay in seconds
+            strategy: Backoff strategy name
             
-            # Update p95 (95th percentile)
-            sorted_times = sorted(self.recent_response_times)
-            p95_index = int(0.95 * len(sorted_times))
-            self.p95_response_time = sorted_times[p95_index]
-    
-    def record_timeout(self) -> None:
-        """Record a timeout."""
-        self.total_calls += 1
-        self.timed_out_calls += 1
-        self.recent_timeouts.append(datetime.now())
+        Returns:
+            float: Delay in seconds
+        """
+        # Get raw delay based on strategy
+        if strategy == RetryStrategy.LINEAR_BACKOFF:
+            raw_delay = base_delay * attempt
+        elif strategy == RetryStrategy.EXPONENTIAL_BACKOFF:
+            raw_delay = base_delay * (2 ** (attempt - 1))
+        elif strategy == RetryStrategy.FIBONACCI_BACKOFF:
+            # Calculate Fibonacci number for this attempt
+            a, b = 1, 1
+            for _ in range(attempt - 1):
+                a, b = b, a + b
+            raw_delay = base_delay * a
+        else:
+            # Default to linear
+            raw_delay = base_delay * attempt
         
-        # Only keep last 20 timeouts
-        if len(self.recent_timeouts) > 20:
-            self.recent_timeouts.pop(0)
-    
-    def record_fallback_used(self, strategy: FallbackStrategy) -> None:
-        """Record that a fallback strategy was used."""
-        self.fallback_used_count[strategy] += 1
-    
-    @property
-    def timeout_rate(self) -> float:
-        """Calculate the timeout rate."""
-        if self.total_calls == 0:
-            return 0
-        return (self.timed_out_calls / self.total_calls) * 100
-    
-    @property
-    def success_rate(self) -> float:
-        """Calculate the success rate."""
-        if self.total_calls == 0:
-            return 100
-        return (self.successful_calls / self.total_calls) * 100
-    
-    @property
-    def recent_timeout_rate(self) -> float:
-        """Calculate the recent timeout rate (last 1 hour)."""
-        recent_time = datetime.now() - timedelta(hours=1)
-        recent_timeouts = [t for t in self.recent_timeouts if t > recent_time]
+        # Add jitter (±JITTER_RANGE)
+        jitter = 1.0 + random.uniform(-RetryStrategy.JITTER_RANGE, RetryStrategy.JITTER_RANGE)
+        final_delay = raw_delay * jitter
         
-        if self.total_calls == 0:
-            return 0
+        return final_delay
+
+    @staticmethod
+    def should_retry(error: Exception, attempt: int) -> bool:
+        """
+        Determine if a request should be retried.
         
-        # Estimate total calls in last hour
-        recent_calls_estimate = max(10, int(self.total_calls * 0.1))  # at least 10 or 10% of total
+        Args:
+            error: The exception that occurred
+            attempt: Current attempt number
+            
+        Returns:
+            bool: True if should retry
+        """
+        # Never retry after max attempts
+        if attempt >= RetryStrategy.MAX_RETRIES:
+            return False
         
-        return (len(recent_timeouts) / recent_calls_estimate) * 100
-
-
-# Global registry of timeout stats by function/service
-timeout_stats: Dict[str, TimeoutStats] = {}
-
-
-def get_adaptive_timeout(func_name: str, base_timeout: float) -> float:
-    """
-    Calculate an adaptive timeout based on recent performance.
-    
-    Args:
-        func_name: Function or service name
-        base_timeout: Base timeout value
+        # Check specific error types
+        if isinstance(error, asyncio.TimeoutError):
+            # Always retry timeouts
+            return True
+        elif isinstance(error, aiohttp.ClientError):
+            # Retry network-related errors
+            return True
+        elif isinstance(error, aiohttp.ServerConnectionError):
+            # Retry server connection errors
+            return True
+        elif isinstance(error, aiohttp.ClientResponseError):
+            # Retry on certain status codes
+            if hasattr(error, 'status'):
+                # Retry on 429 (too many requests), 502/503/504 (server errors)
+                return error.status in [429, 502, 503, 504]
+            return False
         
-    Returns:
-        Adapted timeout value
-    """
-    if func_name not in timeout_stats:
-        return base_timeout
+        # Default to not retry
+        return False
+
+class ProgressTracker:
+    """Track and report progress for multi-stage operations."""
+    
+    def __init__(self, total_steps: int = 100, callback: Optional[Callable] = None):
+        """
+        Initialize progress tracker.
         
-    stats = timeout_stats[func_name]
+        Args:
+            total_steps: Total number of steps (default: 100 for percentage)
+            callback: Optional callback function to report progress
+        """
+        self.total_steps = total_steps
+        self.current = 0
+        self.callback = callback
+        self.start_time = time.time()
+        self.last_update = self.start_time
+        self.checkpoints = []  # List of (step, time) tuples
+        
+    async def update(self, step: int, message: str = "") -> None:
+        """
+        Update progress.
+        
+        Args:
+            step: Current step (0-total_steps)
+            message: Optional progress message
+        """
+        # Ensure step is within bounds
+        self.current = max(0, min(step, self.total_steps))
+        now = time.time()
+        self.last_update = now
+        
+        # Record checkpoint
+        self.checkpoints.append((self.current, now))
+        
+        # Call the callback if provided
+        if self.callback and callable(self.callback):
+            if asyncio.iscoroutinefunction(self.callback):
+                await self.callback(self.current, self.total_steps, message)
+            else:
+                self.callback(self.current, self.total_steps, message)
     
-    # If no response times yet, return base timeout
-    if not stats.recent_response_times:
-        return base_timeout
+    def get_progress_percentage(self) -> float:
+        """Get progress as a percentage."""
+        if self.total_steps <= 0:
+            return 100.0
+        return (self.current / self.total_steps) * 100.0
     
-    # Calculate adaptive timeout based on recent p95 response time
-    p95_time = stats.p95_response_time
+    def get_elapsed_time(self) -> float:
+        """Get elapsed time in seconds."""
+        return time.time() - self.start_time
     
-    # Add margin (50% more than p95)
-    adaptive_timeout = p95_time * 1.5
-    
-    # Ensure timeout is reasonable (not too short or too long)
-    min_timeout = base_timeout * 0.5  # Not less than half the base
-    max_timeout = base_timeout * 2.0  # Not more than double the base
-    
-    return max(min_timeout, min(adaptive_timeout, max_timeout))
+    def estimate_remaining_time(self) -> Optional[float]:
+        """
+        Estimate remaining time based on progress.
+        
+        Returns:
+            Optional[float]: Estimated seconds remaining or None if can't estimate
+        """
+        if not self.checkpoints or self.current <= 0 or self.current >= self.total_steps:
+            return None
+        
+        # Use recent checkpoints for more accurate estimate
+        recent_points = self.checkpoints[-min(5, len(self.checkpoints)):]
+        if len(recent_points) < 2:
+            return None
+            
+        # Calculate rate of progress (steps/second)
+        first_step, first_time = recent_points[0]
+        last_step, last_time = recent_points[-1]
+        
+        time_diff = last_time - first_time
+        steps_diff = last_step - first_step
+        
+        if time_diff <= 0 or steps_diff <= 0:
+            return None
+            
+        rate = steps_diff / time_diff
+        
+        # Estimate remaining time
+        remaining_steps = self.total_steps - self.current
+        if rate > 0:
+            return remaining_steps / rate
+        
+        return None
+        
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary with progress info."""
+        remaining = self.estimate_remaining_time()
+        
+        return {
+            "progress": self.get_progress_percentage(),
+            "current_step": self.current,
+            "total_steps": self.total_steps,
+            "elapsed_seconds": self.get_elapsed_time(),
+            "estimated_remaining_seconds": remaining,
+            "estimated_completion_time": (
+                datetime.fromtimestamp(time.time() + remaining).isoformat() 
+                if remaining is not None else None
+            )
+        }
 
-
-async def with_progressive_timeout(
-    coroutine,
+async def with_timeout(
+    func: AsyncFunc,
+    *args: Any,
     timeout: float,
-    fallback_value: Any = None,
-    retry_count: int = 1,
-    func_name: str = "unknown"
+    fallback_result: Any = None,
+    timeout_handler: Optional[Callable] = None,
+    **kwargs: Any
 ) -> Any:
     """
-    Execute a coroutine with progressively increasing timeouts and fallbacks.
+    Execute an async function with timeout and fallback.
     
     Args:
-        coroutine: Coroutine to execute
-        timeout: Initial timeout in seconds
-        fallback_value: Value to return if all attempts fail
-        retry_count: Number of retry attempts
-        func_name: Function name for stats tracking
+        func: Async function to execute
+        *args: Arguments to pass to the function
+        timeout: Timeout in seconds
+        fallback_result: Result to return on timeout
+        timeout_handler: Optional function to call on timeout
+        **kwargs: Keyword arguments to pass to the function
         
     Returns:
-        Result of coroutine or fallback value
+        Any: Function result or fallback
     """
-    # Initialize stats if needed
-    if func_name not in timeout_stats:
-        timeout_stats[func_name] = TimeoutStats()
+    try:
+        # Run function with timeout
+        return await asyncio.wait_for(func(*args, **kwargs), timeout=timeout)
+    except asyncio.TimeoutError:
+        logger.warning(f"Function {func.__name__} timed out after {timeout} seconds")
+        
+        # Call timeout handler if provided
+        if timeout_handler:
+            if asyncio.iscoroutinefunction(timeout_handler):
+                await timeout_handler(func.__name__, timeout)
+            else:
+                timeout_handler(func.__name__, timeout)
+        
+        return fallback_result
+
+async def with_retry(
+    func: AsyncFunc,
+    *args: Any,
+    max_retries: int = RetryStrategy.MAX_RETRIES,
+    base_delay: float = 1.0,
+    backoff_strategy: str = RetryStrategy.EXPONENTIAL_BACKOFF,
+    **kwargs: Any
+) -> Any:
+    """
+    Execute an async function with retry capability.
     
-    stats = timeout_stats[func_name]
+    Args:
+        func: Async function to execute
+        *args: Arguments to pass to the function
+        max_retries: Maximum retry attempts
+        base_delay: Base delay between retries in seconds
+        backoff_strategy: Strategy for calculating delays
+        **kwargs: Keyword arguments to pass to the function
+        
+    Returns:
+        Any: Function result
+        
+    Raises:
+        Exception: Last error if all retries fail
+    """
+    attempt = 0
+    last_error = None
     
-    # Initial timeout
-    current_timeout = timeout
-    
-    for attempt in range(retry_count + 1):  # +1 for initial attempt
+    while attempt < max_retries:
+        attempt += 1
+        
         try:
-            start_time = time.time()
+            if attempt == 1:
+                # First attempt
+                logger.debug(f"Executing {func.__name__}")
+            else:
+                # Retry
+                logger.info(f"Retry {attempt}/{max_retries} for {func.__name__}")
+                
+            # Execute the function
+            result = await func(*args, **kwargs)
             
-            if attempt > 0:
-                # Increase timeout for retries (add 50% each time)
-                current_timeout *= 1.5
-                logger.info(f"Retry {attempt} for {func_name} with timeout {current_timeout:.2f}s")
-            
-            # Execute with timeout
-            result = await asyncio.wait_for(coroutine, timeout=current_timeout)
-            
-            # Record success
-            end_time = time.time()
-            response_time = end_time - start_time
-            stats.record_success(response_time)
-            
+            # If successful, return the result
             return result
             
-        except asyncio.TimeoutError:
-            stats.record_timeout()
-            
-            # If this was the last attempt, use fallback
-            if attempt == retry_count:
-                logger.warning(f"All {retry_count+1} attempts timed out for {func_name}")
-                stats.record_fallback_used(FallbackStrategy.DEGRADED)
-                return fallback_value
-            
-            # Otherwise continue to next attempt with increased timeout
-            logger.warning(f"Timeout occurred for {func_name} (attempt {attempt+1}/{retry_count+1})")
-            
         except Exception as e:
-            logger.error(f"Error in {func_name}: {e}")
-            stats.record_fallback_used(FallbackStrategy.DEGRADED)
-            return fallback_value
+            last_error = e
+            
+            # Check if we should retry
+            if not RetryStrategy.should_retry(e, attempt):
+                logger.warning(f"Not retrying {func.__name__} after error: {e}")
+                raise
+                
+            # Calculate delay before retry
+            if attempt < max_retries:
+                delay = RetryStrategy.calculate_delay(
+                    attempt, base_delay, backoff_strategy
+                )
+                
+                logger.info(f"Will retry {func.__name__} in {delay:.2f}s after error: {e}")
+                await asyncio.sleep(delay)
+    
+    # If we get here, we've exhausted retries
+    logger.error(f"All {max_retries} retries failed for {func.__name__}")
+    if last_error:
+        raise last_error
+    
+    raise RuntimeError(f"All {max_retries} retries failed for {func.__name__}")
 
-
-def adaptive_timeout(
-    base_timeout: float = 30.0,
-    retry_count: int = 1,
-    fallback_value: Any = None,
-    strategy: TimeoutStrategy = TimeoutStrategy.ADAPTIVE
+def with_timeout_decorator(
+    timeout: float,
+    fallback_result: Any = None,
+    timeout_handler: Optional[Callable] = None
 ) -> Callable:
     """
-    Decorator for functions with adaptive timeout handling.
+    Decorator to add timeout to an async function.
     
     Args:
-        base_timeout: Base timeout in seconds
-        retry_count: Number of retry attempts
-        fallback_value: Value to return if all attempts fail
-        strategy: Timeout strategy to use
+        timeout: Timeout in seconds
+        fallback_result: Result to return on timeout
+        timeout_handler: Optional function to call on timeout
         
     Returns:
-        Decorated function
+        Callable: Decorated function
     """
     def decorator(func: AsyncFunc) -> AsyncFunc:
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
-            func_name = func.__qualname__
-            
-            # Determine actual timeout based on strategy
-            if strategy == TimeoutStrategy.ADAPTIVE:
-                timeout = get_adaptive_timeout(func_name, base_timeout)
-            elif strategy == TimeoutStrategy.PROGRESSIVE:
-                # Start with a shorter timeout that will increase on retries
-                timeout = base_timeout * 0.7
-            else:
-                # Fixed timeout
-                timeout = base_timeout
-            
-            return await with_progressive_timeout(
-                func(*args, **kwargs),
-                timeout=timeout,
-                fallback_value=fallback_value,
-                retry_count=retry_count,
-                func_name=func_name
+            return await with_timeout(
+                func, 
+                *args, 
+                timeout=timeout, 
+                fallback_result=fallback_result, 
+                timeout_handler=timeout_handler,
+                **kwargs
             )
-            
         return wrapper
-    
     return decorator
 
-
-def get_timeout_stats() -> Dict[str, Dict[str, Any]]:
+def with_retry_decorator(
+    max_retries: int = RetryStrategy.MAX_RETRIES,
+    base_delay: float = 1.0,
+    backoff_strategy: str = RetryStrategy.EXPONENTIAL_BACKOFF
+) -> Callable:
     """
-    Get timeout statistics for all tracked functions.
+    Decorator to add retry capability to an async function.
     
+    Args:
+        max_retries: Maximum retry attempts
+        base_delay: Base delay between retries in seconds
+        backoff_strategy: Strategy for calculating delays
+        
     Returns:
-        Dict mapping function names to stat dictionaries
+        Callable: Decorated function
     """
-    result = {}
-    
-    for func_name, stats in timeout_stats.items():
-        result[func_name] = {
-            "total_calls": stats.total_calls,
-            "success_rate": f"{stats.success_rate:.1f}%",
-            "timeout_rate": f"{stats.timeout_rate:.1f}%",
-            "recent_timeout_rate": f"{stats.recent_timeout_rate:.1f}%",
-            "avg_response_time": f"{stats.avg_response_time:.2f}s",
-            "p95_response_time": f"{stats.p95_response_time:.2f}s",
-            "fallbacks_used": {
-                strategy.name: count
-                for strategy, count in stats.fallback_used_count.items()
-                if count > 0
-            }
-        }
-    
-    return result
+    def decorator(func: AsyncFunc) -> AsyncFunc:
+        @functools.wraps(func)
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
+            return await with_retry(
+                func,
+                *args,
+                max_retries=max_retries,
+                base_delay=base_delay,
+                backoff_strategy=backoff_strategy,
+                **kwargs
+            )
+        return wrapper
+    return decorator
 
-
-class parallel_tasks:
-    """Context manager for executing multiple tasks in parallel with resilience."""
+class AdaptiveTimeout:
+    """
+    Adaptive timeout manager that adjusts based on request history.
     
-    def __init__(self, base_timeout: float = 30.0, collect_results: bool = True):
+    This class learns from past API call durations and adjusts timeouts
+    dynamically to optimize performance while minimizing timeouts.
+    """
+    
+    def __init__(self, 
+                 base_timeout: float = TimeoutConfig.DEFAULT,
+                 min_timeout: float = 10.0,
+                 max_timeout: float = 120.0,
+                 history_size: int = 50):
         """
-        Initialize parallel tasks context.
+        Initialize adaptive timeout.
         
         Args:
-            base_timeout: Base timeout for all tasks
-            collect_results: Whether to collect and return results
+            base_timeout: Initial timeout in seconds
+            min_timeout: Minimum timeout allowed
+            max_timeout: Maximum timeout allowed
+            history_size: Number of past calls to track
         """
         self.base_timeout = base_timeout
-        self.collect_results = collect_results
-        self.tasks = []
-        self.task_names = []
-        self.fallbacks = {}
-        self.timeouts = {}
-        self.results = {}
+        self.min_timeout = min_timeout
+        self.max_timeout = max_timeout
+        self.history_size = history_size
+        
+        # Call history: list of (duration, success) tuples
+        self.history: List[Tuple[float, bool]] = []
+        
+        # Current timeout
+        self.current_timeout = base_timeout
     
-    def add_task(
-        self, 
-        coro, 
-        name: str, 
-        timeout: Optional[float] = None, 
-        fallback: Any = None
-    ) -> None:
+    def record_call(self, duration: float, success: bool) -> None:
         """
-        Add a task to be executed in parallel.
+        Record a call result.
         
         Args:
-            coro: Coroutine to execute
-            name: Task name for identification
-            timeout: Custom timeout (uses base_timeout if None)
-            fallback: Fallback value if task fails
+            duration: Call duration in seconds
+            success: Whether call succeeded
         """
-        self.tasks.append(coro)
-        self.task_names.append(name)
-        self.fallbacks[name] = fallback
-        self.timeouts[name] = timeout or self.base_timeout
+        # Add to history
+        self.history.append((duration, success))
+        
+        # Trim history
+        if len(self.history) > self.history_size:
+            self.history = self.history[-self.history_size:]
+            
+        # Recalculate timeout
+        self._update_timeout()
     
-    async def __aenter__(self):
-        """Enter context manager."""
-        return self
-    
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Exit context manager and execute all tasks."""
-        if not self.tasks:
+    def _update_timeout(self) -> None:
+        """Update timeout based on call history."""
+        if not self.history:
             return
+            
+        # Get successful calls
+        successful_calls = [(d, s) for d, s in self.history if s]
         
-        # Create Tasks
-        await_tasks = []
-        for i, task_coro in enumerate(self.tasks):
-            name = self.task_names[i]
-            timeout = self.timeouts[name]
-            fallback = self.fallbacks[name]
+        if not successful_calls:
+            # No successful calls, increase timeout
+            self.current_timeout = min(self.current_timeout * 1.2, self.max_timeout)
+            return
             
-            # Wrap in timeout handler
-            wrapped_task = with_progressive_timeout(
-                task_coro,
-                timeout=timeout,
-                fallback_value=fallback,
-                retry_count=1,
-                func_name=name
-            )
-            
-            await_tasks.append(asyncio.create_task(wrapped_task))
+        # Calculate p95 of successful call durations
+        durations = sorted([d for d, _ in successful_calls])
+        p95_index = int(len(durations) * 0.95)
+        p95_duration = durations[min(p95_index, len(durations) - 1)]
         
-        # Wait for all tasks to complete
-        if self.collect_results:
-            results = await asyncio.gather(*await_tasks, return_exceptions=True)
-            
-            # Store results by task name
-            for i, result in enumerate(results):
-                name = self.task_names[i]
-                self.results[name] = result
-        else:
-            # Just execute tasks without collecting results
-            await asyncio.gather(*await_tasks, return_exceptions=True)
+        # Failed calls proportion
+        failed_proportion = 1 - (len(successful_calls) / len(self.history))
+        
+        # Calculate new timeout
+        # Start with p95 and add margin based on failure rate
+        margin_factor = 1.2 + (failed_proportion * 0.8)  # 1.2x to 2.0x
+        new_timeout = p95_duration * margin_factor
+        
+        # Ensure timeout is within bounds
+        self.current_timeout = max(self.min_timeout, min(new_timeout, self.max_timeout))
     
-    def get_results(self) -> Dict[str, Any]:
-        """Get results of completed tasks by name."""
-        return self.results
+    def get_timeout(self) -> float:
+        """Get current timeout value."""
+        return self.current_timeout
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert state to dictionary."""
+        successful_calls = [(d, s) for d, s in self.history if s]
+        failed_calls = [(d, s) for d, s in self.history if not s]
+        
+        avg_duration = (
+            sum(d for d, _ in successful_calls) / len(successful_calls) 
+            if successful_calls else 0
+        )
+        
+        return {
+            "current_timeout": self.current_timeout,
+            "base_timeout": self.base_timeout,
+            "min_timeout": self.min_timeout,
+            "max_timeout": self.max_timeout,
+            "history_size": len(self.history),
+            "success_rate": len(successful_calls) / len(self.history) if self.history else 0,
+            "average_duration": avg_duration,
+            "timeout_multiplier": self.current_timeout / (avg_duration if avg_duration > 0 else self.base_timeout)
+        }

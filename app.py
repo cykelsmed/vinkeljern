@@ -42,6 +42,13 @@ from security import (
     InvalidInputException, secure_filename
 )
 
+# Import fault tolerance module
+from fault_tolerance import (
+    CircuitBreaker, FaultTolerantService, FaultTolerantCache,
+    FaultTolerantAngleGenerator, VinkeljernetAppStatus,
+    with_circuit_breaker, ServiceDegradedException, app_status
+)
+
 # Import from configuration
 from config import (
     APP_ENV, SECRET_KEY, COOKIE_SECURE, COOKIE_HTTPONLY, 
@@ -113,6 +120,67 @@ security_logger.setLevel(logging.INFO)
 
 # Log app startup
 app.logger.info("Vinkeljernet web application starting")
+
+# Initialize fault-tolerant services for API providers
+anthropic_service = FaultTolerantService(
+    name="anthropic",
+    cache_ttl=3600,  # 1 hour cache
+    failure_threshold=3,
+    recovery_timeout=120,
+    cache_dir="./.cache/api"
+)
+
+perplexity_service = FaultTolerantService(
+    name="perplexity",
+    cache_ttl=7200,  # 2 hours cache
+    failure_threshold=3,
+    recovery_timeout=120,
+    cache_dir="./.cache/api"
+)
+
+# Initialize fault-tolerant angle generator
+angle_generator = FaultTolerantAngleGenerator(
+    service_name="angle_generator",
+    cache_ttl=86400,  # 24 hours
+    failure_threshold=3,
+    recovery_timeout=60,
+    min_acceptable_angles=3,
+    cache_dir="./.cache/angles",
+    use_generic_fallbacks=True
+)
+
+# Register components with app status monitor
+app_status.register_component("angle_generator", angle_generator)
+
+# Add health check for API services
+def api_services_health_check():
+    """Health check for API services"""
+    issues = []
+    if not anthropic_service.healthy:
+        issues.append({
+            "component": "anthropic_api",
+            "message": f"Anthropic API service unhealthy: {anthropic_service.last_error_message}",
+            "severity": "warning" if angle_generator.service.healthy else "error"
+        })
+        
+    if not perplexity_service.healthy:
+        issues.append({
+            "component": "perplexity_api",
+            "message": f"Perplexity API service unhealthy: {perplexity_service.last_error_message}",
+            "severity": "warning"
+        })
+        
+    if issues:
+        return {
+            "healthy": False,
+            "issues": issues,
+            "severity": "error" if any(i["severity"] == "error" for i in issues) else "warning"
+        }
+    
+    return {"healthy": True}
+
+# Register the health check
+app_status.register_health_check(api_services_health_check)
 
 #
 # Security and Rate Limiting
@@ -533,16 +601,17 @@ def get_profile_choices():
     profiles = get_available_profiles()
     return [(p, Path(p).stem) for p in profiles]
 
-def get_topic_info_sync(topic, detailed=False):
+@with_circuit_breaker("perplexity_api", failure_threshold=3)
+async def fetch_topic_information_async(topic, detailed=False):
     """
-    Synchronous version of fetch_topic_information.
+    Fault-tolerant version of fetch_topic_information.
     
     Args:
         topic: The news topic to gather information about
         detailed: If True, get more comprehensive information
     """
     try:
-        # Use the Perplexity API directly
+        # Use the Perplexity API with fault tolerance
         from config import PERPLEXITY_API_KEY
         
         headers = {
@@ -633,34 +702,66 @@ Undgå vaghed, generalisering og personlige holdninger. Brug et klart og profess
             "return_related_questions": False
         }
         
-        response = requests.post(
-            'https://api.perplexity.ai/chat/completions',
-            headers=headers,
-            json=payload
+        # Create unique cache key for this request
+        cache_key = f"perplexity_info_{topic}_{detailed}_v2"
+        
+        # Use the fault-tolerant service to make the API call
+        response_content, metadata = await perplexity_service.call(
+            func=lambda: requests.post(
+                'https://api.perplexity.ai/chat/completions',
+                headers=headers,
+                json=payload,
+                timeout=30
+            ),
+            cache_key=cache_key,
+            fallback=None
         )
         
-        if response.status_code == 200:
-            data = response.json()
-            return data['choices'][0]['message']['content']
-        
-        app.logger.warning(f"Perplexity API error: {response.status_code} - {response.text}")
-        return None
+        # Check if we got a response from cache or API
+        if metadata.get("degraded", False):
+            logger.warning(f"Using degraded mode for topic info: {topic}")
+            
+        if response_content is None:
+            app.logger.warning("Failed to get topic information (no fallback available)")
+            return None
+            
+        if response_content.status_code != 200:
+            app.logger.warning(f"Perplexity API error: {response_content.status_code}")
+            return None
+            
+        data = response_content.json()
+        return data['choices'][0]['message']['content']
         
     except Exception as e:
         app.logger.error(f"Error fetching topic information: {e}")
-        return None
+        raise
 
-def generate_editorial_considerations(topic, profile_name, angles):
+def get_topic_info_sync(topic, detailed=False):
     """
-    Generate editorial considerations for the given angles using Claude API.
+    Synchronous version of fetch_topic_information with fault tolerance.
     
     Args:
-        topic: The news topic
-        profile_name: Name of the editorial profile used
-        angles: List of generated angles
+        topic: The news topic to gather information about
+        detailed: If True, get more comprehensive information
+    """
+    try:
+        # Create a new event loop if needed
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
         
-    Returns:
-        Formatted string with editorial considerations or error message
+        # Run the async function in the event loop
+        return loop.run_until_complete(fetch_topic_information_async(topic, detailed))
+    except Exception as e:
+        app.logger.error(f"Error in get_topic_info_sync: {e}")
+        return None
+
+@with_circuit_breaker("anthropic_api", failure_threshold=3)
+async def generate_editorial_considerations_async(topic, profile_name, angles):
+    """
+    Async fault-tolerant version of editorial considerations generation.
     """
     try:
         from config import ANTHROPIC_API_KEY
@@ -704,31 +805,46 @@ def generate_editorial_considerations(topic, profile_name, angles):
         Skriv på dansk og formatér svaret i klart adskilte sektioner med overskrifter.
         """
         
-        # Make the API call to Claude
-        response = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "Content-Type": "application/json",
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01"
-            },
-            json={
-                "model": "claude-3-haiku-20240307",  # Using a smaller, faster model for this analysis
-                "max_tokens": 1500,
-                "temperature": 0.2,  # Lower temperature for more focused analysis
-                "system": "Du er en erfaren redaktør på et dansk nyhedsmedie med stor ekspertise i journalistiske vinkler og redaktionelle prioriteringer.",
-                "messages": [{"role": "user", "content": prompt}],
-            },
-            timeout=30  # Set a reasonable timeout
+        # Create unique cache key
+        angles_hash = hashlib.md5(formatted_angles.encode()).hexdigest()[:8]
+        cache_key = f"editorial_{topic}_{profile_name}_{angles_hash}"
+        
+        # Use fault-tolerant service to make the call
+        response_content, metadata = await anthropic_service.call(
+            func=lambda: requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01"
+                },
+                json={
+                    "model": "claude-3-haiku-20240307",
+                    "max_tokens": 1500,
+                    "temperature": 0.2,
+                    "system": "Du er en erfaren redaktør på et dansk nyhedsmedie med stor ekspertise i journalistiske vinkler og redaktionelle prioriteringer.",
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=30
+            ),
+            cache_key=cache_key,
+            fallback=None
         )
         
-        # Check for successful response
-        if response.status_code != 200:
-            app.logger.error(f"Claude API error: {response.status_code}: {response.text}")
+        # Check for degraded service
+        if metadata.get("degraded", False):
+            logger.warning(f"Using degraded mode for editorial considerations: {topic}")
+            
+        # Check for errors
+        if response_content is None:
+            return "Kunne ikke generere redaktionelle overvejelser. Der opstod en fejl ved kontakt til AI-systemet."
+            
+        if response_content.status_code != 200:
+            app.logger.error(f"Claude API error: {response_content.status_code}: {response_content.text}")
             return "Kunne ikke generere redaktionelle overvejelser. Der opstod en fejl ved kontakt til AI-systemet."
         
         # Extract and return the content
-        response_data = response.json()
+        response_data = response_content.json()
         editorial_text = response_data['content'][0]['text']
         return editorial_text
         
@@ -736,9 +852,29 @@ def generate_editorial_considerations(topic, profile_name, angles):
         app.logger.error(f"Error generating editorial considerations: {e}")
         return f"Kunne ikke generere redaktionelle overvejelser: {str(e)}"
 
+def generate_editorial_considerations(topic, profile_name, angles):
+    """
+    Generate editorial considerations for the given angles using Claude API.
+    
+    Fault-tolerant synchronous wrapper for generate_editorial_considerations_async.
+    """
+    try:
+        # Create a new event loop if needed
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        # Run the async function in the event loop
+        return loop.run_until_complete(generate_editorial_considerations_async(topic, profile_name, angles))
+    except Exception as e:
+        app.logger.error(f"Error in generate_editorial_considerations: {e}")
+        return f"Kunne ikke generere redaktionelle overvejelser: {str(e)}"
+
 async def process_generation_request_async(topic, profile):
     """
-    Process a generation request using optimized asynchronous API calls.
+    Process a generation request using optimized asynchronous API calls with fault tolerance.
     
     Args:
         topic: News topic to generate angles for
@@ -751,33 +887,70 @@ async def process_generation_request_async(topic, profile):
         # Security: Validate input parameters first
         sanitize_input(topic, max_length=200)
         
-        # Use the optimized implementation from ai_providers_optimized
-        from ai_providers_optimized import process_generation_request_parallel
+        # Use the fault-tolerant angle generator
+        def generate_angles_func():
+            # Use the optimized implementation from ai_providers_optimized
+            from ai_providers_optimized import process_generation_request_parallel
+            
+            # Define a progress tracker if needed
+            progress = {"value": 0}
+            
+            async def progress_callback(value):
+                progress["value"] = value
+            
+            # Call the optimized parallel implementation
+            return process_generation_request_parallel(
+                topic=topic,
+                profile=profile,
+                progress_callback=progress_callback,
+                use_fast_models=True,
+                timeout=45
+            )
         
-        # Define a progress tracker if needed
-        progress = {"value": 0}
-        
-        async def progress_callback(value):
-            progress["value"] = value
-        
-        # Call the optimized parallel implementation
-        return await process_generation_request_parallel(
+        # Use the fault-tolerant angle generator
+        angles, metadata = await angle_generator.generate_angles(
             topic=topic,
             profile=profile,
-            progress_callback=progress_callback,
-            use_fast_models=True,  # Use faster models for better performance
-            timeout=45  # Reasonable timeout to prevent excessive waiting
+            generate_func=generate_angles_func,
+            bypass_cache=False
         )
+        
+        # Log degraded service if applicable
+        if metadata.get("degraded", False):
+            logger.warning(f"Using degraded mode for angle generation: {topic}")
+            
+        # Log partial results
+        if metadata.get("partial_result", False):
+            logger.warning(f"Got partial results for angle generation: {topic}")
+            
+        # Log fallback usage
+        if metadata.get("fallback_used", False):
+            logger.warning(f"Using fallback angles for: {topic}")
+        
+        return angles
         
     except Exception as e:
         app.logger.error(f"Error in optimized angle generation: {e}")
-        # Fallback to the original implementation if available
+        
+        # Try one more approach with basic angle generation
         try:
-            # Import the original implementation
-            from api_clients_wrapper import process_generation_request as original_process
+            # Define a simpler fallback function that uses the original implementation
+            async def fallback_generate():
+                from api_clients_wrapper import process_generation_request as original_process
+                return await original_process(topic, profile)
+                
+            # Try the fallback approach with fault tolerance
+            angles, metadata = await angle_generator.generate_angles(
+                topic=topic,
+                profile=profile,
+                generate_func=fallback_generate,
+                bypass_cache=True
+            )
             
-            # Run the original in the event loop
-            return await original_process(topic, profile)
+            if angles:
+                return angles
+            raise ValueError("Fallback angle generation returned no angles")
+            
         except Exception as fallback_error:
             app.logger.error(f"Even fallback angle generation failed: {fallback_error}")
             raise ValueError(f"Failed to generate angles: {e}")
@@ -1994,10 +2167,69 @@ def clear_pdf_error():
 @app.route('/api/health')
 def health_check():
     """API endpoint for health check."""
+    # Run application health check
+    health_data = app_status.run_health_check()
+    
+    # Add API service status
+    health_data["api_services"] = {
+        "anthropic": anthropic_service.get_status(),
+        "perplexity": perplexity_service.get_status()
+    }
+    
+    # Include cache hit rate stats
+    angle_gen_stats = angle_generator.get_stats()
+    health_data["angle_generator"] = {
+        "service_status": angle_gen_stats["service_status"],
+        "success_rate": angle_gen_stats.get("full_success_rate", "N/A"),
+        "fallback_rate": (angle_gen_stats.get("fallback_used_count", 0) / 
+                         max(angle_gen_stats.get("total_generations", 1), 1))
+    }
+    
+    return jsonify(health_data)
+
+@app.route('/api/status')
+@enhanced_rate_limit(limit=5, window=60)
+def service_status():
+    """More detailed status API endpoint."""
+    # Get system status
+    status = app_status.run_health_check()
+    
+    # Get circuit breaker stats
+    from fault_tolerance import CircuitBreaker
+    circuit_stats = CircuitBreaker.get_all_stats()
+    
+    # Add more details
+    status["fault_tolerance"] = {
+        "circuit_breakers": circuit_stats,
+        "degraded_services": list(app_status.get_degraded_services()),
+        "angle_generator": angle_generator.get_stats()
+    }
+    
+    return jsonify(status)
+
+@app.route('/reset_services', methods=['POST'])
+@enhanced_rate_limit(limit=2, window=60)
+def reset_services():
+    """Admin endpoint to reset all services and circuit breakers."""
+    # Check basic auth (simple for demo purposes)
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Basic '):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    # Reset circuit breakers
+    from fault_tolerance import CircuitBreaker
+    CircuitBreaker.reset_all()
+    
+    # Reset services
+    anthropic_service.reset()
+    perplexity_service.reset()
+    
+    # Run health check to update status
+    health_data = app_status.run_health_check()
+    
     return jsonify({
-        "status": "ok",
-        "timestamp": datetime.now().isoformat(),
-        "service": "vinkeljernet"
+        "message": "All services and circuit breakers reset",
+        "status": health_data["overall_health"]
     })
 
 #

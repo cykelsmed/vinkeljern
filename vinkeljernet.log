@@ -1,121 +1,120 @@
-2025-04-14 01:25:12,931 - vinkeljernet.cli - INFO - Vinkeljernet starting up
-2025-04-14 01:25:12,932 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-04-14 01:25:12,932 - vinkeljernet.api_wrapper - INFO - Created new event loop as no running loop was found
-2025-04-14 01:25:12,932 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 01:25:12,950 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
-2025-04-14 01:25:12,965 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
-2025-04-14 01:25:12,979 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
-2025-04-14 01:25:12,994 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
-2025-04-14 01:25:13,009 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
-2025-04-14 01:25:13,027 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
-2025-04-14 01:25:13,041 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
-2025-04-14 01:25:13,045 - vinkeljernet.api - INFO - API client initialized and ready
-2025-04-14 01:25:13,047 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 01:25:13,048 - vinkeljernet.api - INFO - API client initialized and ready
-2025-04-14 01:25:14,058 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: TVflux
-2025-04-14 01:25:14,059 - vinkeljernet.core - INFO - Loaded profile: TVflux
-2025-04-14 01:25:14,059 - vinkeljernet.core - INFO - Fetching information for topic: Christiania uden hash
-2025-04-14 01:25:14,059 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 01:25:14,059 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-04-14 01:25:14,060 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'dev_mode': False, 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107eb37e0>}
-2025-04-14 01:25:22,280 - vinkeljernet.api - INFO - Perplexity API request completed in 8.22 seconds
-2025-04-14 01:25:22,283 - vinkeljernet.core - INFO - Generating knowledge distillate from background information
-2025-04-14 01:25:22,283 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
-2025-04-14 01:25:22,284 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nEmnet "Christiania uden hash" handler om den historiske transformation af Pusher Street i Christiania, hvor den åbne hashhandel er blevet lukket ned. Dette skridt er en del af en større indsats for at reducere kriminaliteten og forandre områdets image.\n\n## AKTUEL STATUS\nLige nu er emnet relevant, da Pusher Street blev fysisk lukket og omdannet til en byggeplads i april 2024. Dette har ført til en markant reduktion i åben hashhandel og kriminalitet i området, selvom salget nu er rykket online[1][3][4].\n\n## NØGLETAL\n- **April 2024**: Pusher Street blev fysisk lukket og omdannet til en byggeplads som en del af en større indsats mod hashhandel[3][4].\n- **75% reduktion**: I 2016 oplevede Christiania en midlertidig reduktion på omkring 75% i hashhandel, da lokale beboere fjernede salgsboderne[5].\n- **Halv million besøgende**: Christiania er en af Københavns største turistattraktioner med over en halv million besøgende årligt[5].\n\n## PERSPEKTIVER\nForskellige grupper har forskellige synspunkter på lukningen af Pusher Street:\n- **Christianitterne**: Mange ser det som en succes, da det har reduceret kriminaliteten og gjort området tryggere[1].\n- **Politiet**: Ser det som en mulig endelig løsning på de langvarige problemer med hashhandel og voldelige konflikter[3][4].\n- **Pusherne og narkotikabrugere**: Kan være bekymrede for, at salget nu er rykket online, hvilket kan gøre det sværere at regulere[1].', 'topic': 'Christiania uden hash', 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107eb37e0>}
-2025-04-14 01:25:26,272 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
+2025-04-14 12:47:56,558 - vinkeljernet.cli - INFO - Vinkeljernet starting up
+2025-04-14 12:47:56,558 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-04-14 12:47:56,559 - vinkeljernet.api_wrapper - INFO - Created new event loop as no running loop was found
+2025-04-14 12:47:56,559 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 12:47:56,575 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
+2025-04-14 12:47:56,590 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
+2025-04-14 12:47:56,605 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
+2025-04-14 12:47:56,619 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
+2025-04-14 12:47:56,633 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
+2025-04-14 12:47:56,648 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
+2025-04-14 12:47:56,662 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
+2025-04-14 12:47:56,666 - vinkeljernet.api - INFO - API client initialized and ready
+2025-04-14 12:47:56,669 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 12:47:56,670 - vinkeljernet.api - INFO - API client initialized and ready
+2025-04-14 12:47:57,680 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: TVflux
+2025-04-14 12:47:57,681 - vinkeljernet.core - INFO - Loaded profile: TVflux
+2025-04-14 12:47:57,681 - vinkeljernet.core - INFO - Fetching information for topic: Amerikanske statsobligationer i krise
+2025-04-14 12:47:57,681 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 12:47:57,681 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-04-14 12:47:57,681 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'dev_mode': False, 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107252d40>}
+2025-04-14 12:48:05,514 - vinkeljernet.api - INFO - Perplexity API request completed in 7.83 seconds
+2025-04-14 12:48:05,517 - vinkeljernet.core - INFO - Generating knowledge distillate from background information
+2025-04-14 12:48:05,517 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-04-14 12:48:05,517 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': "## OVERSIGT\nAmerikanske statsobligationer står i en krise, hvor renterne stiger på trods af økonomisk usikkerhed, hvilket normalt ville føre til en flytning mod sikre havne som statsobligationer. Dette skyldes blandt andet bekymringer om dollarens fremtid og den amerikanske statsgæld.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da den stigende rente på amerikanske statsobligationer overrasker økonomer, og der er tvivl om USA's status som en sikker havn for investeringer. Dette skyldes blandt andet den pågående toldkrig og usikkerheden omkring den amerikanske økonomi.\n\n## NØGLETAL\n- **Rentestigning**: Renten på amerikanske statsobligationer stiger, hvilket normalt ikke ville ske under usikre økonomiske forhold.\n- **Tillidskrise**: Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter og tvivl om statsobligationernes sikkerhed.\n- **Gældspres**: USA's store statsgæld og risikoen for en eventuel restrukturering af denne gæld bidrager til usikkerheden.\n\n## PERSPEKTIVER\n- **Økonomiske bekymringer**: Nogle økonomer mener, at stigende renter kan skyldes bekymringer om lavere vækst og højere inflation samt usikkerhed om dollarens fremtid.\n- **Politisk usikkerhed**: Trumps politik, herunder toldkrigen, bidrager til usikkerheden og kan påvirke investorer til at tvivle på USA's status som sikker havn.\n- **Kritik af planer**: Planer om at refinansiere gælden gennem langsigtede obligationer møder kritik, da de kan destabilisere det globale finansielle system.", 'topic': 'Amerikanske statsobligationer i krise', 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107252d40>}
+2025-04-14 12:48:10,940 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
     "hovedpunkter": [
-        "Pusher Street i Christiania blev fysisk lukket og omdannet til en byggeplads i april 2024 som en del af en større indsats mod hashhandel",
-        "Lukningen har ført til en markant reduktion i åben hashhandel og kriminalitet i området, selvom salget nu er rykket online",
-        "Christianitterne ser lukningen som en succes, da det har reduceret kriminaliteten og gjort området tryggere",
-        "Politiet ser lukningen som en mulig endelig løsning på de langvarige problemer med hashhandel og voldelige konflikter"
+        "Amerikanske statsobligationer står i en krise, hvor renterne stiger på trods af økonomisk usikkerhed",
+        "Stigende renter skyldes blandt andet bekymringer om dollarens fremtid og den amerikanske statsgæld",
+        "Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter og tvivl om statsobligationernes sikkerhed",
+        "Trumps politik, herunder toldkrigen, bidrager til usikkerheden og kan påvirke investorer til at tvivle på USA's status som sikker havn"
     ],
     "noegletal": [
         {
-            "tal": "April 2024",
-            "beskrivelse": "Pusher Street blev fysisk lukket og omdannet til en byggeplads",
-            "kilde": "[3][4]"
+            "tal": "Stigende rente",
+            "beskrivelse": "Renten på amerikanske statsobligationer stiger, hvilket normalt ikke ville ske under usikre økonomiske forhold",
+            "kilde": null
         },
         {
-            "tal": "75% reduktion",
-            "beskrivelse": "I 2016 oplevede Christiania en midlertidig reduktion på omkring 75% i hashhandel",
-            "kilde": "[5]"
-        },
-        {
-            "tal": "Halv million besøge...
-2025-04-14 01:25:26,272 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+            "tal": "Tillidskrise",
+            "beskrivelse": "Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter og tvivl om statsobligationernes sikkerhed",
+            "kilde":...
+2025-04-14 12:48:10,940 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
     "hovedpunkter": [
-        "Pusher Street i Christiania blev fysisk lukket og omdannet til en b...
-2025-04-14 01:25:26,272 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-04-14 01:25:26,272 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 3.99 seconds
-2025-04-14 01:25:26,273 - vinkeljernet.core - INFO - Knowledge distillate generated successfully
-2025-04-14 01:25:26,274 - vinkeljernet.core - INFO - Generating angles...
-2025-04-14 01:25:26,274 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 01:25:26,274 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-04-14 01:25:26,274 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107eb37e0>}
-2025-04-14 01:25:35,695 - vinkeljernet.api - INFO - Perplexity API request completed in 9.42 seconds
-2025-04-14 01:25:35,698 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
-2025-04-14 01:25:35,698 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nEmnet "Christiania uden hash" handler om den historiske transformation af Pusher Street i Christiania, hvor hashhandelen har været en central del af områdets identitet siden 1970\'erne. I 2024 blev gaden omdannet til en byggeplads som led i en større indsats for at fjerne den åbne hashhandel og organiserede kriminalitet. Dette har ført til en markant ændring i områdets karakter og stemning.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da det er gået et år siden Pusher Street blev ryddet for hashboder og bander. Den nuværende situation viser, at hashsalget er rykket online, mens Christiania selv oplever en stigning i tryghed og en forandring mod en mere kulturel oase. Dette skridt har været mødt med både støtte og skepsis, idet nogle ser det som en succes, mens andre bekymrer sig for, om det blot flytter problemet andre steder hen[1][3][4].\n\n## NØGLETAL\n- **2024**: Året hvor Pusher Street blev omdannet til en byggeplads som led i indsatsen mod hashhandel.\n- **75%**: Den estimerede reduktion i hashhandel i 2016, da lokale beboere fjernede boderne.\n- **0**: Antallet af åbne hashboder på Pusher Street efter rydningen i 2024.\n\n## PERSPEKTIVER\nForskellige grupper har forskellige synspunkter på emnet:\n- **Christianitterne**: Mange ser rydningen som en succes, der har gjort området tryggere og reduceret kriminaliteten[1].\n- **Politiet**: Ser indsatsen som en mulig løsning på de langvarige problemer med hashhandel og voldelige konflikter[3][4].\n- **Kritikere**: Bekymrer sig for, om hashsalget blot er flyttet online eller til andre steder i København[1].\n- **Legaliseringsforkæmpere**: Ser forandringen som en mulighed for at diskutere legalisering af cannabis som en løsning på de problemer, der har plaget området[3][4].', 'topic': 'Christiania uden hash', 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107eb37e0>}
-2025-04-14 01:25:39,932 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
+        "Amerikanske statsobligationer står i en krise, hvor renterne stiger...
+2025-04-14 12:48:10,941 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-04-14 12:48:10,941 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 5.42 seconds
+2025-04-14 12:48:10,942 - vinkeljernet.core - INFO - Knowledge distillate generated successfully
+2025-04-14 12:48:10,942 - vinkeljernet.core - INFO - Generating angles...
+2025-04-14 12:48:10,942 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 12:48:10,943 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-04-14 12:48:10,943 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107252d40>}
+2025-04-14 12:48:18,854 - vinkeljernet.api - INFO - Perplexity API request completed in 7.91 seconds
+2025-04-14 12:48:18,857 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-04-14 12:48:18,857 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nAmerikanske statsobligationer står i en usædvanlig situation, hvor renterne stiger på trods af økonomisk usikkerhed, hvilket normalt ville føre til lavere renter. Dette skyldes blandt andet bekymringer om dollarens fremtid og toldkrigen.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da den stigende rente på amerikanske statsobligationer overrasker mange økonomer. Toldkrigen og usikkerheden omkring dollarens fremtid bidrager til denne udvikling. Situationen er blevet mere kompleks med Donald Trumps politik, der skaber usikkerhed på markedet[1][2].\n\n## NØGLETAL\n- **Rentestigning**: Renten på amerikanske statsobligationer stiger, hvilket er usædvanligt under økonomisk usikkerhed[1].\n- **Tillidskrise**: Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter[2].\n- **Tiårig rente**: Den tiårige amerikanske rente ligger omkring 4,34%[4].\n\n## PERSPEKTIVER\nForskellige synspunkter på emnet inkluderer:\n- **Økonomiske bekymringer**: Nogle mener, at stigende renter skyldes bekymringer om lavere vækst og højere inflation[2].\n- **Politisk usikkerhed**: Usikkerheden omkring Trumps politik og toldkrigen bidrager til den stigende rente[3][4].\n- **Valutaudfordringer**: Dollarens fremtid og mulige valutaaftaler kan også påvirke markedet[3].', 'topic': 'Amerikanske statsobligationer i krise', 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107252d40>}
+2025-04-14 12:48:22,181 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
     "hovedpunkter": [
-        "Pusher Street i Christiania, hvor hashhandelen har været central siden 1970'erne, blev i 2024 omdannet til en byggeplads som led i en indsats for at fjerne den åbne hashhandel og organiserede kriminalitet",
-        "Hashsalget er rykket online, mens Christiania selv oplever en stigning i tryghed og en forandring mod en mere kulturel oase",
-        "Indsatsen har været mødt med både støtte og skepsis, hvor nogle ser det som en succes, mens andre bekymrer sig for, om det blot flytter problemet andre steder hen",
-        "Forskellige grupper har forskellige synspunkter på emnet, herunder Christianitterne, politiet, kritikere og legaliseringsforkæmpere"
+        "Amerikanske statsobligationer står i en usædvanlig situation, hvor renterne stiger på trods af økonomisk usikkerhed, hvilket normalt ville føre til lavere renter.",
+        "Stigende renter skyldes blandt andet bekymringer om dollarens fremtid og toldkrigen.",
+        "Situationen er blevet mere kompleks med Donald Trumps politik, der skaber usikkerhed på markedet.",
+        "Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter."
     ],
     "noegletal": [
         {
-            "tal": 2024,
-            "beskrivelse": "Året hvor Pusher Street blev omdannet til en byggeplads som led i indsatsen mod hashhandel"
+            "tal": "4,34%",
+            "beskrivelse": "Den tiårige amerikanske rente",
+            "kilde": "[4]"
         },
         {
-            "tal": 75,
-            "beskrivelse": "Procent estimeret reduktion i hashhandel i 2016, da loka...
-2025-04-14 01:25:39,933 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+            "tal": "-",
+            "beskrivelse": "Rentestigning på amerikanske statsobligationer",
+            "kilde": "[1]"
+        },
+        {
+            "tal": "-",
+            "beskrivelse": "Tillidskrise til den amerikanske stat",
+            "kilde": "[2]"
+        }
+    ],
+    "centralePaastand": [
+        {
+          ...
+2025-04-14 12:48:22,182 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
     "hovedpunkter": [
-        "Pusher Street i Christiania, hvor hashhandelen har været central si...
-2025-04-14 01:25:39,933 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-04-14 01:25:39,934 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 4.23 seconds
-2025-04-14 01:26:50,451 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
+        "Amerikanske statsobligationer står i en usædvanlig situation, hvor ...
+2025-04-14 12:48:22,182 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-04-14 12:48:22,182 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 3.32 seconds
+2025-04-14 12:49:32,961 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
   {
-    "overskrift": "Christianias nye ansigt: Fra hashsalg til kreativ oase",
-    "beskrivelse": "Et år efter rydningen af Pusher Street er Christiania i forvandling. Hashboderne er væk, men hvad ...
-2025-04-14 01:26:50,452 - json_parser - DEBUG - Attempting to parse JSON from angle generation. Preview: [
+    "overskrift": "USA's gældskrise: Hvem tjener på rentestigningen?",
+    "beskrivelse": "De stigende renter på amerikanske statsobligationer gavner nogle aktører på bekostning af andre. En und...
+2025-04-14 12:49:32,961 - json_parser - DEBUG - Attempting to parse JSON from angle generation. Preview: [
   {
-    "overskrift": "Christianias nye ansigt: Fra hashsalg til kreativ oase",
-    "beskrivelse":...
-2025-04-14 01:26:50,452 - json_parser - INFO - Successfully parsed JSON directly: 8 items found
-2025-04-14 01:26:50,452 - prompt_engineering - DEBUG - Using single dictionary as an angle
-2025-04-14 01:26:50,453 - prompt_engineering - DEBUG - Successfully validated angle: Christianias nye ansigt: Fra hashsalg til kreativ oase
-2025-04-14 01:26:50,453 - prompt_engineering - INFO - Successfully parsed 1 angles
-2025-04-14 01:26:50,453 - vinkeljernet.cache - INFO - Cache miss for fetch_source_suggestions, calling function
-2025-04-14 01:26:52,735 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 01:26:52,735 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Christiania uden hash', 'angle_headline': 'Christianias nye ansigt: Fra hashsalg til kreativ oase', 'angle_description': 'Et år efter rydningen af Pusher Street er Christiania i forvandling. Hashboderne er væk, men hvad er kommet i stedet?'}
-2025-04-14 01:27:13,487 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+    "overskrift": "USA's gældskrise: Hvem tjener på rentestigningen?",
+    "beskrivelse": "De ...
+2025-04-14 12:49:32,961 - json_parser - INFO - Successfully parsed JSON directly: 8 items found
+2025-04-14 12:49:32,961 - prompt_engineering - DEBUG - Using single dictionary as an angle
+2025-04-14 12:49:32,961 - prompt_engineering - DEBUG - Successfully validated angle: USA's gældskrise: Hvem tjener på rentestigningen?
+2025-04-14 12:49:32,961 - prompt_engineering - INFO - Successfully parsed 1 angles
+2025-04-14 12:49:32,968 - vinkeljernet.cache - INFO - Cache miss for fetch_source_suggestions, calling function
+2025-04-14 12:49:36,548 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 12:49:36,549 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Amerikanske statsobligationer i krise', 'angle_headline': "USA's gældskrise: Hvem tjener på rentestigningen?", 'angle_description': 'De stigende renter på amerikanske statsobligationer gavner nogle aktører på bekostning af andre. En undersøgelse af hvilke magtfulde interesser der scorer kassen på krisen.'}
+2025-04-14 12:49:57,027 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
 {
   "eksperter": [
     {
-      "navn": "David Sausdal",
-      "titel": "Kriminolog og politi...
-2025-04-14 01:27:13,487 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 01:27:13,488 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 01:27:13,488 - vinkeljernet.api - INFO - Expert source suggestions generated in 20.75 seconds
-2025-04-14 01:27:13,491 - vinkeljernet.core - INFO - Generated 1 raw angles
-2025-04-14 01:27:13,492 - vinkeljernet.core - INFO - Filtering and ranking angles...
-2025-04-14 01:27:13,492 - vinkeljernet.core - INFO - Ranked and filtered to 1 angles
-2025-04-14 01:27:13,492 - vinkeljernet.core - INFO - Generating general source suggestions...
-2025-04-14 01:27:13,492 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 01:27:13,492 - vinkeljernet.cache - INFO - Cache miss for fetch_source_suggestions, calling function
-2025-04-14 01:27:16,152 - vinkeljernet.core - INFO - Generating expert sources for each angle...
-2025-04-14 01:27:16,152 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 01:27:16,152 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Christiania uden hash', 'angle_headline': 'Christianias nye ansigt: Fra hashsalg til kreativ oase', 'angle_description': 'Et år efter rydningen af Pusher Street er Christiania i forvandling. Hashboderne er væk, men hvad er kommet i stedet?'}
-2025-04-14 01:27:37,654 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
-{
-  "eksperter": [
-    {
-      "navn": "David Sausdal",
-      "titel": "Kriminolog og politi...
-2025-04-14 01:27:37,655 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 01:27:37,656 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 01:27:37,656 - vinkeljernet.api - INFO - Expert source suggestions generated in 21.50 seconds
-2025-04-14 01:27:37,693 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 01:27:37,701 - vinkeljernet.api - INFO - API client shut down successfully
+      "navn": "Jesper Rangvid",
+      "titel": "Professor i finansi...
+2025-04-14 12:49:57,027 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 12:49:57,028 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 12:49:57,029 - vinkeljernet.api - INFO - Expert source suggestions generated in 20.48 seconds
+2025-04-14 12:49:57,031 - vinkeljernet.core - INFO - Generated 1 raw angles
+2025-04-14 12:49:57,033 - vinkeljernet.core - INFO - Filtering and ranking angles...
+2025-04-14 12:49:57,033 - vinkeljernet.core - INFO - Ranked and filtered to 1 angles
+2025-04-14 12:49:57,034 - vinkeljernet.core - INFO - Generating general source suggestions...
+2025-04-14 12:49:57,035 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 12:49:57,035 - vinkeljernet.cache - INFO - Cache hit for fetch_source_suggestions
+2025-04-14 12:49:57,035 - vinkeljernet.core - INFO - Generating expert sources for each angle...
+2025-04-14 12:49:57,035 - vinkeljernet.cache - INFO - Cache hit for generate_expert_source_suggestions
+2025-04-14 12:49:57,068 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 12:49:57,074 - vinkeljernet.api - INFO - API client shut down successfully

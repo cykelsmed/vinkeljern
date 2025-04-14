@@ -1509,3 +1509,595 @@ async def generate_angles(
             "nyhedskriterier": ["aktualitet"],
             "error": str(e)
         }]
+
+async def fallback_angle_generator(
+    topic: str,
+    profile: RedaktionelDNA,
+    bypass_cache: bool = False
+) -> List[Dict[str, Any]]:
+    """
+    Genererer simplere vinkler når den primære vinkelgenerering fejler.
+    Denne funktion bruger en enklere prompt og en mindre model for hurtigere svar og højere pålidelighed.
+    
+    Args:
+        topic: Nyhedsemnet at generere vinkler for
+        profile: Redaktionel DNA-profil (kun grundlæggende info bruges)
+        bypass_cache: Hvis True, ignorer cachede resultater
+        
+    Returns:
+        List[Dict]: Genererede vinkler med basal information
+    """
+    logger.info(f"Fallback vinkelgenerering aktiveret for emne: {topic}")
+    
+    if not ANTHROPIC_API_KEY and not OPENAI_API_KEY:
+        logger.error("Ingen API nøgler tilgængelige for fallback vinkelgenerering")
+        return [{
+            "overskrift": "Fejl: Ingen API nøgler tilgængelige",
+            "beskrivelse": "Der kunne ikke genereres vinkler, da API nøgler mangler.",
+            "nyhedskriterier": ["aktualitet"],
+            "begrundelse": "Teknisk fejl: Manglende API nøgler",
+            "startSpørgsmål": ["Hvorfor er vinklen interessant?"]
+        }]
+        
+    # Opret en enklere prompt med minimal kontekst
+    # Undgå komplekse JSON-strukturer der kan fejle
+    simple_prompt = f"""
+    Generer 3 journalistiske vinkler på emnet: "{topic}".
+
+    Lav korte, simple vinkler med følgende struktur i et gyldigt JSON-array:
+    [
+      {{
+        "overskrift": "Kort og præcis overskrift",
+        "beskrivelse": "2-3 sætninger der beskriver vinklen",
+        "nyhedskriterier": ["relevante nyhedskriterier"],
+        "begrundelse": "Kort begrundelse for vinklens relevans",
+        "startSpørgsmål": ["Et startspørgsmål til vinklen"]
+      }},
+      ...flere vinkler...
+    ]
+    
+    Følgende er særligt vigtigt for mediets profil:
+    - Tone: {profile.tone_og_stil[:100]}
+    - Fokus: {", ".join(profile.fokusOmrader[:3]) if profile.fokusOmrader else "Generelt"}
+    
+    Dit svar skal KUN være et gyldigt JSON-array med præcis den struktur jeg har angivet. Intet andet.
+    """
+    
+    try:
+        # Prøv først med Claude-3-Haiku (hurtigere og mere stabil)
+        if ANTHROPIC_API_KEY:
+            logger.info("Bruger Claude-3-Haiku til fallback vinkelgenerering")
+            
+            headers = {
+                "Content-Type": "application/json",
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01"
+            }
+            
+            payload = {
+                "model": "claude-3-haiku-20240307",  # Mindre, hurtigere model
+                "max_tokens": 1200,
+                "temperature": 0.2,  # Lavere temperatur for mere forudsigelige resultater
+                "system": "Du er en erfaren journalist, der er ekspert i at generere korte, klare vinkler på nyhedsemner. Du skal ALTID svare med et gyldigt JSON-array og intet andet.",
+                "messages": [{"role": "user", "content": simple_prompt}],
+            }
+            
+            # Få session fra pool - brug kortere timeout
+            session = await get_aiohttp_session(key="anthropic_fallback", timeout=30)
+            
+            async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
+                if response.status != 200:
+                    error_text = await response.text()
+                    logger.error(f"Anthropic API fejl (fallback): status={response.status}, response={error_text}")
+                    # Fortsæt til OpenAI forsøg hvis tilgængelig
+                else:
+                    response_data = await response.json()
+                    response_text = response_data['content'][0]['text']
+                    
+                    # Brug den forbedrede safe_parse_json fra json_parser.py
+                    from json_parser import enhanced_safe_parse_json
+                    
+                    # Definer forventet struktur for enklere fallback parsing
+                    expected_structure = {
+                        "overskrift": "Fejl under generering af vinkler",
+                        "beskrivelse": "Kunne ikke generere detaljer",
+                        "nyhedskriterier": ["aktualitet"],
+                        "begrundelse": "Teknisk fejl",
+                        "startSpørgsmål": ["Hvorfor er emnet relevant?"]
+                    }
+                    
+                    # Få både resultat og debug info
+                    parsed_result, debug_info = enhanced_safe_parse_json(
+                        response_text, 
+                        "fallback vinkelgenerering",
+                        fallback=[{
+                            "overskrift": f"Fallback vinkel for {topic}",
+                            "beskrivelse": "Automatisk genereret simpel vinkel da detaljeret generering fejlede",
+                            "nyhedskriterier": ["aktualitet"],
+                            "begrundelse": "Teknisk fallback generering",
+                            "startSpørgsmål": ["Hvorfor er emnet relevant?"]
+                        }],
+                        return_debug_info=True
+                    )
+                    
+                    if debug_info["success"]:
+                        logger.info(f"Fallback vinkelgenerering lykkedes med {debug_info['repair_technique'] or 'direkte parsing'}")
+                        
+                        # Normalisering for at sikre at vi har et array af vinkler
+                        if isinstance(parsed_result, dict):
+                            parsed_result = [parsed_result]
+                        
+                        # Validering og normalisering af vinkler
+                        from json_parser import validate_angles
+                        angles = validate_angles(parsed_result)
+                        
+                        if angles:
+                            logger.info(f"Genererede {len(angles)} simple vinkler via fallback")
+                            return angles
+                        
+        # Fallback til OpenAI hvis Claude fejlede eller ikke er tilgængelig
+        if OPENAI_API_KEY:
+            logger.info("Bruger OpenAI til fallback vinkelgenerering")
+            
+            headers = {
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            
+            openai_payload = {
+                "model": "gpt-3.5-turbo",  # Bruger 3.5-turbo for balance mellem hastighed/kvalitet
+                "messages": [
+                    {"role": "system", "content": "Du er en erfaren journalist, der er ekspert i at generere korte, klare vinkler på nyhedsemner. Du skal ALTID svare med et gyldigt JSON-array og intet andet."},
+                    {"role": "user", "content": simple_prompt}
+                ],
+                "temperature": 0.3,
+                "max_tokens": 1000
+            }
+            
+            # Få session fra pool - brug kortere timeout
+            session = await get_aiohttp_session(key="openai_fallback", timeout=30)
+            
+            async with session.post(OPENAI_API_URL, json=openai_payload, headers=headers) as response:
+                if response.status != 200:
+                    error_text = await response.text()
+                    logger.error(f"OpenAI API fejl (fallback): status={response.status}, response={error_text}")
+                else:
+                    response_data = await response.json()
+                    response_text = response_data['choices'][0]['message']['content']
+                    
+                    # Brug enhanced_safe_parse_json igen
+                    from json_parser import enhanced_safe_parse_json
+                    parsed_result, debug_info = enhanced_safe_parse_json(
+                        response_text, 
+                        "OpenAI fallback vinkelgenerering",
+                        return_debug_info=True
+                    )
+                    
+                    if debug_info["success"]:
+                        logger.info(f"OpenAI fallback vinkelgenerering lykkedes med {debug_info['repair_technique'] or 'direkte parsing'}")
+                        
+                        # Normalisering for at sikre at vi har et array af vinkler
+                        if isinstance(parsed_result, dict):
+                            parsed_result = [parsed_result]
+                        
+                        # Validering og normalisering af vinkler
+                        from json_parser import validate_angles
+                        angles = validate_angles(parsed_result)
+                        
+                        if angles:
+                            logger.info(f"Genererede {len(angles)} simple vinkler via OpenAI fallback")
+                            return angles
+                        
+        # Hvis begge metoder fejlede, generer helt basale vinkler
+        logger.warning("Alle fallback metoder fejlede, genererer basis-vinkler")
+        return [
+            {
+                "overskrift": f"Udforskning af {topic}",
+                "beskrivelse": f"En grundlæggende analyse af {topic} og dets betydning for Danmark.",
+                "nyhedskriterier": ["aktualitet", "væsentlighed"],
+                "begrundelse": "Emnet er aktuelt og relevant for en bred målgruppe",
+                "startSpørgsmål": ["Hvordan påvirker dette emne danskerne?"]
+            },
+            {
+                "overskrift": f"Eksperter vurderer konsekvenserne af {topic}",
+                "beskrivelse": f"Fagfolk udtaler sig om de potentielle konsekvenser af {topic} på kort og lang sigt.",
+                "nyhedskriterier": ["væsentlighed", "aktualitet"],
+                "begrundelse": "Ekspertvurderinger giver dybde og troværdighed til dækningen",
+                "startSpørgsmål": ["Hvilke konsekvenser ser eksperterne?"]
+            },
+            {
+                "overskrift": f"5 ting du skal vide om {topic}",
+                "beskrivelse": f"Et overblik over de vigtigste aspekter af {topic} forklaret på en letforståelig måde.",
+                "nyhedskriterier": ["identifikation", "væsentlighed"],
+                "begrundelse": "Formidling af komplekst emne i tilgængeligt format",
+                "startSpørgsmål": ["Hvad er det vigtigste at forstå om emnet?"]
+            }
+        ]
+    except Exception as e:
+        logger.error(f"Uventet fejl i fallback_angle_generator: {str(e)}")
+        # Returner en enkelt fejl-vinkel
+        return [{
+            "overskrift": f"Nyheder om {topic}",
+            "beskrivelse": f"Denne vinkel blev automatisk genereret efter en teknisk fejl. Generer venligst nye vinkler.",
+            "nyhedskriterier": ["aktualitet"],
+            "begrundelse": f"Automatisk genereret efter fejl: {str(e)}",
+            "startSpørgsmål": ["Hvad er de vigtigste aspekter af denne nyhed?"]
+        }]
+
+async def generate_optimized_angles(
+    topic: str,
+    profile: RedaktionelDNA,
+    complexity: int = 3,
+    bypass_cache: bool = False,
+    progress_callback: Optional[Callable] = None
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """
+    Genererer vinkler med optimeret performance, caching og fejlhåndtering.
+    
+    Denne funktion implementerer:
+    1. Intelligent caching baseret på emne+profil-kombination
+    2. Optimeret prompt engineering for hurtigere svar
+    3. Avancerede timeout og retry-strategier
+    4. Delresultat-lagring til recovery
+    
+    Args:
+        topic: Nyhedsemnet
+        profile: Den redaktionelle profil
+        complexity: Kompleksiteten af forespørgslen (1-5)
+        bypass_cache: Om cache skal ignoreres
+        progress_callback: Valgfri callback-funktion til statusopdateringer
+        
+    Returns:
+        Tuple[List, Dict]: Liste af genererede vinkler og metadata
+    """
+    import time
+    import uuid
+    import logging
+    from datetime import datetime
+    
+    # Import vores optimerede moduler
+    from enhanced_cache import (
+        load_topic_profile_result,
+        cache_topic_profile_result,
+        PartialResult,
+        intelligent_cache_key,
+        determine_ttl_strategy,
+        record_request
+    )
+    from enhanced_timeout import (
+        TimeoutConfig, 
+        RetryStrategy,
+        ProgressTracker,
+        with_timeout,
+        with_retry,
+        AdaptiveTimeout
+    )
+    from prompt_engineering import OptimizedPromptEngineering
+    from error_handling import DetailedAngleError, generate_fallback_response
+    
+    # Opsætning
+    logger = logging.getLogger("vinkeljernet.api_client")
+    start_time = time.time()
+    request_id = str(uuid.uuid4())
+    
+    # Adaptive timeouts baseret på tidligere kald
+    adaptive_timeout = AdaptiveTimeout(
+        base_timeout=TimeoutConfig.ANGLE_GENERATION,
+        min_timeout=30.0,
+        max_timeout=180.0
+    )
+    
+    # Tracker til at følge fremskridt
+    progress = ProgressTracker(total_steps=100, callback=progress_callback)
+    await progress.update(5, "Starter vinkelgenerering")
+    
+    # Metadata der skal returneres med resultatet
+    metadata = {
+        "request_id": request_id,
+        "topic": topic,
+        "profile_id": profile.id if hasattr(profile, "id") else "unknown",
+        "timestamp": datetime.now().isoformat(),
+        "complexity": complexity
+    }
+    
+    try:
+        # 1. Check cache først
+        if not bypass_cache:
+            await progress.update(10, "Tjekker cache")
+            cached_result = await load_topic_profile_result(
+                "generate_angles", topic, profile.id if hasattr(profile, "id") else "unknown", 
+                complexity=complexity
+            )
+            
+            if cached_result:
+                logger.info(f"Serving cached angles for topic '{topic}', profile {profile.id if hasattr(profile, 'id') else 'unknown'}")
+                execution_time = time.time() - start_time
+                
+                # Registrer cache hit
+                record_request(
+                    topic, 
+                    profile.id if hasattr(profile, "id") else "unknown", 
+                    was_cached=True, 
+                    execution_time=execution_time
+                )
+                
+                # Opdater metadata
+                metadata["source"] = "cache"
+                metadata["execution_time"] = execution_time
+                
+                await progress.update(100, "Færdig (fra cache)")
+                
+                return cached_result, metadata
+        
+        # 2. Opret delresultat til recovery
+        partial_result = PartialResult(request_id, total_steps=5)
+        partial_result.add_result("metadata", metadata)
+        
+        # 3. Saml baggrundsinfo til prompten
+        await progress.update(15, "Samler baggrundsinformation")
+        
+        # Konverter profil til dict format for OptimizedPromptEngineering
+        profile_dict = profile.dict() if hasattr(profile, "dict") else {
+            "kerneprincipper": profile.kerneprincipper,
+            "tone_og_stil": profile.tone_og_stil,
+            "fokusOmrader": profile.fokusOmrader,
+            "nyhedsprioritering": profile.nyhedsprioritering,
+            "noGoOmrader": profile.noGoOmrader
+        }
+        
+        # Baggrundsinformation - enten fra topic_info eller bare emnet selv
+        topic_info = topic
+        
+        # 4. Opret en optimeret prompt
+        await progress.update(25, "Genererer optimeret prompt")
+        try:
+            prompt = OptimizedPromptEngineering.create_efficient_angle_prompt(
+                topic=topic,
+                topic_info=topic_info,
+                profile=profile_dict
+            )
+            partial_result.add_result("prompt", prompt)
+        except Exception as e:
+            logger.warning(f"Fejl ved oprettelse af optimeret prompt: {str(e)}, falder tilbage til standard prompt")
+            # Fallback til simplere prompt hvis optimeret prompt fejler
+            from prompt_engineering import construct_angle_prompt
+            
+            kerneprincipper = "\n".join([f"- {p}" for p in profile.kerneprincipper[:5]]) if hasattr(profile, "kerneprincipper") and profile.kerneprincipper else "Ingen specificerede principper"
+            tone_og_stil = profile.tone_og_stil if hasattr(profile, "tone_og_stil") else "Professionel tone"
+            fokusområder = "\n".join([f"- {f}" for f in profile.fokusOmrader[:5]]) if hasattr(profile, "fokusOmrader") and profile.fokusOmrader else "Generelle nyhedsområder"
+            nyhedskriterier = "\n".join([f"- {k}: {v}" for k, v in list(profile.nyhedsprioritering.items())[:5]]) if hasattr(profile, "nyhedsprioritering") and profile.nyhedsprioritering else "Aktualitet, væsentlighed, identifikation"
+            no_go_områder = "\n".join([f"- {n}" for n in profile.noGoOmrader[:3]]) if hasattr(profile, "noGoOmrader") and profile.noGoOmrader else "Ingen specificerede no-go områder"
+            
+            prompt = construct_angle_prompt(
+                topic=topic,
+                topic_info=topic_info,
+                principper=kerneprincipper,
+                tone_og_stil=tone_og_stil,
+                fokusområder=fokusområder,
+                nyhedskriterier=nyhedskriterier,
+                nogo_områder=no_go_områder
+            )
+            partial_result.add_result("prompt", prompt)
+        
+        # 5. Generer vinkler via API
+        await progress.update(40, "Kontakter LLM API")
+        
+        # Beregn timeout baseret på kompleksitet
+        timeout = adaptive_timeout.get_timeout()
+        logger.info(f"Bruger timeout på {timeout} sekunder for kompleksitet {complexity}")
+        
+        try:
+            # Brug Claude API med timeout og retry
+            async def call_claude_api():
+                """Wrapper omkring Claude API kald med timeout og retry"""
+                nonlocal prompt
+                
+                if not ANTHROPIC_API_KEY:
+                    raise DetailedAngleError(
+                        "Claude API nøgle mangler", 
+                        error_type="api_error", 
+                        user_friendly_message="Claude API nøgle er ikke konfigureret"
+                    )
+                
+                headers = {
+                    "Content-Type": "application/json",
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01"
+                }
+                
+                payload = {
+                    "model": "claude-3-opus-20240229",  # Brug en passende model
+                    "max_tokens": 4000,
+                    "temperature": 0.4,  # Lavere temperatur for mere konsistent JSON
+                    "system": "Du er en erfaren journalist, der er ekspert i at generere journalistiske vinkler på nyhedsemner. Du svarer altid med et velformateret JSON-array og aldrig med forklarende tekst. Først analyserer du emnet grundigt og sikrer at vinkler er relevante og har en god journalistisk kvalitet.",
+                    "messages": [{"role": "user", "content": prompt}],
+                }
+                
+                session = await get_aiohttp_session(key="claude_vinkel", timeout=timeout + 10)
+                
+                async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
+                    if response.status != 200:
+                        error_text = await response.text()
+                        raise DetailedAngleError(
+                            f"Claude API fejl: status={response.status}, response={error_text}",
+                            error_type="api_error",
+                            user_friendly_message=f"API fejl (status {response.status})",
+                            debug_info={"status_code": response.status, "error_response": error_text}
+                        )
+                        
+                    response_data = await response.json()
+                    return response_data['content'][0]['text']
+            
+            # Eksekver API kald med timeout og retry
+            api_response = await with_timeout(
+                with_retry(
+                    call_claude_api,
+                    max_retries=2,
+                    base_delay=2.0,
+                    backoff_strategy=RetryStrategy.EXPONENTIAL_BACKOFF
+                ),
+                timeout=timeout,
+                fallback_result=None
+            )
+            
+            if not api_response:
+                raise DetailedAngleError(
+                    "API kald timeout",
+                    error_type="timeout",
+                    user_friendly_message="Vinkelgenerering tog for lang tid",
+                    suggestions=["Prøv med en mindre kompleks forespørgsel", "Prøv igen senere"]
+                )
+            
+            # Gem det rå API svar
+            partial_result.add_result("raw_response", api_response)
+            
+            # 6. Parse JSON-svar
+            await progress.update(70, "Parser API svar")
+            
+            from json_parser import enhanced_safe_parse_json
+            from prompt_engineering import parse_angles_from_response
+            
+            angles_data, debug_info = enhanced_safe_parse_json(
+                api_response, 
+                context="angle generation",
+                return_debug_info=True
+            )
+            
+            if not debug_info["success"]:
+                # Hvis parsing fejlede, prøv fallback parsing
+                logger.warning("Primær JSON parsing fejlede, prøver fallback parsing")
+                angles = parse_angles_from_response(api_response)
+                
+                if not angles:
+                    # Hvis begge parsing-metoder fejler, brug vores fallback generator
+                    logger.warning("Både primær og fallback parsing fejlede, bruger fallback vinkelgenerering")
+                    angles = await fallback_angle_generator(topic, profile, bypass_cache=True)
+                    metadata["fallback_used"] = True
+            else:
+                # Brug de parsede vinkler
+                if isinstance(angles_data, list):
+                    angles = angles_data
+                elif isinstance(angles_data, dict) and "vinkler" in angles_data:
+                    angles = angles_data["vinkler"]
+                else:
+                    angles = [angles_data]  # Enkelt vinkel
+                    
+                # Valider antal vinkler
+                if not angles or len(angles) < 3:
+                    logger.warning(f"Kun {len(angles) if angles else 0} vinkler genereret, bruger fallback")
+                    fallback_angles = await fallback_angle_generator(topic, profile, bypass_cache=True)
+                    angles.extend(fallback_angles)
+                    metadata["partial_fallback_used"] = True
+                    
+            # Gem de endelige vinkler
+            partial_result.add_result("angles", angles)
+            
+            # Opdatere adaptive timeout med succesfuldt kald
+            call_duration = time.time() - start_time
+            adaptive_timeout.record_call(call_duration, True)
+            
+            # 7. Cache resultatet
+            await progress.update(90, "Gemmer resultater")
+            execution_time = time.time() - start_time
+            metadata["execution_time"] = execution_time
+            
+            if len(angles) > 0:
+                await cache_topic_profile_result(
+                    "generate_angles", 
+                    topic, 
+                    profile.id if hasattr(profile, "id") else "unknown", 
+                    angles,
+                    complexity=complexity,
+                    execution_time=execution_time
+                )
+                
+                # Registrer succesfuldt kald
+                record_request(
+                    topic, 
+                    profile.id if hasattr(profile, "id") else "unknown", 
+                    was_cached=False, 
+                    execution_time=execution_time
+                )
+            
+            # Mark som færdig
+            partial_result.mark_complete()
+            await progress.update(100, "Færdig")
+            
+            metadata["source"] = "api"
+            metadata["angle_count"] = len(angles)
+            
+            return angles, metadata
+            
+        except Exception as e:
+            # Gem fejlen
+            error_message = str(e)
+            logger.error(f"Fejl under vinkelgenerering: {error_message}")
+            partial_result.add_error("api_call", error_message)
+            
+            # Opdater adaptive timeout med fejlet kald
+            call_duration = time.time() - start_time
+            adaptive_timeout.record_call(call_duration, False)
+            
+            # Tjek om vi allerede har delvist resultat med vinkler
+            if "angles" in partial_result.results and partial_result.results["angles"]:
+                logger.info("Returnerer delvist resultat med vinkler fra før fejl")
+                angles = partial_result.results["angles"]
+                metadata["source"] = "partial_result"
+                metadata["partial_error"] = error_message
+            else:
+                # Fallback til enklere vinkler
+                logger.info("Bruger fallback vinkelgenerering")
+                angles = await fallback_angle_generator(topic, profile, bypass_cache=True)
+                metadata["source"] = "fallback"
+                metadata["error"] = error_message
+            
+            # Registrer fejlet kald
+            execution_time = time.time() - start_time
+            metadata["execution_time"] = execution_time
+            record_request(
+                topic, 
+                profile.id if hasattr(profile, "id") else "unknown", 
+                was_cached=False, 
+                execution_time=execution_time,
+                status="error"
+            )
+            
+            await progress.update(100, "Færdig (med fejl)")
+            return angles, metadata
+            
+    except Exception as e:
+        # Håndter uventede fejl
+        error_message = str(e)
+        logger.error(f"Uventet fejl i generate_optimized_angles: {error_message}")
+        
+        execution_time = time.time() - start_time
+        metadata["execution_time"] = execution_time
+        metadata["fatal_error"] = error_message
+        
+        # Sidste udvej: Returner helt basale vinkler
+        angles = [
+            {
+                "overskrift": f"Nyheder om {topic}",
+                "beskrivelse": f"En generel dækning af {topic} med fokus på de vigtigste aspekter.",
+                "begrundelse": "Genereret efter fejl i vinkelgenererings-systemet",
+                "nyhedskriterier": ["aktualitet"],
+                "startSpørgsmål": ["Hvad er de vigtigste aspekter af dette emne?"]
+            },
+            {
+                "overskrift": f"Baggrund og analyse: {topic}",
+                "beskrivelse": f"En dybdegående analyse af {topic} og dets konsekvenser.",
+                "begrundelse": "Genereret efter fejl i vinkelgenererings-systemet",
+                "nyhedskriterier": ["væsentlighed"],
+                "startSpørgsmål": ["Hvilke konsekvenser har dette emne?"]
+            },
+            {
+                "overskrift": f"Hvordan påvirker {topic} almindelige mennesker?",
+                "beskrivelse": f"En undersøgelse af {topic} fra et borger-perspektiv.",
+                "begrundelse": "Genereret efter fejl i vinkelgenererings-systemet",
+                "nyhedskriterier": ["identifikation"],
+                "startSpørgsmål": ["Hvordan påvirker dette emne almindelige borgere?"]
+            }
+        ]
+        
+        await progress.update(100, "Færdig (med fatal fejl)")
+        return angles, metadata
