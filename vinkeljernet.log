@@ -1,70 +1,214 @@
-2025-04-14 16:00:39,890 - root - DEBUG - Logging initialized
-2025-04-14 16:00:39,890 - root - INFO - Vinkeljernet starting up
-2025-04-14 16:00:39,892 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
-2025-04-14 16:00:39,892 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
-2025-04-14 16:00:39,892 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
-2025-04-14 16:00:39,892 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
-2025-04-14 16:00:39,942 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-04-14 16:00:39,943 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 16:00:39,956 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
-2025-04-14 16:00:39,970 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
-2025-04-14 16:00:39,984 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
-2025-04-14 16:00:39,997 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
-2025-04-14 16:00:40,011 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
-2025-04-14 16:00:40,025 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
-2025-04-14 16:00:40,039 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
-2025-04-14 16:00:40,040 - vinkeljernet.api - INFO - API client initialized and ready
-2025-04-14 16:00:40,044 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: Berlingske
-2025-04-14 16:00:40,047 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 16:00:40,047 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-04-14 16:00:40,047 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x104293c40>}
-2025-04-14 16:00:47,638 - vinkeljernet.api - INFO - Perplexity API request completed in 7.59 seconds
-2025-04-14 16:00:47,638 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
-2025-04-14 16:00:47,638 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': "## OVERSIGT\nKunstig intelligens (AI) handler om systemer, der kan analysere data, lære og træffe beslutninger på en måde, der ligner menneskelig intelligens. AI anvendes i mange sektorer, herunder sundhed, finans og landbrug, og har stor indvirkning på vores hverdag[1][3]. \n\n## AKTUEL STATUS\nKunstig intelligens er et meget relevant emne lige nu, da teknologien udvikles hurtigt og bliver mere integreret i både privatliv og samfundsfunktioner. Den nuværende situation kendetegnes af en stigende anvendelse af AI i mange industrier, samtidig med at der er fokus på ansvarlig udvikling og regulering[2][5].\n\n## NØGLETAL\n- **40 signaturprojekter**: I Danmark er der oprettet en investeringsfond, der har støttet 40 signaturprojekter for at afprøve AI i den offentlige sektor[2].\n- **Stigende anvendelse**: AI bliver mere almindeligt i mange sektorer, herunder sundhed, hvor det hjælper med diagnosticering og behandling[5].\n- **Regulering**: EU's forordning om kunstig intelligens skal sikre fælles spilleregler for brugen af AI[2].\n\n## PERSPEKTIVER\nDer er forskellige synspunkter på kunstig intelligens. Nogle ser AI som en stor mulighed for effektivisering og innovation, mens andre er bekymrede for etik, sikkerhed og jobtab[1][3]. Der er også fokus på at sikre, at AI udvikles på en ansvarlig måde, der respekterer samfundets værdier og borgernes rettigheder[2][5].", 'topic': 'Kunstig intelligens', 'progress_callback': <function main_async.<locals>.progress_callback at 0x104293c40>}
-2025-04-14 16:00:52,245 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
-  "hovedpunkter": [
-    "Kunstig intelligens (AI) handler om systemer, der kan analysere data, lære og træffe beslutninger på en måde, der ligner menneskelig intelligens.",
-    "AI anvendes i mange sektorer, herunder sundhed, finans og landbrug, og har stor indvirkning på vores hverdag.",
-    "Den nuværende situation kendetegnes af en stigende anvendelse af AI i mange industrier, samtidig med at der er fokus på ansvarlig udvikling og regulering.",
-    "Der er forskellige synspunkter på kunstig intelligens, hvor nogle ser det som en stor mulighed for effektivisering og innovation, mens andre er bekymrede for etik, sikkerhed og jobtab."
-  ],
-  "noegletal": [
-    {
-      "tal": "40",
-      "beskrivelse": "signaturprojekter i Danmark, hvor en investeringsfond har støttet projekter for at afprøve AI i den offentlige sektor",
-      "kilde": "[2]"
-    },
-    {
-      "tal": "Stigende",
-      "beskrivelse": "anvendelse af AI i mange sektorer, herunder sundhed, hvor det hjælper med diagnostice...
-2025-04-14 16:00:52,245 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
-  "hovedpunkter": [
-    "Kunstig intelligens (AI) handler om systemer, der kan analysere data, lær...
-2025-04-14 16:00:52,245 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-04-14 16:00:52,245 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 4.61 seconds
-2025-04-14 16:01:51,281 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
+2025-04-14 20:32:14,544 - root - DEBUG - Logging initialized
+2025-04-14 20:32:14,544 - root - INFO - Vinkeljernet starting up
+2025-04-14 20:32:14,548 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
+2025-04-14 20:32:14,548 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
+2025-04-14 20:32:14,548 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
+2025-04-14 20:32:14,548 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
+2025-04-14 20:32:14,636 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-04-14 20:32:14,636 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 20:32:14,655 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
+2025-04-14 20:32:14,670 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
+2025-04-14 20:32:14,684 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
+2025-04-14 20:32:14,699 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
+2025-04-14 20:32:14,713 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
+2025-04-14 20:32:14,729 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
+2025-04-14 20:32:14,744 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
+2025-04-14 20:32:14,745 - vinkeljernet.api - INFO - API client initialized and ready
+2025-04-14 20:32:14,749 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: TVflux
+2025-04-14 20:32:14,752 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 20:32:14,752 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-04-14 20:32:14,752 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x107921300>}
+2025-04-14 20:32:39,526 - vinkeljernet.api - INFO - Perplexity API request completed in 24.77 seconds
+2025-04-14 20:32:39,527 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-04-14 20:32:39,527 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nOprustningen i Norge handler om en betydelig styrkelse af landets forsvarskapaciteter, med fokus på at forbedre sig på fremtidige trusler og samarbejde med allierede. Dette inkluderer investeringer i nye militære enheder og teknologi samt samarbejde med andre lande, herunder Danmark.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da Norge har annonceret en stor oprustning med en investering på over 385 milliarder danske kroner over de næste 12 år. Dette sker i en tid, hvor sikkerhedssituationen i regionen er under forandring, og Norge ønsker at styrke sin position som en vigtig aktør i det nordlige Atlanten og Arktis[3][4].\n\n## NØGLETAL\n- **Investering:** Over 385 milliarder danske kroner over de næste 12 år.\n- **Ny militærudstyr:** Fem nye fregatter, fem ubåde, ti store og atten mindre fartøjer samt langtrækkende overvågningsdroner.\n- **Personaleforøgelse:** Planlagt tilføjelse af 4.600 flere værnepligtige, 13.700 flere reservister og 4.600 flere ansatte frem til 2036[3].\n\n## PERSPEKTIVER\nForskellige synspunkter på oprustningen i Norge inkluderer:\n- **Strategisk betydning:** Oprustningen ses som en nødvendighed for at sikre Norges position i regionen og forbedre sig på fremtidige trusler, især fra Rusland[3].\n- **Samarbejde:** Samarbejdet med Danmark og andre allierede er vigtigt for at styrke forsvarskapaciteterne og sikre en fælles front mod trusler[1][4].\n- **Kritik:** Nogle mener, at oprustningen kommer for sent og at det norske forsvar stadig mangler grundlæggende kapaciteter[3].', 'topic': 'Oprustning i Norge', 'progress_callback': <function main_async.<locals>.progress_callback at 0x107921300>}
+2025-04-14 20:32:43,723 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
+    "hovedpunkter": [
+        "Norge gennemfører en betydelig oprustning af sit forsvar med fokus på at forbedre sig på fremtidige trusler og samarbejde med allierede",
+        "Investeringen er på over 385 milliarder danske kroner over de næste 12 år og inkluderer nye militære enheder som fregatter, ubåde og droner",
+        "Oprustningen ses som nødvendig for at sikre Norges position i regionen, især over for Rusland, men der er også kritik af, at den kommer for sent",
+        "Samarbejdet med Danmark og andre allierede er vigtigt for at styrke forsvarskapaciteterne og sikre en fælles front mod trusler"
+    ],
+    "noegletal": [
+        {
+            "tal": "385 milliarder danske kroner",
+            "beskrivelse": "Investering over de næste 12 år",
+            "kilde": "[3][4]"
+        },
+        {
+            "tal": "4.600",
+            "beskrivelse": "Flere værnepligtige planlagt frem til 2036",
+            "kilde": "[3]"
+        },
+        {
+            "tal": "13.700",
+       ...
+2025-04-14 20:32:43,723 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+    "hovedpunkter": [
+        "Norge gennemfører en betydelig oprustning af sit forsvar med fokus ...
+2025-04-14 20:32:43,723 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-04-14 20:32:43,723 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 4.20 seconds
+2025-04-14 20:33:52,436 - prompt_engineering - INFO - [ANGLE_VALIDATION] Raw LLM response: [
   {
-    "overskrift": "AI revolutionerer dansk erhvervsliv",
-    "beskrivelse": "Kunstig intelligens bliver i stigende grad integreret i danske virksomheder. Det øger effektiviteten og konkurrenceev...
-2025-04-14 16:01:51,282 - json_parser - DEBUG - Attempting to parse JSON from angle generation. Preview: [
+    "overskrift": "Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?",
+    "beskrivelse": "En kritisk analyse af Norges massive forsvarsbudget. Sætter spørgsmålstegn ved om oprustningen er et tegn på militarisme eller en nødvendig reaktion på ændrede trusler.",
+    "begrundelse": "Vinklen udfordrer etablerede narrativer om oprustning og stiller skarpt på magtstrukturer. Den provokerer ved at sætte spørgsmålstegn ved normer og autoriteter.",
+    "nyhedskriterier": ["konflikt", "væsentlighed"],
+    "startSpørgsmål": [
+      "Hvem tjener reelt på den massive norske oprustning?",
+      "Er der alternativer til militær oprustning som sikkerhedsstrategi?", 
+      "Hvordan påvirker oprustningen magtbalancen i regionen?"
+    ]
+  },
   {
-    "overskrift": "AI revolutionerer dansk erhvervsliv",
-    "beskrivelse": "Kunstig intellige...
-2025-04-14 16:01:51,282 - json_parser - INFO - Successfully parsed JSON directly: 8 items found
-2025-04-14 16:01:51,282 - prompt_engineering - DEBUG - Using single dictionary as an angle
-2025-04-14 16:01:51,283 - prompt_engineering - DEBUG - Successfully validated angle: AI revolutionerer dansk erhvervsliv
-2025-04-14 16:01:51,283 - prompt_engineering - INFO - Successfully parsed 1 angles
-2025-04-14 16:01:51,284 - vinkeljernet.cache - INFO - Cache miss for fetch_source_suggestions, calling function
-2025-04-14 16:01:54,608 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 16:01:54,609 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Kunstig intelligens', 'angle_headline': 'AI revolutionerer dansk erhvervsliv', 'angle_description': 'Kunstig intelligens bliver i stigende grad integreret i danske virksomheder. Det øger effektiviteten og konkurrenceevnen, men rejser også spørgsmål om ansvarlig anvendelse.'}
-2025-04-14 16:02:37,925 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+    "overskrift": "Aktivister: Norsk militær truer arktisk miljø",
+    "beskrivelse": "Miljøforkæmpere advarer om at Norges militære satsning kan skade det skrøbelige arktiske økosystem. De kræver øget gennemsigtighed og civilt opsyn.",
+    "begrundelse": "Vinklen giver stemme til aktivister og sætter fokus på miljøkonsekvenserne af militariseringen, som ofte overses. Den støtter en vigtig sag og udfordrer magthaverne.",
+    "nyhedskriterier": ["identifikation", "væsentlighed", "konflikt"],
+    "startSpørgsmål": [
+      "Hvilke konkrete miljøtrusler ser I ved den øgede militære tilstedeværelse?",
+      "Føler I at jeres bekymringer bliver taget alvorligt af myndighederne?",
+      "Hvad er jeres krav for at sikre miljøbeskyttelse i Arktis?"
+    ]
+  },
+  {
+    "overskrift": "Hemmelige aftaler bag norsk-dansk forsvarssamarbejde",
+    "beskrivelse": "Fortrolige kilder afslører, at der indgås lukrative våbenhandler og udveksles overvågningsdata mellem Norge og Danmark uden offentlig indsigt. Eksperter advarer om demokratisk underskud.",
+    "begrundelse": "Vinklen afslører skjulte magtstrukturer og sætter fokus på kontroversielle aspekter af forsvarssamarbejdet. Den er provokerende og giver indsigt i ting, magthaverne helst vil holde skjult.",
+    "nyhedskriterier": ["konflikt", "sensation"],
+    "startSpørgsmål": [
+      "Hvad er de vigtigste ting offentligheden ikke får at vide om samarbejdet?",
+      "Hvilke demokratiske problemer ser du ved hemmelighedskræmmeriet?",
+      "Hvem drager fordel af de skjulte aftaler mellem landene?"
+    ]
+  },
+  {
+    "overskrift": "Norsk oprustning skaber splid i fredsbevægelsen",
+    "beskrivelse": "Fredsaktivister er internt uenige om hvordan de skal forholde sig til Norges militære oprustning. Nogle ser den som en krigsopildnende provokation, mens andre anerkender behovet for et stærkt forsvar.",
+    "begrundelse": "Vinklen viser de komplekse debatter og dilemmaer, som findes i fredsbevægelsen. Den undgår letkøbte konklusioner og giver indblik i aktivisternes virkelighed.",
+    "nyhedskriterier": ["konflikt", "identifikation"],
+    "startSpørgsmål": [
+      "Hvad er hovedargumenterne for og imod at støtte oprustningen blandt fredsaktivister?",
+      "Hvordan påvirker den interne splid fredsarbejdet og bevægelsens gennemslagskraft?",
+      "Er det muligt at forene fredsvision med anerkendelse af forsvarets rolle?"
+    ]
+  },
+  {
+    "overskrift": "Nynazister infiltrerer Norges nye 'superværn'",
+    "beskrivelse": "Hemmelige rapporter viser at højreekstremister målrettet søger ind i det udbyggede norske forsvar for at få kamperfaring og adgang til våben. Forsvaret kritiseres for manglende baggrundstjek.",
+    "begrundelse": "Vinklen afslører en skræmmende og overset konsekvens af oprustningen. Den sætter kritisk fokus på ekstremisme og forsvarsstrukturens rolle i at facilitere den.",
+    "nyhedskriterier": ["sensation", "identifikation", "konflikt"],
+    "startSpørgsmål": [
+      "Hvad gør det norske forsvar for at forhindre ekstremister i deres rækker?",
+      "Hvor udbredt er problemet og hvad er konsekvenserne på sigt?",
+      "Hvordan kan forsvarsstrukturen ændres for at modvirke højreradikalisering?"
+    ]
+  },
+  {
+    "overskrift": "Unge norske værnepligtige: Vi vil hellere bygge end bombe",
+    "beskrivelse": "En ny generation af værnepligtige udfordrer militarismen og kræver at bruge deres tjeneste på samfundsnyttige opgaver. De vil hellere bekæmpe klimaforandringer end andre lande.",
+    "begrundelse": "Vinklen giver stemme til en marginaliseret gruppe, de værnepligtige, og deres alternative perspektiv. Den sætter fokus på andre prioriteter end militær og støtter unges idealisme.",
+    "nyhedskriterier": ["identifikation", "konflikt"],
+    "startSpørgsmål": [
+      "Hvad fik jer til at stille spørgsmålstegn ved den klassiske værnepligt?",
+      "Hvilke konkrete samfundsopgaver mener I værnepligten kunne bidrage til?",
+      "Hvordan er reaktionen fra militæret og politikerne på jeres idéer?"
+    ]
+  },
+  {
+    "overskrift": "Kunstnere: Norsk militærbudget kunne finansiere kulturrevolution",
+    "beskrivelse": "Oprørske kunstnere udregner at de 385 milliarder til militæret kunne give et massivt boost til norsk kunst og kultur. De opfordrer til en kreativ oprustning i stedet.",
+    "begrundelse": "Vinklen anlægger et overraskende og kreativt perspektiv på budgetprioriteterne. Den giver stemme til kunstnernes samfundsvision og sætter militarismen i relief.",
+    "nyhedskriterier": ["konflikt", "identifikation"],
+    "startSpørgsmål": [
+      "Hvilke kulturområder ville I prioritere med et budget i den størrelse?",
+      "Hvordan ville en 'kulturel oprustning' gavne det norske samfund?",
+      "Tror I kunst kan være med til at fremme fred og nedrusting?"
+    ]
+  },
+  {
+    "overskrift": "Whistleblower: Norsk militær overvåger civile aktivister",
+    "beskrivelse": "En tidligere ansat i forsvaret står frem med afsløringer om hvordan efterretningstjenesten systematisk overvåger og registrerer progressive aktivister og miljøforkæmpere.",
+    "begrundelse": "Vinklen afslører magtmisbrug og angreb på frihedsrettigheder. Den giver stemme til en modig whistleblower og forsvarer retten til fri politisk aktivitet.",
+    "nyhedskriterier": ["konflikt", "væsentlighed", "sensation"],
+    "startSpørgsmål": [
+      "Hvad fik dig til at stå frem med afsløringerne trods personlig risiko?",
+      "Hvor udbredt er overvågningen og hvad bruges informationerne til?",
+      "Hvad bør der gøres for at beskytte aktivister mod militær overvågning?"
+    ]
+  }
+]
+2025-04-14 20:33:52,436 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
+  {
+    "overskrift": "Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?",
+    "beskrivelse": "En kritisk analyse af Norges massive forsvarsbudget. Sætter spørgsmålstegn ved om oprust...
+2025-04-14 20:33:52,436 - json_parser - DEBUG - Attempting to parse JSON from angle generation. Preview: [
+  {
+    "overskrift": "Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?",
+    "bes...
+2025-04-14 20:33:52,437 - json_parser - INFO - Successfully parsed JSON directly: 8 items found
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Correcting parser output - restoring original list with 8 items
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Data type after parsing: <class 'list'>
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Data is a list with 8 items
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Found direct list format with 8 items
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 raw object: {"overskrift": "Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?", "beskrivelse": "En kritisk analyse af Norges massive forsvarsbudget. Sætter spørgsmålstegn ved om oprustningen er et tegn på militarisme eller en nødvendig reaktion på ændrede trusler.", "begrundelse": "Vinklen udfordrer etablerede narrativer om oprustning og stiller skarpt på magtstrukturer. Den provokerer ved at sætte spørgsmålstegn ved normer og autoriteter.", "nyhedskriterier": ["konflikt", "væsentlighed"], "startSpørgsmål": ["Hvem tjener reelt på den massive norske oprustning?", "Er der alternativer til militær oprustning som sikkerhedsstrategi?", "Hvordan påvirker oprustningen magtbalancen i regionen?"]}
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 (Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?): No validation fixes needed
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 (Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?): PASSED validation
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 raw object: {"overskrift": "Aktivister: Norsk militær truer arktisk miljø", "beskrivelse": "Miljøforkæmpere advarer om at Norges militære satsning kan skade det skrøbelige arktiske økosystem. De kræver øget gennemsigtighed og civilt opsyn.", "begrundelse": "Vinklen giver stemme til aktivister og sætter fokus på miljøkonsekvenserne af militariseringen, som ofte overses. Den støtter en vigtig sag og udfordrer magthaverne.", "nyhedskriterier": ["identifikation", "væsentlighed", "konflikt"], "startSpørgsmål": ["Hvilke konkrete miljøtrusler ser I ved den øgede militære tilstedeværelse?", "Føler I at jeres bekymringer bliver taget alvorligt af myndighederne?", "Hvad er jeres krav for at sikre miljøbeskyttelse i Arktis?"]}
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 (Aktivister: Norsk militær truer arktisk miljø): No validation fixes needed
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 (Aktivister: Norsk militær truer arktisk miljø): PASSED validation
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 raw object: {"overskrift": "Hemmelige aftaler bag norsk-dansk forsvarssamarbejde", "beskrivelse": "Fortrolige kilder afslører, at der indgås lukrative våbenhandler og udveksles overvågningsdata mellem Norge og Danmark uden offentlig indsigt. Eksperter advarer om demokratisk underskud.", "begrundelse": "Vinklen afslører skjulte magtstrukturer og sætter fokus på kontroversielle aspekter af forsvarssamarbejdet. Den er provokerende og giver indsigt i ting, magthaverne helst vil holde skjult.", "nyhedskriterier": ["konflikt", "sensation"], "startSpørgsmål": ["Hvad er de vigtigste ting offentligheden ikke får at vide om samarbejdet?", "Hvilke demokratiske problemer ser du ved hemmelighedskræmmeriet?", "Hvem drager fordel af de skjulte aftaler mellem landene?"]}
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 (Hemmelige aftaler bag norsk-dansk forsvarssamarbejde): No validation fixes needed
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 (Hemmelige aftaler bag norsk-dansk forsvarssamarbejde): PASSED validation
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 raw object: {"overskrift": "Norsk oprustning skaber splid i fredsbevægelsen", "beskrivelse": "Fredsaktivister er internt uenige om hvordan de skal forholde sig til Norges militære oprustning. Nogle ser den som en krigsopildnende provokation, mens andre anerkender behovet for et stærkt forsvar.", "begrundelse": "Vinklen viser de komplekse debatter og dilemmaer, som findes i fredsbevægelsen. Den undgår letkøbte konklusioner og giver indblik i aktivisternes virkelighed.", "nyhedskriterier": ["konflikt", "identifikation"], "startSpørgsmål": ["Hvad er hovedargumenterne for og imod at støtte oprustningen blandt fredsaktivister?", "Hvordan påvirker den interne splid fredsarbejdet og bevægelsens gennemslagskraft?", "Er det muligt at forene fredsvision med anerkendelse af forsvarets rolle?"]}
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 (Norsk oprustning skaber splid i fredsbevægelsen): No validation fixes needed
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 (Norsk oprustning skaber splid i fredsbevægelsen): PASSED validation
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 raw object: {"overskrift": "Nynazister infiltrerer Norges nye 'superværn'", "beskrivelse": "Hemmelige rapporter viser at højreekstremister målrettet søger ind i det udbyggede norske forsvar for at få kamperfaring og adgang til våben. Forsvaret kritiseres for manglende baggrundstjek.", "begrundelse": "Vinklen afslører en skræmmende og overset konsekvens af oprustningen. Den sætter kritisk fokus på ekstremisme og forsvarsstrukturens rolle i at facilitere den.", "nyhedskriterier": ["sensation", "identifikation", "konflikt"], "startSpørgsmål": ["Hvad gør det norske forsvar for at forhindre ekstremister i deres rækker?", "Hvor udbredt er problemet og hvad er konsekvenserne på sigt?", "Hvordan kan forsvarsstrukturen ændres for at modvirke højreradikalisering?"]}
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 (Nynazister infiltrerer Norges nye 'superværn'): No validation fixes needed
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 (Nynazister infiltrerer Norges nye 'superværn'): PASSED validation
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 raw object: {"overskrift": "Unge norske værnepligtige: Vi vil hellere bygge end bombe", "beskrivelse": "En ny generation af værnepligtige udfordrer militarismen og kræver at bruge deres tjeneste på samfundsnyttige opgaver. De vil hellere bekæmpe klimaforandringer end andre lande.", "begrundelse": "Vinklen giver stemme til en marginaliseret gruppe, de værnepligtige, og deres alternative perspektiv. Den sætter fokus på andre prioriteter end militær og støtter unges idealisme.", "nyhedskriterier": ["identifikation", "konflikt"], "startSpørgsmål": ["Hvad fik jer til at stille spørgsmålstegn ved den klassiske værnepligt?", "Hvilke konkrete samfundsopgaver mener I værnepligten kunne bidrage til?", "Hvordan er reaktionen fra militæret og politikerne på jeres idéer?"]}
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 (Unge norske værnepligtige: Vi vil hellere bygge end bombe): No validation fixes needed
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 (Unge norske værnepligtige: Vi vil hellere bygge end bombe): PASSED validation
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 raw object: {"overskrift": "Kunstnere: Norsk militærbudget kunne finansiere kulturrevolution", "beskrivelse": "Oprørske kunstnere udregner at de 385 milliarder til militæret kunne give et massivt boost til norsk kunst og kultur. De opfordrer til en kreativ oprustning i stedet.", "begrundelse": "Vinklen anlægger et overraskende og kreativt perspektiv på budgetprioriteterne. Den giver stemme til kunstnernes samfundsvision og sætter militarismen i relief.", "nyhedskriterier": ["konflikt", "identifikation"], "startSpørgsmål": ["Hvilke kulturområder ville I prioritere med et budget i den størrelse?", "Hvordan ville en 'kulturel oprustning' gavne det norske samfund?", "Tror I kunst kan være med til at fremme fred og nedrusting?"]}
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 (Kunstnere: Norsk militærbudget kunne finansiere kulturrevolution): No validation fixes needed
+2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 (Kunstnere: Norsk militærbudget kunne finansiere kulturrevolution): PASSED validation
+2025-04-14 20:33:52,438 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 raw object: {"overskrift": "Whistleblower: Norsk militær overvåger civile aktivister", "beskrivelse": "En tidligere ansat i forsvaret står frem med afsløringer om hvordan efterretningstjenesten systematisk overvåger og registrerer progressive aktivister og miljøforkæmpere.", "begrundelse": "Vinklen afslører magtmisbrug og angreb på frihedsrettigheder. Den giver stemme til en modig whistleblower og forsvarer retten til fri politisk aktivitet.", "nyhedskriterier": ["konflikt", "væsentlighed", "sensation"], "startSpørgsmål": ["Hvad fik dig til at stå frem med afsløringerne trods personlig risiko?", "Hvor udbredt er overvågningen og hvad bruges informationerne til?", "Hvad bør der gøres for at beskytte aktivister mod militær overvågning?"]}
+2025-04-14 20:33:52,438 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 (Whistleblower: Norsk militær overvåger civile aktivister): No validation fixes needed
+2025-04-14 20:33:52,438 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 (Whistleblower: Norsk militær overvåger civile aktivister): PASSED validation
+2025-04-14 20:33:52,438 - prompt_engineering - INFO - [ANGLE_VALIDATION] Final validation result: 8 valid angles out of 8 raw angles
+2025-04-14 20:33:52,438 - vinkeljernet.cache - INFO - Cache hit for fetch_source_suggestions
+2025-04-14 20:33:52,439 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 20:33:52,439 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Norge', 'angle_headline': 'Aktivister: Norsk militær truer arktisk miljø', 'angle_description': 'Miljøforkæmpere advarer om at Norges militære satsning kan skade det skrøbelige arktiske økosystem. De kræver øget gennemsigtighed og civilt opsyn.'}
+2025-04-14 20:33:52,439 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 20:33:52,439 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Norge', 'angle_headline': 'Unge norske værnepligtige: Vi vil hellere bygge end bombe', 'angle_description': 'En ny generation af værnepligtige udfordrer militarismen og kræver at bruge deres tjeneste på samfundsnyttige opgaver. De vil hellere bekæmpe klimaforandringer end andre lande.'}
+2025-04-14 20:33:52,439 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 20:33:52,439 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Norge', 'angle_headline': "Nynazister infiltrerer Norges nye 'superværn'", 'angle_description': 'Hemmelige rapporter viser at højreekstremister målrettet søger ind i det udbyggede norske forsvar for at få kamperfaring og adgang til våben. Forsvaret kritiseres for manglende baggrundstjek.'}
+2025-04-14 20:34:19,775 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
 {
   "eksperter": [
     {
-      "navn": "Rasmus Dam Poulsen",
-      "titel": "Kontor for anal...
-2025-04-14 16:02:37,925 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 16:02:37,925 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 16:02:37,925 - vinkeljernet.api - INFO - Expert source suggestions generated in 43.32 seconds
-2025-04-14 16:02:37,930 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 16:02:37,935 - vinkeljernet.api - INFO - API client shut down successfully
+      "navn": "Aslak Storaker",
+      "titel": "Forsker",
+      "or...
+2025-04-14 20:34:19,775 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 20:34:19,776 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 20:34:19,776 - vinkeljernet.api - INFO - Expert source suggestions generated in 27.34 seconds
+2025-04-14 20:34:21,062 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+{
+  "eksperter": [
+    {
+      "navn": "Tina Wilchen",
+      "titel": "Antropolog og forsker...
+2025-04-14 20:34:21,062 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 20:34:21,062 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 20:34:21,062 - vinkeljernet.api - INFO - Expert source suggestions generated in 28.62 seconds
+2025-04-14 20:34:26,125 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+{
+  "eksperter": [
+    {
+      "navn": "Tormod Heier",
+      "titel": "Professor i militær s...
+2025-04-14 20:34:26,125 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 20:34:26,125 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 20:34:26,125 - vinkeljernet.api - INFO - Expert source suggestions generated in 33.69 seconds
+2025-04-14 20:34:26,134 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 20:34:26,139 - vinkeljernet.api - INFO - API client shut down successfully

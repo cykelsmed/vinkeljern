@@ -8,6 +8,7 @@ to generate angles based on topic information and editorial profiles.
 import json
 from typing import Dict, Any, List, Optional
 from models import VinkelForslag, RedaktionelDNA
+import logging
 
 def create_angle_generation_prompt(topic: str, distillate: Dict[str, Any], profile: RedaktionelDNA) -> str:
     """
@@ -340,14 +341,16 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
     Returns:
         List[Dict]: The parsed angles
     """
-    import logging
     logger = logging.getLogger(__name__)
     
     if not response_text:
         logger.error("Empty response received from API")
         return []
         
-    # Log a preview of the response for debugging
+    # Log the entire raw response for debugging
+    logger.info(f"[ANGLE_VALIDATION] Raw LLM response: {response_text}")
+    
+    # Log a preview of the response for debugging (for backward compatibility)
     log_preview = response_text[:200] + ("..." if len(response_text) > 200 else "")
     logger.debug(f"Parsing angles from response (preview): {log_preview}")
         
@@ -357,18 +360,43 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
             from json_parser import safe_parse_json
             
             # Use safe_parse_json which is more robust
-            data = safe_parse_json(
+            json_data = safe_parse_json(
                 response_text, 
                 context="angle generation",
                 fallback=[]
             )
             
+            # Fix for the issue: the parser returns the first item from the list instead of the whole list
+            if isinstance(json_data, dict) and 'overskrift' in json_data:
+                # First parse the response_text separately
+                try:
+                    json_response = json.loads(response_text)
+                    # Then check if it's a list and use it
+                    if isinstance(json_response, list):
+                        logger.info(f"[ANGLE_VALIDATION] Correcting parser output - restoring original list with {len(json_response)} items")
+                        data = json_response  # Use the original parsed list instead
+                    else:
+                        logger.info(f"[ANGLE_VALIDATION] Using parser output: {type(json_data)}")
+                        data = json_data
+                except json.JSONDecodeError:
+                    data = json_data
+            else:
+                data = json_data
+            
             if not data and not isinstance(data, (list, dict)):
+                logger.warning("[ANGLE_VALIDATION] No valid data parsed from response")
                 raise ValueError("No valid data parsed")
                 
         except ImportError:
             # Fall back to standard JSON parsing if json_parser module not available
+            logger.info("[ANGLE_VALIDATION] json_parser module not available, falling back to standard JSON parsing")
             data = json.loads(response_text)
+        
+        logger.info(f"[ANGLE_VALIDATION] Data type after parsing: {type(data)}")
+        if isinstance(data, list):
+            logger.info(f"[ANGLE_VALIDATION] Data is a list with {len(data)} items")
+        elif isinstance(data, dict):
+            logger.info(f"[ANGLE_VALIDATION] Data is a dictionary with keys: {list(data.keys())}")
         
         angles = []
         
@@ -376,43 +404,64 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
         if isinstance(data, list):
             # Direct list of angles (our simplified format)
             raw_angles = data
-            logger.debug(f"Found direct list format with {len(raw_angles)} items")
+            logger.info(f"[ANGLE_VALIDATION] Found direct list format with {len(raw_angles)} items")
         elif isinstance(data, dict) and "vinkler" in data:
             # Format with wrapper object containing vinkler array
             raw_angles = data["vinkler"]
-            logger.debug(f"Found 'vinkler' key with {len(raw_angles)} items")
+            logger.info(f"[ANGLE_VALIDATION] Found 'vinkler' key with {len(raw_angles)} items")
         elif isinstance(data, dict) and "videnDistillat" in data and "vinkler" in data:
             # Format with knowledge distillate and angles in same object
             raw_angles = data["vinkler"]
-            logger.debug(f"Found new format with videnDistillat and {len(raw_angles)} vinkler")
-        elif isinstance(data, dict):
+            logger.info(f"[ANGLE_VALIDATION] Found new format with videnDistillat and {len(raw_angles)} vinkler")
+        elif isinstance(data, dict) and "overskrift" in data and "beskrivelse" in data:
             # Single angle as dictionary
             raw_angles = [data]
-            logger.debug("Using single dictionary as an angle")
+            logger.info(f"[ANGLE_VALIDATION] Found single dictionary angle")
+        elif isinstance(data, dict):
+            # Try to parse the response directly one more time
+            try:
+                direct_parse = json.loads(response_text)
+                if isinstance(direct_parse, list):
+                    raw_angles = direct_parse
+                    logger.info(f"[ANGLE_VALIDATION] Found direct list format after reparsing with {len(raw_angles)} items")
+                else:
+                    # Unknown dictionary format
+                    raw_angles = [data]
+                    logger.info(f"[ANGLE_VALIDATION] Using unknown dictionary format as single angle")
+            except json.JSONDecodeError:
+                # If direct parsing fails, use the dictionary as single angle
+                raw_angles = [data]
+                logger.info(f"[ANGLE_VALIDATION] Unknown dictionary format, using as single angle")
         else:
-            logger.error(f"Unrecognized response format: {type(data)}")
+            logger.error(f"[ANGLE_VALIDATION] Unrecognized response format: {type(data)}")
             raw_angles = []
         
         # If raw_angles is not a list, handle that case
         if not isinstance(raw_angles, list):
-            logger.warning(f"Expected list of angles but got {type(raw_angles)}, attempting to convert")
+            logger.warning(f"[ANGLE_VALIDATION] Expected list of angles but got {type(raw_angles)}, attempting to convert")
             try:
                 if raw_angles is None:
                     raw_angles = []
                 else:
                     raw_angles = [raw_angles]
             except Exception as e:
-                logger.error(f"Could not convert to list: {e}")
+                logger.error(f"[ANGLE_VALIDATION] Could not convert to list: {e}")
                 raw_angles = []
         
         # Process each angle
-        for raw_angle in raw_angles:
+        for i, raw_angle in enumerate(raw_angles):
             if not isinstance(raw_angle, dict):
-                logger.warning(f"Expected dict but got {type(raw_angle)}, skipping")
+                logger.warning(f"[ANGLE_VALIDATION] Angle {i+1}: Expected dict but got {type(raw_angle)}, skipping")
                 continue
                 
+            # Log the raw angle object
+            logger.info(f"[ANGLE_VALIDATION] Angle {i+1} raw object: {json.dumps(raw_angle, ensure_ascii=False)}")
+            
             # Create a copy to avoid modifying the original
             angle_data = raw_angle.copy()
+            
+            # Track validation fixes for detailed logging
+            validation_fixes = []
             
             # Ensure required fields exist with defaults if missing
             required_fields = ["overskrift", "beskrivelse", "begrundelse", "nyhedskriterier"]
@@ -420,19 +469,25 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
                 if field not in angle_data:
                     if field == "overskrift":
                         angle_data[field] = "Ubenævnt vinkel"
+                        validation_fixes.append(f"Missing required field '{field}', added default value")
                     elif field == "beskrivelse":
                         angle_data[field] = "Ingen beskrivelse tilgængelig"
+                        validation_fixes.append(f"Missing required field '{field}', added default value")
                     elif field == "begrundelse":
                         angle_data[field] = "Ingen begrundelse angivet"
+                        validation_fixes.append(f"Missing required field '{field}', added default value")
                     elif field == "nyhedskriterier":
                         angle_data[field] = ["aktualitet"]
+                        validation_fixes.append(f"Missing required field '{field}', added default value")
             
             # Handle different formats of startSpørgsmål
             if "startSpørgsmål" not in angle_data:
                 if "startspørgsmål" in angle_data:  # Common case-sensitivity issue
                     angle_data["startSpørgsmål"] = angle_data["startspørgsmål"]
+                    validation_fixes.append("Fixed case sensitivity issue with 'startspørgsmål'")
                 elif "spørgsmål" in angle_data:  # Another common variation 
                     angle_data["startSpørgsmål"] = angle_data["spørgsmål"]
+                    validation_fixes.append("Used 'spørgsmål' field as 'startSpørgsmål'")
                 else:
                     # Create default questions based on the headline
                     angle_data["startSpørgsmål"] = [
@@ -440,6 +495,7 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
                         f"Hvad er de vigtigste aspekter af {angle_data['overskrift']}?",
                         "Hvad mener eksperterne om denne problemstilling?"
                     ]
+                    validation_fixes.append("Missing 'startSpørgsmål', created default questions")
             
             # Ensure nyhedskriterier is a list
             if not isinstance(angle_data["nyhedskriterier"], list):
@@ -448,26 +504,55 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
                     angle_data["nyhedskriterier"] = [k.strip() for k in 
                                                    angle_data["nyhedskriterier"].replace(',', ' ')
                                                    .replace(';', ' ').split() if k.strip()]
-                    if not angle_data["nyhedskriterier"]:
+                    if angle_data["nyhedskriterier"]:
+                        validation_fixes.append("Converted 'nyhedskriterier' from string to list")
+                    else:
                         angle_data["nyhedskriterier"] = ["aktualitet"]
+                        validation_fixes.append("Empty 'nyhedskriterier' string, added default value")
                 else:
                     angle_data["nyhedskriterier"] = ["aktualitet"]
+                    validation_fixes.append(f"Incorrect type for 'nyhedskriterier' ({type(angle_data['nyhedskriterier']).__name__}), set to default")
             
             # Ensure startSpørgsmål is a list
             if not isinstance(angle_data["startSpørgsmål"], list):
                 if isinstance(angle_data["startSpørgsmål"], str):
                     angle_data["startSpørgsmål"] = [angle_data["startSpørgsmål"]]
+                    validation_fixes.append("Converted 'startSpørgsmål' from string to list")
                 else:
                     angle_data["startSpørgsmål"] = ["Hvad er de vigtigste aspekter ved denne sag?"]
+                    validation_fixes.append(f"Incorrect type for 'startSpørgsmål' ({type(angle_data['startSpørgsmål']).__name__}), set to default")
+            
+            # Log validation fixes if any were made
+            if validation_fixes:
+                logger.info(f"[ANGLE_VALIDATION] Angle {i+1} ({angle_data.get('overskrift', 'Unnamed')}): Applied fixes: {'; '.join(validation_fixes)}")
+            else:
+                logger.info(f"[ANGLE_VALIDATION] Angle {i+1} ({angle_data.get('overskrift', 'Unnamed')}): No validation fixes needed")
             
             try:
                 # Use Pydantic model for validation if possible
                 from models import VinkelForslag
                 validated_angle = VinkelForslag(**angle_data).dict()
                 angles.append(validated_angle)
-                logger.debug(f"Successfully validated angle: {validated_angle['overskrift']}")
+                logger.info(f"[ANGLE_VALIDATION] Angle {i+1} ({validated_angle['overskrift']}): PASSED validation")
             except Exception as validation_error:
-                logger.warning(f"Validation error for angle, using raw data: {str(validation_error)}")
+                validation_error_str = str(validation_error)
+                logger.warning(f"[ANGLE_VALIDATION] Angle {i+1} ({angle_data.get('overskrift', 'Unnamed')}): FAILED validation: {validation_error_str}")
+                
+                # Attempt to extract specific validation errors
+                error_details = []
+                if "overskrift" in validation_error_str.lower():
+                    error_details.append("Invalid headline")
+                if "beskrivelse" in validation_error_str.lower():
+                    error_details.append("Invalid description")
+                if "nyhedskriterier" in validation_error_str.lower():
+                    error_details.append("Invalid news criteria")
+                if "startspørgsmål" in validation_error_str.lower():
+                    error_details.append("Invalid questions")
+                if not error_details:
+                    error_details.append("Unknown validation error")
+                
+                logger.warning(f"[ANGLE_VALIDATION] Angle {i+1}: Specific errors: {', '.join(error_details)}")
+                
                 # If validation fails, just use the cleaned data directly
                 angles.append(angle_data)
         
@@ -481,13 +566,13 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
                 "startSpørgsmål": ["Hvad er de vigtigste aspekter af denne sag?"]
             }
             angles = [error_angle]
-            logger.warning("Created error angle due to parsing issues")
+            logger.warning("[ANGLE_VALIDATION] Created error angle due to parsing issues")
         
-        logger.info(f"Successfully parsed {len(angles)} angles")
+        logger.info(f"[ANGLE_VALIDATION] Final validation result: {len(angles)} valid angles out of {len(raw_angles)} raw angles")
         return angles
     
     except json.JSONDecodeError as e:
-        logger.error(f"JSON decode error: {e}")
+        logger.error(f"[ANGLE_VALIDATION] JSON decode error: {e}")
         
         # Try to extract JSON from code blocks
         try:
@@ -498,10 +583,10 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
             
             if match:
                 potential_json = match.group(1).strip()
-                logger.info("Extracted JSON from code block, attempting to parse")
+                logger.info("[ANGLE_VALIDATION] Extracted JSON from code block, attempting to parse")
                 return parse_angles_from_response(potential_json)
         except Exception as e2:
-            logger.error(f"Failed to extract JSON from code blocks: {e2}")
+            logger.error(f"[ANGLE_VALIDATION] Failed to extract JSON from code blocks: {e2}")
         
         # Create an error angle as fallback
         error_angle = {
@@ -514,7 +599,7 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
         return [error_angle]
             
     except Exception as e:
-        logger.error(f"Unexpected error parsing angles: {str(e)}")
+        logger.error(f"[ANGLE_VALIDATION] Unexpected error parsing angles: {str(e)}")
         
         # Create an error angle as fallback
         error_angle = {
