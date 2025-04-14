@@ -1,120 +1,70 @@
-2025-04-14 12:47:56,558 - vinkeljernet.cli - INFO - Vinkeljernet starting up
-2025-04-14 12:47:56,558 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-04-14 12:47:56,559 - vinkeljernet.api_wrapper - INFO - Created new event loop as no running loop was found
-2025-04-14 12:47:56,559 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 12:47:56,575 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
-2025-04-14 12:47:56,590 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
-2025-04-14 12:47:56,605 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
-2025-04-14 12:47:56,619 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
-2025-04-14 12:47:56,633 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
-2025-04-14 12:47:56,648 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
-2025-04-14 12:47:56,662 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
-2025-04-14 12:47:56,666 - vinkeljernet.api - INFO - API client initialized and ready
-2025-04-14 12:47:56,669 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 12:47:56,670 - vinkeljernet.api - INFO - API client initialized and ready
-2025-04-14 12:47:57,680 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: TVflux
-2025-04-14 12:47:57,681 - vinkeljernet.core - INFO - Loaded profile: TVflux
-2025-04-14 12:47:57,681 - vinkeljernet.core - INFO - Fetching information for topic: Amerikanske statsobligationer i krise
-2025-04-14 12:47:57,681 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 12:47:57,681 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-04-14 12:47:57,681 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'dev_mode': False, 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107252d40>}
-2025-04-14 12:48:05,514 - vinkeljernet.api - INFO - Perplexity API request completed in 7.83 seconds
-2025-04-14 12:48:05,517 - vinkeljernet.core - INFO - Generating knowledge distillate from background information
-2025-04-14 12:48:05,517 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
-2025-04-14 12:48:05,517 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': "## OVERSIGT\nAmerikanske statsobligationer står i en krise, hvor renterne stiger på trods af økonomisk usikkerhed, hvilket normalt ville føre til en flytning mod sikre havne som statsobligationer. Dette skyldes blandt andet bekymringer om dollarens fremtid og den amerikanske statsgæld.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da den stigende rente på amerikanske statsobligationer overrasker økonomer, og der er tvivl om USA's status som en sikker havn for investeringer. Dette skyldes blandt andet den pågående toldkrig og usikkerheden omkring den amerikanske økonomi.\n\n## NØGLETAL\n- **Rentestigning**: Renten på amerikanske statsobligationer stiger, hvilket normalt ikke ville ske under usikre økonomiske forhold.\n- **Tillidskrise**: Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter og tvivl om statsobligationernes sikkerhed.\n- **Gældspres**: USA's store statsgæld og risikoen for en eventuel restrukturering af denne gæld bidrager til usikkerheden.\n\n## PERSPEKTIVER\n- **Økonomiske bekymringer**: Nogle økonomer mener, at stigende renter kan skyldes bekymringer om lavere vækst og højere inflation samt usikkerhed om dollarens fremtid.\n- **Politisk usikkerhed**: Trumps politik, herunder toldkrigen, bidrager til usikkerheden og kan påvirke investorer til at tvivle på USA's status som sikker havn.\n- **Kritik af planer**: Planer om at refinansiere gælden gennem langsigtede obligationer møder kritik, da de kan destabilisere det globale finansielle system.", 'topic': 'Amerikanske statsobligationer i krise', 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107252d40>}
-2025-04-14 12:48:10,940 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
-    "hovedpunkter": [
-        "Amerikanske statsobligationer står i en krise, hvor renterne stiger på trods af økonomisk usikkerhed",
-        "Stigende renter skyldes blandt andet bekymringer om dollarens fremtid og den amerikanske statsgæld",
-        "Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter og tvivl om statsobligationernes sikkerhed",
-        "Trumps politik, herunder toldkrigen, bidrager til usikkerheden og kan påvirke investorer til at tvivle på USA's status som sikker havn"
-    ],
-    "noegletal": [
-        {
-            "tal": "Stigende rente",
-            "beskrivelse": "Renten på amerikanske statsobligationer stiger, hvilket normalt ikke ville ske under usikre økonomiske forhold",
-            "kilde": null
-        },
-        {
-            "tal": "Tillidskrise",
-            "beskrivelse": "Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter og tvivl om statsobligationernes sikkerhed",
-            "kilde":...
-2025-04-14 12:48:10,940 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
-    "hovedpunkter": [
-        "Amerikanske statsobligationer står i en krise, hvor renterne stiger...
-2025-04-14 12:48:10,941 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-04-14 12:48:10,941 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 5.42 seconds
-2025-04-14 12:48:10,942 - vinkeljernet.core - INFO - Knowledge distillate generated successfully
-2025-04-14 12:48:10,942 - vinkeljernet.core - INFO - Generating angles...
-2025-04-14 12:48:10,942 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 12:48:10,943 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-04-14 12:48:10,943 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107252d40>}
-2025-04-14 12:48:18,854 - vinkeljernet.api - INFO - Perplexity API request completed in 7.91 seconds
-2025-04-14 12:48:18,857 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
-2025-04-14 12:48:18,857 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nAmerikanske statsobligationer står i en usædvanlig situation, hvor renterne stiger på trods af økonomisk usikkerhed, hvilket normalt ville føre til lavere renter. Dette skyldes blandt andet bekymringer om dollarens fremtid og toldkrigen.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da den stigende rente på amerikanske statsobligationer overrasker mange økonomer. Toldkrigen og usikkerheden omkring dollarens fremtid bidrager til denne udvikling. Situationen er blevet mere kompleks med Donald Trumps politik, der skaber usikkerhed på markedet[1][2].\n\n## NØGLETAL\n- **Rentestigning**: Renten på amerikanske statsobligationer stiger, hvilket er usædvanligt under økonomisk usikkerhed[1].\n- **Tillidskrise**: Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter[2].\n- **Tiårig rente**: Den tiårige amerikanske rente ligger omkring 4,34%[4].\n\n## PERSPEKTIVER\nForskellige synspunkter på emnet inkluderer:\n- **Økonomiske bekymringer**: Nogle mener, at stigende renter skyldes bekymringer om lavere vækst og højere inflation[2].\n- **Politisk usikkerhed**: Usikkerheden omkring Trumps politik og toldkrigen bidrager til den stigende rente[3][4].\n- **Valutaudfordringer**: Dollarens fremtid og mulige valutaaftaler kan også påvirke markedet[3].', 'topic': 'Amerikanske statsobligationer i krise', 'progress_callback': <function run_standard_mode.<locals>.<lambda> at 0x107252d40>}
-2025-04-14 12:48:22,181 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
-    "hovedpunkter": [
-        "Amerikanske statsobligationer står i en usædvanlig situation, hvor renterne stiger på trods af økonomisk usikkerhed, hvilket normalt ville føre til lavere renter.",
-        "Stigende renter skyldes blandt andet bekymringer om dollarens fremtid og toldkrigen.",
-        "Situationen er blevet mere kompleks med Donald Trumps politik, der skaber usikkerhed på markedet.",
-        "Tilliden til den amerikanske stat er mindsket, hvilket afspejles i stigende renter."
-    ],
-    "noegletal": [
-        {
-            "tal": "4,34%",
-            "beskrivelse": "Den tiårige amerikanske rente",
-            "kilde": "[4]"
-        },
-        {
-            "tal": "-",
-            "beskrivelse": "Rentestigning på amerikanske statsobligationer",
-            "kilde": "[1]"
-        },
-        {
-            "tal": "-",
-            "beskrivelse": "Tillidskrise til den amerikanske stat",
-            "kilde": "[2]"
-        }
-    ],
-    "centralePaastand": [
-        {
-          ...
-2025-04-14 12:48:22,182 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
-    "hovedpunkter": [
-        "Amerikanske statsobligationer står i en usædvanlig situation, hvor ...
-2025-04-14 12:48:22,182 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-04-14 12:48:22,182 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 3.32 seconds
-2025-04-14 12:49:32,961 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
+2025-04-14 16:00:39,890 - root - DEBUG - Logging initialized
+2025-04-14 16:00:39,890 - root - INFO - Vinkeljernet starting up
+2025-04-14 16:00:39,892 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
+2025-04-14 16:00:39,892 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
+2025-04-14 16:00:39,892 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
+2025-04-14 16:00:39,892 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
+2025-04-14 16:00:39,942 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-04-14 16:00:39,943 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 16:00:39,956 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
+2025-04-14 16:00:39,970 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
+2025-04-14 16:00:39,984 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
+2025-04-14 16:00:39,997 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
+2025-04-14 16:00:40,011 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
+2025-04-14 16:00:40,025 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
+2025-04-14 16:00:40,039 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
+2025-04-14 16:00:40,040 - vinkeljernet.api - INFO - API client initialized and ready
+2025-04-14 16:00:40,044 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: Berlingske
+2025-04-14 16:00:40,047 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 16:00:40,047 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-04-14 16:00:40,047 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x104293c40>}
+2025-04-14 16:00:47,638 - vinkeljernet.api - INFO - Perplexity API request completed in 7.59 seconds
+2025-04-14 16:00:47,638 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-04-14 16:00:47,638 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': "## OVERSIGT\nKunstig intelligens (AI) handler om systemer, der kan analysere data, lære og træffe beslutninger på en måde, der ligner menneskelig intelligens. AI anvendes i mange sektorer, herunder sundhed, finans og landbrug, og har stor indvirkning på vores hverdag[1][3]. \n\n## AKTUEL STATUS\nKunstig intelligens er et meget relevant emne lige nu, da teknologien udvikles hurtigt og bliver mere integreret i både privatliv og samfundsfunktioner. Den nuværende situation kendetegnes af en stigende anvendelse af AI i mange industrier, samtidig med at der er fokus på ansvarlig udvikling og regulering[2][5].\n\n## NØGLETAL\n- **40 signaturprojekter**: I Danmark er der oprettet en investeringsfond, der har støttet 40 signaturprojekter for at afprøve AI i den offentlige sektor[2].\n- **Stigende anvendelse**: AI bliver mere almindeligt i mange sektorer, herunder sundhed, hvor det hjælper med diagnosticering og behandling[5].\n- **Regulering**: EU's forordning om kunstig intelligens skal sikre fælles spilleregler for brugen af AI[2].\n\n## PERSPEKTIVER\nDer er forskellige synspunkter på kunstig intelligens. Nogle ser AI som en stor mulighed for effektivisering og innovation, mens andre er bekymrede for etik, sikkerhed og jobtab[1][3]. Der er også fokus på at sikre, at AI udvikles på en ansvarlig måde, der respekterer samfundets værdier og borgernes rettigheder[2][5].", 'topic': 'Kunstig intelligens', 'progress_callback': <function main_async.<locals>.progress_callback at 0x104293c40>}
+2025-04-14 16:00:52,245 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
+  "hovedpunkter": [
+    "Kunstig intelligens (AI) handler om systemer, der kan analysere data, lære og træffe beslutninger på en måde, der ligner menneskelig intelligens.",
+    "AI anvendes i mange sektorer, herunder sundhed, finans og landbrug, og har stor indvirkning på vores hverdag.",
+    "Den nuværende situation kendetegnes af en stigende anvendelse af AI i mange industrier, samtidig med at der er fokus på ansvarlig udvikling og regulering.",
+    "Der er forskellige synspunkter på kunstig intelligens, hvor nogle ser det som en stor mulighed for effektivisering og innovation, mens andre er bekymrede for etik, sikkerhed og jobtab."
+  ],
+  "noegletal": [
+    {
+      "tal": "40",
+      "beskrivelse": "signaturprojekter i Danmark, hvor en investeringsfond har støttet projekter for at afprøve AI i den offentlige sektor",
+      "kilde": "[2]"
+    },
+    {
+      "tal": "Stigende",
+      "beskrivelse": "anvendelse af AI i mange sektorer, herunder sundhed, hvor det hjælper med diagnostice...
+2025-04-14 16:00:52,245 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+  "hovedpunkter": [
+    "Kunstig intelligens (AI) handler om systemer, der kan analysere data, lær...
+2025-04-14 16:00:52,245 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-04-14 16:00:52,245 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 4.61 seconds
+2025-04-14 16:01:51,281 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
   {
-    "overskrift": "USA's gældskrise: Hvem tjener på rentestigningen?",
-    "beskrivelse": "De stigende renter på amerikanske statsobligationer gavner nogle aktører på bekostning af andre. En und...
-2025-04-14 12:49:32,961 - json_parser - DEBUG - Attempting to parse JSON from angle generation. Preview: [
+    "overskrift": "AI revolutionerer dansk erhvervsliv",
+    "beskrivelse": "Kunstig intelligens bliver i stigende grad integreret i danske virksomheder. Det øger effektiviteten og konkurrenceev...
+2025-04-14 16:01:51,282 - json_parser - DEBUG - Attempting to parse JSON from angle generation. Preview: [
   {
-    "overskrift": "USA's gældskrise: Hvem tjener på rentestigningen?",
-    "beskrivelse": "De ...
-2025-04-14 12:49:32,961 - json_parser - INFO - Successfully parsed JSON directly: 8 items found
-2025-04-14 12:49:32,961 - prompt_engineering - DEBUG - Using single dictionary as an angle
-2025-04-14 12:49:32,961 - prompt_engineering - DEBUG - Successfully validated angle: USA's gældskrise: Hvem tjener på rentestigningen?
-2025-04-14 12:49:32,961 - prompt_engineering - INFO - Successfully parsed 1 angles
-2025-04-14 12:49:32,968 - vinkeljernet.cache - INFO - Cache miss for fetch_source_suggestions, calling function
-2025-04-14 12:49:36,548 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 12:49:36,549 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Amerikanske statsobligationer i krise', 'angle_headline': "USA's gældskrise: Hvem tjener på rentestigningen?", 'angle_description': 'De stigende renter på amerikanske statsobligationer gavner nogle aktører på bekostning af andre. En undersøgelse af hvilke magtfulde interesser der scorer kassen på krisen.'}
-2025-04-14 12:49:57,027 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+    "overskrift": "AI revolutionerer dansk erhvervsliv",
+    "beskrivelse": "Kunstig intellige...
+2025-04-14 16:01:51,282 - json_parser - INFO - Successfully parsed JSON directly: 8 items found
+2025-04-14 16:01:51,282 - prompt_engineering - DEBUG - Using single dictionary as an angle
+2025-04-14 16:01:51,283 - prompt_engineering - DEBUG - Successfully validated angle: AI revolutionerer dansk erhvervsliv
+2025-04-14 16:01:51,283 - prompt_engineering - INFO - Successfully parsed 1 angles
+2025-04-14 16:01:51,284 - vinkeljernet.cache - INFO - Cache miss for fetch_source_suggestions, calling function
+2025-04-14 16:01:54,608 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 16:01:54,609 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Kunstig intelligens', 'angle_headline': 'AI revolutionerer dansk erhvervsliv', 'angle_description': 'Kunstig intelligens bliver i stigende grad integreret i danske virksomheder. Det øger effektiviteten og konkurrenceevnen, men rejser også spørgsmål om ansvarlig anvendelse.'}
+2025-04-14 16:02:37,925 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
 {
   "eksperter": [
     {
-      "navn": "Jesper Rangvid",
-      "titel": "Professor i finansi...
-2025-04-14 12:49:57,027 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 12:49:57,028 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 12:49:57,029 - vinkeljernet.api - INFO - Expert source suggestions generated in 20.48 seconds
-2025-04-14 12:49:57,031 - vinkeljernet.core - INFO - Generated 1 raw angles
-2025-04-14 12:49:57,033 - vinkeljernet.core - INFO - Filtering and ranking angles...
-2025-04-14 12:49:57,033 - vinkeljernet.core - INFO - Ranked and filtered to 1 angles
-2025-04-14 12:49:57,034 - vinkeljernet.core - INFO - Generating general source suggestions...
-2025-04-14 12:49:57,035 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 12:49:57,035 - vinkeljernet.cache - INFO - Cache hit for fetch_source_suggestions
-2025-04-14 12:49:57,035 - vinkeljernet.core - INFO - Generating expert sources for each angle...
-2025-04-14 12:49:57,035 - vinkeljernet.cache - INFO - Cache hit for generate_expert_source_suggestions
-2025-04-14 12:49:57,068 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 12:49:57,074 - vinkeljernet.api - INFO - API client shut down successfully
+      "navn": "Rasmus Dam Poulsen",
+      "titel": "Kontor for anal...
+2025-04-14 16:02:37,925 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 16:02:37,925 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 16:02:37,925 - vinkeljernet.api - INFO - Expert source suggestions generated in 43.32 seconds
+2025-04-14 16:02:37,930 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 16:02:37,935 - vinkeljernet.api - INFO - API client shut down successfully
