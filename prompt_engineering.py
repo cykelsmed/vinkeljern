@@ -357,85 +357,27 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
     try:
         # First try using the more robust parser from json_parser if available
         try:
-            from json_parser import safe_parse_json
-            
-            # Use safe_parse_json which is more robust
-            json_data = safe_parse_json(
-                response_text, 
-                context="angle generation",
-                fallback=[]
+            from json_parser import robust_json_parse
+            # Use robust_json_parse to get all possible angle objects
+            parsed_data, error = robust_json_parse(
+                response_text,
+                context="angle generation response"
             )
-            
-            # Fix for the issue: the parser returns the first item from the list instead of the whole list
-            if isinstance(json_data, dict) and 'overskrift' in json_data:
-                # First parse the response_text separately
-                try:
-                    json_response = json.loads(response_text)
-                    # Then check if it's a list and use it
-                    if isinstance(json_response, list):
-                        logger.info(f"[ANGLE_VALIDATION] Correcting parser output - restoring original list with {len(json_response)} items")
-                        data = json_response  # Use the original parsed list instead
-                    else:
-                        logger.info(f"[ANGLE_VALIDATION] Using parser output: {type(json_data)}")
-                        data = json_data
-                except json.JSONDecodeError:
-                    data = json_data
-            else:
-                data = json_data
-            
-            if not data and not isinstance(data, (list, dict)):
-                logger.warning("[ANGLE_VALIDATION] No valid data parsed from response")
-                raise ValueError("No valid data parsed")
-                
+            if not parsed_data:
+                logger.error(f"Failed to parse angles from LLM response: {error}")
+                return []
+            raw_angles = parsed_data
         except ImportError:
             # Fall back to standard JSON parsing if json_parser module not available
             logger.info("[ANGLE_VALIDATION] json_parser module not available, falling back to standard JSON parsing")
             data = json.loads(response_text)
-        
-        logger.info(f"[ANGLE_VALIDATION] Data type after parsing: {type(data)}")
-        if isinstance(data, list):
-            logger.info(f"[ANGLE_VALIDATION] Data is a list with {len(data)} items")
-        elif isinstance(data, dict):
-            logger.info(f"[ANGLE_VALIDATION] Data is a dictionary with keys: {list(data.keys())}")
-        
-        angles = []
-        
-        # Handle different response formats
-        if isinstance(data, list):
-            # Direct list of angles (our simplified format)
-            raw_angles = data
-            logger.info(f"[ANGLE_VALIDATION] Found direct list format with {len(raw_angles)} items")
-        elif isinstance(data, dict) and "vinkler" in data:
-            # Format with wrapper object containing vinkler array
-            raw_angles = data["vinkler"]
-            logger.info(f"[ANGLE_VALIDATION] Found 'vinkler' key with {len(raw_angles)} items")
-        elif isinstance(data, dict) and "videnDistillat" in data and "vinkler" in data:
-            # Format with knowledge distillate and angles in same object
-            raw_angles = data["vinkler"]
-            logger.info(f"[ANGLE_VALIDATION] Found new format with videnDistillat and {len(raw_angles)} vinkler")
-        elif isinstance(data, dict) and "overskrift" in data and "beskrivelse" in data:
-            # Single angle as dictionary
-            raw_angles = [data]
-            logger.info(f"[ANGLE_VALIDATION] Found single dictionary angle")
-        elif isinstance(data, dict):
-            # Try to parse the response directly one more time
-            try:
-                direct_parse = json.loads(response_text)
-                if isinstance(direct_parse, list):
-                    raw_angles = direct_parse
-                    logger.info(f"[ANGLE_VALIDATION] Found direct list format after reparsing with {len(raw_angles)} items")
-                else:
-                    # Unknown dictionary format
-                    raw_angles = [data]
-                    logger.info(f"[ANGLE_VALIDATION] Using unknown dictionary format as single angle")
-            except json.JSONDecodeError:
-                # If direct parsing fails, use the dictionary as single angle
+            if isinstance(data, list):
+                raw_angles = data
+            elif isinstance(data, dict):
                 raw_angles = [data]
-                logger.info(f"[ANGLE_VALIDATION] Unknown dictionary format, using as single angle")
-        else:
-            logger.error(f"[ANGLE_VALIDATION] Unrecognized response format: {type(data)}")
-            raw_angles = []
-        
+            else:
+                raw_angles = []
+
         # If raw_angles is not a list, handle that case
         if not isinstance(raw_angles, list):
             logger.warning(f"[ANGLE_VALIDATION] Expected list of angles but got {type(raw_angles)}, attempting to convert")
@@ -447,8 +389,8 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
             except Exception as e:
                 logger.error(f"[ANGLE_VALIDATION] Could not convert to list: {e}")
                 raw_angles = []
-        
-        # Process each angle
+
+        angles = []
         for i, raw_angle in enumerate(raw_angles):
             if not isinstance(raw_angle, dict):
                 logger.warning(f"[ANGLE_VALIDATION] Angle {i+1}: Expected dict but got {type(raw_angle)}, skipping")
@@ -911,7 +853,7 @@ VIGTIGT: Returner KUN et JSON-array med vinkelobjekter.
         angle_description: str
     ) -> str:
         """
-        Skaber en effektiv prompt til ekspert-kildeforslag med minimalt token-forbrug.
+        Skaber en effektiv prompt til ekspert-kildeforslag med minimalt token-forbrug og stærk vægt på kritisk/alternativ vinkel.
         
         Args:
             topic: Nyhedsemnet
@@ -921,37 +863,7 @@ VIGTIGT: Returner KUN et JSON-array med vinkelobjekter.
         Returns:
             str: Optimeret prompt
         """
-        return f"""Find ekspertkilder til vinkel: "{angle_headline}" på emnet "{topic}".
-        
-VINKEL BESKRIVELSE: {angle_description}
-
-Returner JSON med dette format:
-{{
-  "eksperter": [
-    {{
-      "navn": "Fulde navn",
-      "titel": "Stillingsbetegnelse",
-      "organisation": "Arbejdssted",
-      "ekspertise": "Relevant ekspertområde"
-    }}
-  ],
-  "institutioner": [
-    {{
-      "navn": "Institutionens navn",
-      "type": "Type institution",
-      "relevans": "Hvorfor relevant"
-    }}
-  ],
-  "datakilder": [
-    {{
-      "titel": "Datakilde titel",
-      "udgiver": "Udgiver",
-      "beskrivelse": "Kort beskrivelse"
-    }}
-  ]
-}}
-
-KUN JSON, ingen forklarende tekst."""
+        return f"""Find ekspertkilder til vinkel: \"{angle_headline}\" på emnet \"{topic}\".\n\nVINKEL BESKRIVELSE: {angle_description}\n\nVIGTIGT:\n- Foreslå kun eksperter, institutioner og datakilder, der er relevante for den specifikke kritiske, alternative eller anti-autoritære vinkel i overskriften og beskrivelsen – ikke bare generelle eksperter på emnet.\n- Prioritér kilder fra undergrunden, uafhængige forskere, aktivister, whistleblowere, alternative medier, samfundskritikere og andre, der udfordrer magtstrukturer, autoriteter eller det etablerede narrativ.\n- Undgå mainstream- eller autoritetsbærende eksperter, medmindre de er kendt for at have et kritisk eller alternativt synspunkt.\n- Svar i en stil der matcher et anti-autoritært, undergrunds- og samfundskritisk medie (råt, direkte, uformelt, evt. ironisk).\n- For hver ekspert: Giv en kort forklaring på, hvorfor de er relevante for netop denne vinkel.\n- Angiv et link til deres profilside (fx uafhængigt medie, aktivistisk organisation, alternativt forskningsmiljø) eller en central publikation, hvis muligt. Hvis intet link findes, angiv blot navn, titel og organisation.\n\nReturner JSON med dette format:\n{{\n  \"eksperter\": [\n    {{\n      \"navn\": \"Fulde navn\",\n      \"titel\": \"Stillingsbetegnelse\",\n      \"organisation\": \"Arbejdssted/tilhørsforhold\",\n      \"ekspertise\": \"Relevant ekspertområde\",\n      \"relevans\": \"Kort forklaring på relevans ift. vinkel\",\n      \"link\": \"URL til profil eller publikation, hvis muligt\"\n    }}\n  ],\n  \"institutioner\": [\n    {{\n      \"navn\": \"Institutionens navn\",\n      \"type\": \"Type institution\",\n      \"relevans\": \"Hvorfor relevant\",\n      \"link\": \"URL til institutionens relevante side, hvis muligt\"\n    }}\n  ],\n  \"datakilder\": [\n    {{\n      \"titel\": \"Datakilde titel\",\n      \"udgiver\": \"Udgiver\",\n      \"beskrivelse\": \"Kort beskrivelse\",\n      \"link\": \"URL til datakilden, hvis muligt\"\n    }}\n  ]\n}}\n\nKUN JSON, ingen forklarende tekst.\n"""
     
     @staticmethod
     def create_knowledge_distillate_prompt(topic: str, topic_info: str) -> str:

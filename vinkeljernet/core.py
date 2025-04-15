@@ -91,22 +91,28 @@ async def process_generation_request(
         logger.info(f"Fetching information for topic: {topic}")
         try:
             from api_clients_wrapper import fetch_topic_information
-            topic_info = await fetch_topic_information(
+            topic_info_result = await fetch_topic_information(
                 topic=topic,
                 dev_mode=dev_mode,
                 bypass_cache=bypass_cache,
                 progress_callback=progress_callback,
                 detailed=True
             )
-            
+            if topic_info_result and isinstance(topic_info_result, dict):
+                topic_info = topic_info_result.get("text")
+                topic_sources = topic_info_result.get("sources", {})
+            else:
+                topic_info = topic_info_result or f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
+                topic_sources = {}
             if not topic_info:
                 logger.warning("Could not retrieve detailed background information")
                 topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
-                
+                topic_sources = {}
         except Exception as e:
             logger.error(f"Error fetching topic information: {str(e)}")
             topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
-
+            topic_sources = {}
+        
         # Set stage to generating knowledge distillate if callback provided
         if "GENERATING_KNOWLEDGE" in progress_stages:
             progress_stages["GENERATING_KNOWLEDGE"](
@@ -237,6 +243,27 @@ async def process_generation_request(
             except Exception as e:
                 logger.warning(f"Failed to generate expert sources for angle: {headline}")
                 # Continue without expert sources for this angle
+        
+        # After ranking angles, match sources to each angle
+        def match_sources_to_angle(angle, sources):
+            # Simple keyword match: if any word from headline/desc in source title
+            import re
+            headline = angle.get('overskrift', '').lower()
+            desc = angle.get('beskrivelse', '').lower()
+            keywords = set(re.findall(r'\w+', headline + ' ' + desc))
+            matches = []
+            for ref, src in sources.items():
+                title = src.get('title', '').lower()
+                if any(kw in title for kw in keywords if len(kw) > 3):
+                    matches.append(src)
+            return matches
+        if 'topic_sources' not in locals():
+            topic_sources = {}
+        for angle in ranked_angles:
+            if isinstance(angle, dict):
+                relevant_sources = match_sources_to_angle(angle, topic_sources)
+                if relevant_sources:
+                    angle['datakilder'] = relevant_sources
         
         # Save to file if requested
         if output_path:

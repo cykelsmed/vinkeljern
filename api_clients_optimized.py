@@ -11,6 +11,7 @@ import json
 import time
 import logging
 import requests
+import re
 from typing import Optional, Dict, Any, List, Callable, Tuple, Union
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
@@ -171,7 +172,7 @@ async def fetch_topic_information(
     bypass_cache: bool = False,
     progress_callback=None,
     detailed: bool = False
-) -> Optional[str]:
+) -> Optional[dict]:
     """
     Fetch information about a topic using the Perplexity API asynchronously with optimized performance.
     
@@ -183,7 +184,7 @@ async def fetch_topic_information(
         detailed: If True, get more comprehensive information
         
     Returns:
-        Optional[str]: The information retrieved or None if failed
+        Optional[dict]: The information retrieved or None if failed
     """
     if not PERPLEXITY_API_KEY:
         raise APIKeyMissingError("Perplexity API nøgle mangler. Sørg for at have en PERPLEXITY_API_KEY i din .env fil.")
@@ -310,6 +311,21 @@ async def fetch_topic_information(
                 logger.error(f"Failed to extract content from Perplexity API response: {e}")
                 return f"Kunne ikke hente information: {str(e)}"
             
+            # --- NEW: Extract sources section ---
+            sources = {}
+            # Look for a section like '# KILDER' or similar
+            kilder_match = re.search(r"# KILDER\s*(.*?)($|#|\Z)", content, re.DOTALL | re.IGNORECASE)
+            if kilder_match:
+                kilder_text = kilder_match.group(1)
+                # Find lines like [1] Title (URL)
+                for line in kilder_text.splitlines():
+                    ref_match = re.match(r"\[(\d+)\]\s*(.*?)\s*\((https?://[^)]+)\)", line.strip())
+                    if ref_match:
+                        ref_num = ref_match.group(1)
+                        title = ref_match.group(2).strip()
+                        url = ref_match.group(3).strip()
+                        sources[ref_num] = {"title": title, "url": url}
+            
             # Record latency
             latency = time.time() - start_time
             logger.info(f"Perplexity API request completed in {latency:.2f} seconds")
@@ -318,7 +334,8 @@ async def fetch_topic_information(
             if progress_callback:
                 await progress_callback(100)
                 
-            return content
+            # Return both the content and the sources dict
+            return {"text": content, "sources": sources}
     except Exception as e:
         logger.error(f"Error fetching topic information: {str(e)}")
         # Attempt to close and recreate the session on error
@@ -717,7 +734,7 @@ async def process_generation_request(
             )
             
             # Add background info to each angle
-            perplexity_extract = topic_info[:1000] + ("..." if len(topic_info) > 1000 else "")
+            perplexity_extract = topic_info["text"][:1000] + ("..." if len(topic_info["text"]) > 1000 else "")
             for angle in angles:
                 if isinstance(angle, dict):
                     angle['perplexityInfo'] = perplexity_extract
@@ -1810,7 +1827,7 @@ async def generate_optimized_angles(
             )
             
             if cached_result:
-                logger.info(f"Serving cached angles for topic '{topic}', profile {profile.id if hasattr(profile, 'id') else 'unknown'}")
+                logger.info(f"Serving cached angles for topic '{topic}', profile {profile.id if hasattr(profile, "id") else "unknown"}")
                 execution_time = time.time() - start_time
                 
                 # Registrer cache hit
@@ -1968,7 +1985,7 @@ async def generate_optimized_angles(
                 logger.warning("Primær JSON parsing fejlede, prøver fallback parsing")
                 angles = parse_angles_from_response(api_response)
                 
-                if not angles:
+                if not angles or len(angles) < 3:
                     # Hvis begge parsing-metoder fejler, brug vores fallback generator
                     logger.warning("Både primær og fallback parsing fejlede, bruger fallback vinkelgenerering")
                     angles = await fallback_angle_generator(topic, profile, bypass_cache=True)

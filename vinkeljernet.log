@@ -1,214 +1,207 @@
-2025-04-14 20:32:14,544 - root - DEBUG - Logging initialized
-2025-04-14 20:32:14,544 - root - INFO - Vinkeljernet starting up
-2025-04-14 20:32:14,548 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
-2025-04-14 20:32:14,548 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
-2025-04-14 20:32:14,548 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
-2025-04-14 20:32:14,548 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
-2025-04-14 20:32:14,636 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-04-14 20:32:14,636 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 20:32:14,655 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
-2025-04-14 20:32:14,670 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
-2025-04-14 20:32:14,684 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
-2025-04-14 20:32:14,699 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
-2025-04-14 20:32:14,713 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
-2025-04-14 20:32:14,729 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
-2025-04-14 20:32:14,744 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
-2025-04-14 20:32:14,745 - vinkeljernet.api - INFO - API client initialized and ready
-2025-04-14 20:32:14,749 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: TVflux
-2025-04-14 20:32:14,752 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 20:32:14,752 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-04-14 20:32:14,752 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x107921300>}
-2025-04-14 20:32:39,526 - vinkeljernet.api - INFO - Perplexity API request completed in 24.77 seconds
-2025-04-14 20:32:39,527 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
-2025-04-14 20:32:39,527 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': '## OVERSIGT\nOprustningen i Norge handler om en betydelig styrkelse af landets forsvarskapaciteter, med fokus på at forbedre sig på fremtidige trusler og samarbejde med allierede. Dette inkluderer investeringer i nye militære enheder og teknologi samt samarbejde med andre lande, herunder Danmark.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da Norge har annonceret en stor oprustning med en investering på over 385 milliarder danske kroner over de næste 12 år. Dette sker i en tid, hvor sikkerhedssituationen i regionen er under forandring, og Norge ønsker at styrke sin position som en vigtig aktør i det nordlige Atlanten og Arktis[3][4].\n\n## NØGLETAL\n- **Investering:** Over 385 milliarder danske kroner over de næste 12 år.\n- **Ny militærudstyr:** Fem nye fregatter, fem ubåde, ti store og atten mindre fartøjer samt langtrækkende overvågningsdroner.\n- **Personaleforøgelse:** Planlagt tilføjelse af 4.600 flere værnepligtige, 13.700 flere reservister og 4.600 flere ansatte frem til 2036[3].\n\n## PERSPEKTIVER\nForskellige synspunkter på oprustningen i Norge inkluderer:\n- **Strategisk betydning:** Oprustningen ses som en nødvendighed for at sikre Norges position i regionen og forbedre sig på fremtidige trusler, især fra Rusland[3].\n- **Samarbejde:** Samarbejdet med Danmark og andre allierede er vigtigt for at styrke forsvarskapaciteterne og sikre en fælles front mod trusler[1][4].\n- **Kritik:** Nogle mener, at oprustningen kommer for sent og at det norske forsvar stadig mangler grundlæggende kapaciteter[3].', 'topic': 'Oprustning i Norge', 'progress_callback': <function main_async.<locals>.progress_callback at 0x107921300>}
-2025-04-14 20:32:43,723 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
+2025-04-14 21:17:28,876 - root - DEBUG - Logging initialized
+2025-04-14 21:17:28,876 - root - INFO - Vinkeljernet starting up
+2025-04-14 21:17:28,879 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
+2025-04-14 21:17:28,879 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
+2025-04-14 21:17:28,879 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
+2025-04-14 21:17:28,879 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
+2025-04-14 21:17:28,958 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-04-14 21:17:28,959 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 21:17:28,976 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
+2025-04-14 21:17:28,991 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
+2025-04-14 21:17:29,006 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
+2025-04-14 21:17:29,020 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
+2025-04-14 21:17:29,035 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
+2025-04-14 21:17:29,049 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
+2025-04-14 21:17:29,063 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
+2025-04-14 21:17:29,063 - vinkeljernet.api - INFO - API client initialized and ready
+2025-04-14 21:17:29,067 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: Berlingske
+2025-04-14 21:17:29,070 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 21:17:29,070 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-04-14 21:17:29,070 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x109b99300>}
+2025-04-14 21:17:37,382 - vinkeljernet.api - INFO - Perplexity API request completed in 8.31 seconds
+2025-04-14 21:17:37,382 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-04-14 21:17:37,382 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': {'text': "## OVERSIGT\nTyskland planlægger en massiv oprustning af sit forsvar, hvilket er den største siden Den Kolde Krig. Dette sker som en del af en bredere strategi for at styrke landets sikkerhed og uafhængighed, samt for at støtte Ukraine. Oprustningen indebærer også betydelige investeringer i infrastruktur.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da den tyske regering har besluttet at lempe gældsbremsen for at finansiere oprustningen og infrastrukturprojekter. Dette sker efter en periode med usikkerhed omkring USA's engagement i europæisk sikkerhed, især efter Donald Trumps udtalelser. Den tyske kanslerkandidat Friedrich Merz har spillet en central rolle i disse beslutninger.\n\n## NØGLETAL\n- **400 milliarder euro**: Det beløb, som Tyskland planlægger at låne til oprustning og støtte til Ukraine.\n- **500 milliarder euro**: Det beløb, der er afsat til en infrastrukturfond for at forbedre veje, broer, skoler og digitalisering.\n- **3,5% af BNP**: Det mål for forsvarsudgifter, som Tyskland overvejer at nå fremover.\n\n## PERSPEKTIVER\nForskellige synspunkter på oprustningen inkluderer:\n- **Sikkerhedsperspektiv**: Oprustningen ses som en nødvendighed for at sikre Tysklands og Europas sikkerhed i lyset af usikkerhed omkring USA's engagement.\n- **Økonomisk perspektiv**: Beslutningen om at lempe gældsbremsen kan have langsigtede økonomiske konsekvenser, men også muligheder for at stimulere det europæiske marked.\n- **Politisk perspektiv**: Oprustningen er en markant ændring i Tysklands traditionelt restriktive finanspolitik og kan have betydning for landets rolle i Europa.", 'sources': {}}, 'topic': 'Oprustning i Tyskland', 'progress_callback': <function main_async.<locals>.progress_callback at 0x109b99300>}
+2025-04-14 21:17:41,076 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
     "hovedpunkter": [
-        "Norge gennemfører en betydelig oprustning af sit forsvar med fokus på at forbedre sig på fremtidige trusler og samarbejde med allierede",
-        "Investeringen er på over 385 milliarder danske kroner over de næste 12 år og inkluderer nye militære enheder som fregatter, ubåde og droner",
-        "Oprustningen ses som nødvendig for at sikre Norges position i regionen, især over for Rusland, men der er også kritik af, at den kommer for sent",
-        "Samarbejdet med Danmark og andre allierede er vigtigt for at styrke forsvarskapaciteterne og sikre en fælles front mod trusler"
+        "Tyskland planlægger en massiv oprustning af sit forsvar, hvilket er den største siden Den Kolde Krig.",
+        "Oprustningen indebærer også betydelige investeringer i infrastruktur.",
+        "Tyskland har besluttet at lempe gældsbremsen for at finansiere oprustningen og infrastrukturprojekter.",
+        "Oprustningen ses som en nødvendighed for at sikre Tysklands og Europas sikkerhed i lyset af usikkerhed omkring USA's engagement."
     ],
     "noegletal": [
         {
-            "tal": "385 milliarder danske kroner",
-            "beskrivelse": "Investering over de næste 12 år",
-            "kilde": "[3][4]"
+            "tal": "400 milliarder euro",
+            "beskrivelse": "Det beløb, som Tyskland planlægger at låne til oprustning og støtte til Ukraine."
         },
         {
-            "tal": "4.600",
-            "beskrivelse": "Flere værnepligtige planlagt frem til 2036",
-            "kilde": "[3]"
+            "tal": "500 milliarder euro",
+            "beskrivelse": "Det beløb, der er afsat til en infrastrukturfond for at forbedre veje, broer, skoler og digitalisering."
         },
         {
-            "tal": "13.700",
-       ...
-2025-04-14 20:32:43,723 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+            "tal": "3,5% af BNP",
+            "beskrivelse": "Det mål for forsvarsudgifter, som Tyskland overvejer at nå fre...
+2025-04-14 21:17:41,076 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
     "hovedpunkter": [
-        "Norge gennemfører en betydelig oprustning af sit forsvar med fokus ...
-2025-04-14 20:32:43,723 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-04-14 20:32:43,723 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 4.20 seconds
-2025-04-14 20:33:52,436 - prompt_engineering - INFO - [ANGLE_VALIDATION] Raw LLM response: [
+        "Tyskland planlægger en massiv oprustning af sit forsvar, hvilket er...
+2025-04-14 21:17:41,076 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-04-14 21:17:41,076 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 3.69 seconds
+2025-04-14 21:18:56,366 - prompt_engineering - INFO - [ANGLE_VALIDATION] Raw LLM response: [
   {
-    "overskrift": "Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?",
-    "beskrivelse": "En kritisk analyse af Norges massive forsvarsbudget. Sætter spørgsmålstegn ved om oprustningen er et tegn på militarisme eller en nødvendig reaktion på ændrede trusler.",
-    "begrundelse": "Vinklen udfordrer etablerede narrativer om oprustning og stiller skarpt på magtstrukturer. Den provokerer ved at sætte spørgsmålstegn ved normer og autoriteter.",
-    "nyhedskriterier": ["konflikt", "væsentlighed"],
+    "overskrift": "Merz leder historisk ændring i tysk finanspolitik",
+    "beskrivelse": "Friedrich Merz spiller en central rolle i beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur. Dette markerer et markant skifte i Tysklands traditionelt restriktive finanspolitik.",
+    "begrundelse": "Vinklen fokuserer på en markant politisk og økonomisk udvikling i Tyskland og sætter den i et historisk perspektiv. Dette passer godt med vores konservativ-liberale og analyserende profil.",
+    "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"],
     "startSpørgsmål": [
-      "Hvem tjener reelt på den massive norske oprustning?",
-      "Er der alternativer til militær oprustning som sikkerhedsstrategi?", 
-      "Hvordan påvirker oprustningen magtbalancen i regionen?"
+      "Hvad er de langsigtede konsekvenser af at lempe gældsbremsen?",
+      "Hvordan adskiller Merz' tilgang sig fra tidligere tysk finanspolitik?", 
+      "Hvilken modstand er der mod denne nye kurs internt i Tyskland?"
     ]
   },
   {
-    "overskrift": "Aktivister: Norsk militær truer arktisk miljø",
-    "beskrivelse": "Miljøforkæmpere advarer om at Norges militære satsning kan skade det skrøbelige arktiske økosystem. De kræver øget gennemsigtighed og civilt opsyn.",
-    "begrundelse": "Vinklen giver stemme til aktivister og sætter fokus på miljøkonsekvenserne af militariseringen, som ofte overses. Den støtter en vigtig sag og udfordrer magthaverne.",
-    "nyhedskriterier": ["identifikation", "væsentlighed", "konflikt"],
+    "overskrift": "Tysk oprustning kan stimulere europæisk økonomi",
+    "beskrivelse": "Tysklands massive investeringer i forsvar og infrastruktur kan potentielt give et boost til økonomien i hele Europa. Beslutningen åbner nye muligheder for virksomheder på tværs af sektorer.",
+    "begrundelse": "Vinklen anlægger et erhvervsøkonomisk perspektiv på oprustningen og fremhæver de positive markedsmuligheder. Dette passer godt til vores erhvervsorienterede fokus.",
+    "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"],
     "startSpørgsmål": [
-      "Hvilke konkrete miljøtrusler ser I ved den øgede militære tilstedeværelse?",
-      "Føler I at jeres bekymringer bliver taget alvorligt af myndighederne?",
-      "Hvad er jeres krav for at sikre miljøbeskyttelse i Arktis?"
+      "Hvilke sektorer står særligt til at nyde godt af investeringerne?",
+      "Hvordan kan danske virksomheder positionere sig for at drage fordel?",
+      "Vil effekten primært mærkes i Tyskland eller bredere i Europa?"
     ]
   },
   {
-    "overskrift": "Hemmelige aftaler bag norsk-dansk forsvarssamarbejde",
-    "beskrivelse": "Fortrolige kilder afslører, at der indgås lukrative våbenhandler og udveksles overvågningsdata mellem Norge og Danmark uden offentlig indsigt. Eksperter advarer om demokratisk underskud.",
-    "begrundelse": "Vinklen afslører skjulte magtstrukturer og sætter fokus på kontroversielle aspekter af forsvarssamarbejdet. Den er provokerende og giver indsigt i ting, magthaverne helst vil holde skjult.",
-    "nyhedskriterier": ["konflikt", "sensation"],
+    "overskrift": "Usikkerhed om USA tvinger Tyskland til handling",
+    "beskrivelse": "Efter en periode med tvivl om USA's engagement i europæisk sikkerhed ser Tyskland sig nødsaget til at tage ansvar for egen sikkerhed. Oprustningen er et direkte svar på den transatlantiske usikkerhed.",
+    "begrundelse": "Vinklen sætter udviklingen ind i en bredere geopolitisk kontekst og fremhæver Tysklands ændrede rolle. Perspektivet på de transatlantiske relationer passer til vores fokus på internationale forhold.",
+    "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"],
     "startSpørgsmål": [
-      "Hvad er de vigtigste ting offentligheden ikke får at vide om samarbejdet?",
-      "Hvilke demokratiske problemer ser du ved hemmelighedskræmmeriet?",
-      "Hvem drager fordel af de skjulte aftaler mellem landene?"
+      "Hvor bekymret er man i Tyskland for USA's fremtidige kurs?",
+      "Vil andre europæiske lande følge Tysklands eksempel?",
+      "Hvordan vil USA reagere på Tysklands nye selvstændige linje?"
     ]
   },
   {
-    "overskrift": "Norsk oprustning skaber splid i fredsbevægelsen",
-    "beskrivelse": "Fredsaktivister er internt uenige om hvordan de skal forholde sig til Norges militære oprustning. Nogle ser den som en krigsopildnende provokation, mens andre anerkender behovet for et stærkt forsvar.",
-    "begrundelse": "Vinklen viser de komplekse debatter og dilemmaer, som findes i fredsbevægelsen. Den undgår letkøbte konklusioner og giver indblik i aktivisternes virkelighed.",
-    "nyhedskriterier": ["konflikt", "identifikation"],
+    "overskrift": "Massiv tysk satsning på infrastruktur og digitalisering",
+    "beskrivelse": "Ud over forsvaret investerer Tyskland 500 milliarder euro i en infrastrukturfond. Midlerne skal opgradere veje, broer og skoler samt fremme digitaliseringen af samfundet.",
+    "begrundelse": "Vinklen fokuserer på de store offentlige investeringer i infrastruktur og teknologi. Dette er i tråd med vores fokus på erhvervsliv, teknologi og innovation.",
+    "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"],
     "startSpørgsmål": [
-      "Hvad er hovedargumenterne for og imod at støtte oprustningen blandt fredsaktivister?",
-      "Hvordan påvirker den interne splid fredsarbejdet og bevægelsens gennemslagskraft?",
-      "Er det muligt at forene fredsvision med anerkendelse af forsvarets rolle?"
+      "Hvilke konkrete infrastrukturprojekter prioriteres højest?",
+      "Hvordan vil man sikre effektiv implementering af digitaliseringen?", 
+      "Hvilke muligheder åbner infrastrukturfonden for danske virksomheder?"
     ]
   },
   {
-    "overskrift": "Nynazister infiltrerer Norges nye 'superværn'",
-    "beskrivelse": "Hemmelige rapporter viser at højreekstremister målrettet søger ind i det udbyggede norske forsvar for at få kamperfaring og adgang til våben. Forsvaret kritiseres for manglende baggrundstjek.",
-    "begrundelse": "Vinklen afslører en skræmmende og overset konsekvens af oprustningen. Den sætter kritisk fokus på ekstremisme og forsvarsstrukturens rolle i at facilitere den.",
-    "nyhedskriterier": ["sensation", "identifikation", "konflikt"],
+    "overskrift": "Tyskland sætter ambitiøst nyt mål for forsvarsudgifter",
+    "beskrivelse": "Som led i oprustningen overvejer Tyskland at hæve forsvarsudgifterne til 3,5% af BNP. Dette ville placere landet blandt de absolutte topspendere i NATO.",
+    "begrundelse": "Vinklen fremhæver det markante skifte i Tysklands forsvarspolitiske ambitioner gennem et konkret nøgletal. Fokus på forsvar og sikkerhedspolitik er vigtigt for vores konservative læsere.",
+    "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"],
     "startSpørgsmål": [
-      "Hvad gør det norske forsvar for at forhindre ekstremister i deres rækker?",
-      "Hvor udbredt er problemet og hvad er konsekvenserne på sigt?",
-      "Hvordan kan forsvarsstrukturen ændres for at modvirke højreradikalisering?"
+      "Hvordan vil en forøgelse til 3,5% af BNP ændre Tysklands militær?",
+      "Forventer man modstand mod de øgede forsvarsudgifter i befolkningen?",
+      "Hvilke specifikke militære kapaciteter planlægger Tyskland at investere i?"
     ]
   },
   {
-    "overskrift": "Unge norske værnepligtige: Vi vil hellere bygge end bombe",
-    "beskrivelse": "En ny generation af værnepligtige udfordrer militarismen og kræver at bruge deres tjeneste på samfundsnyttige opgaver. De vil hellere bekæmpe klimaforandringer end andre lande.",
-    "begrundelse": "Vinklen giver stemme til en marginaliseret gruppe, de værnepligtige, og deres alternative perspektiv. Den sætter fokus på andre prioriteter end militær og støtter unges idealisme.",
-    "nyhedskriterier": ["identifikation", "konflikt"],
+    "overskrift": "Oprustning styrker Tysklands uafhængighed og sikkerhed",
+    "beskrivelse": "Ved at investere massivt i forsvaret søger Tyskland at styrke sin strategiske autonomi og sikkerhed. Målet er at gøre landet mindre afhængigt af USA og bedre i stand til at håndtere trusler.",
+    "begrundelse": "Vinklen anlægger et sikkerhedspolitisk perspektiv på oprustningen og fremhæver de langsigtede strategiske mål. Dette passer til vores fokus på grundig analyse og respekt for statens sikkerhedsansvar.",
+    "nyhedskriterier": ["væsentlighed", "aktualitet"],
     "startSpørgsmål": [
-      "Hvad fik jer til at stille spørgsmålstegn ved den klassiske værnepligt?",
-      "Hvilke konkrete samfundsopgaver mener I værnepligten kunne bidrage til?",
-      "Hvordan er reaktionen fra militæret og politikerne på jeres idéer?"
+      "Hvilke konkrete trusler bekymrer Tyskland mest?",
+      "Hvor hurtigt forventes det at oprustningen vil øge Tysklands kapaciteter?",
+      "Vil en større tysk uafhængighed svække NATO-samarbejdet?"
     ]
   },
   {
-    "overskrift": "Kunstnere: Norsk militærbudget kunne finansiere kulturrevolution",
-    "beskrivelse": "Oprørske kunstnere udregner at de 385 milliarder til militæret kunne give et massivt boost til norsk kunst og kultur. De opfordrer til en kreativ oprustning i stedet.",
-    "begrundelse": "Vinklen anlægger et overraskende og kreativt perspektiv på budgetprioriteterne. Den giver stemme til kunstnernes samfundsvision og sætter militarismen i relief.",
-    "nyhedskriterier": ["konflikt", "identifikation"],
+    "overskrift": "Tyskland viser solidaritet med Ukraine gennem enorm støtte",
+    "beskrivelse": "En væsentlig del af de planlagte lån på 400 milliarder euro er øremærket til støtte til Ukraine. Tyskland påtager sig dermed en ledende rolle i den europæiske støtte til landet.",
+    "begrundelse": "Vinklen sætter fokus på Tysklands markante humanitære og politiske engagement i Ukraine-krigen. Dette er i tråd med vores vægt på Europas stabilitet og værdier.",
+    "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"],
     "startSpørgsmål": [
-      "Hvilke kulturområder ville I prioritere med et budget i den størrelse?",
-      "Hvordan ville en 'kulturel oprustning' gavne det norske samfund?",
-      "Tror I kunst kan være med til at fremme fred og nedrusting?"
+      "Hvordan vil støtten konkret blive anvendt i Ukraine?", 
+      "Lægger Tyskland pres på andre lande for også at øge støtten?",
+      "Hvordan balancerer man støtte til Ukraine med risiko for optrapning ift. Rusland?"
     ]
   },
   {
-    "overskrift": "Whistleblower: Norsk militær overvåger civile aktivister",
-    "beskrivelse": "En tidligere ansat i forsvaret står frem med afsløringer om hvordan efterretningstjenesten systematisk overvåger og registrerer progressive aktivister og miljøforkæmpere.",
-    "begrundelse": "Vinklen afslører magtmisbrug og angreb på frihedsrettigheder. Den giver stemme til en modig whistleblower og forsvarer retten til fri politisk aktivitet.",
-    "nyhedskriterier": ["konflikt", "væsentlighed", "sensation"],
+    "overskrift": "Lempelse af gældsbremse udfordrer tysk økonomisk tradition",
+    "beskrivelse": "Beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur bryder med Tysklands stærke tradition for finanspolitisk disciplin. Dette vækker bekymring hos nogle økonomer.",
+    "begrundelse": "Vinklen går i dybden med de økonomiske principper bag beslutningen og sætter den i et historisk lys. Dette passer godt til vores fokus på grundig, konservativ analyse.",
+    "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"],
     "startSpørgsmål": [
-      "Hvad fik dig til at stå frem med afsløringerne trods personlig risiko?",
-      "Hvor udbredt er overvågningen og hvad bruges informationerne til?",
-      "Hvad bør der gøres for at beskytte aktivister mod militær overvågning?"
+      "Hvor stor er risikoen for at den øgede gæld løber løbsk?",
+      "Er der fare for at inflationen tager til som følge af de store investeringer?",
+      "Hvordan vurderer økonomerne de langsigtede konsekvenser for tysk økonomi?"
     ]
   }
 ]
-2025-04-14 20:33:52,436 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
+2025-04-14 21:18:56,366 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
   {
-    "overskrift": "Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?",
-    "beskrivelse": "En kritisk analyse af Norges massive forsvarsbudget. Sætter spørgsmålstegn ved om oprust...
-2025-04-14 20:33:52,436 - json_parser - DEBUG - Attempting to parse JSON from angle generation. Preview: [
+    "overskrift": "Merz leder historisk ændring i tysk finanspolitik",
+    "beskrivelse": "Friedrich Merz spiller en central rolle i beslutningen om at lempe gældsbremsen for at finansiere oprus...
+2025-04-14 21:18:56,366 - json_parser - DEBUG - Attempting to parse JSON from angle generation response. Preview: [
   {
-    "overskrift": "Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?",
-    "bes...
-2025-04-14 20:33:52,437 - json_parser - INFO - Successfully parsed JSON directly: 8 items found
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Correcting parser output - restoring original list with 8 items
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Data type after parsing: <class 'list'>
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Data is a list with 8 items
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Found direct list format with 8 items
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 raw object: {"overskrift": "Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?", "beskrivelse": "En kritisk analyse af Norges massive forsvarsbudget. Sætter spørgsmålstegn ved om oprustningen er et tegn på militarisme eller en nødvendig reaktion på ændrede trusler.", "begrundelse": "Vinklen udfordrer etablerede narrativer om oprustning og stiller skarpt på magtstrukturer. Den provokerer ved at sætte spørgsmålstegn ved normer og autoriteter.", "nyhedskriterier": ["konflikt", "væsentlighed"], "startSpørgsmål": ["Hvem tjener reelt på den massive norske oprustning?", "Er der alternativer til militær oprustning som sikkerhedsstrategi?", "Hvordan påvirker oprustningen magtbalancen i regionen?"]}
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 (Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?): No validation fixes needed
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 (Norsk oprustning: Militær muskelsvulst eller nødvendigt forsvar?): PASSED validation
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 raw object: {"overskrift": "Aktivister: Norsk militær truer arktisk miljø", "beskrivelse": "Miljøforkæmpere advarer om at Norges militære satsning kan skade det skrøbelige arktiske økosystem. De kræver øget gennemsigtighed og civilt opsyn.", "begrundelse": "Vinklen giver stemme til aktivister og sætter fokus på miljøkonsekvenserne af militariseringen, som ofte overses. Den støtter en vigtig sag og udfordrer magthaverne.", "nyhedskriterier": ["identifikation", "væsentlighed", "konflikt"], "startSpørgsmål": ["Hvilke konkrete miljøtrusler ser I ved den øgede militære tilstedeværelse?", "Føler I at jeres bekymringer bliver taget alvorligt af myndighederne?", "Hvad er jeres krav for at sikre miljøbeskyttelse i Arktis?"]}
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 (Aktivister: Norsk militær truer arktisk miljø): No validation fixes needed
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 (Aktivister: Norsk militær truer arktisk miljø): PASSED validation
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 raw object: {"overskrift": "Hemmelige aftaler bag norsk-dansk forsvarssamarbejde", "beskrivelse": "Fortrolige kilder afslører, at der indgås lukrative våbenhandler og udveksles overvågningsdata mellem Norge og Danmark uden offentlig indsigt. Eksperter advarer om demokratisk underskud.", "begrundelse": "Vinklen afslører skjulte magtstrukturer og sætter fokus på kontroversielle aspekter af forsvarssamarbejdet. Den er provokerende og giver indsigt i ting, magthaverne helst vil holde skjult.", "nyhedskriterier": ["konflikt", "sensation"], "startSpørgsmål": ["Hvad er de vigtigste ting offentligheden ikke får at vide om samarbejdet?", "Hvilke demokratiske problemer ser du ved hemmelighedskræmmeriet?", "Hvem drager fordel af de skjulte aftaler mellem landene?"]}
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 (Hemmelige aftaler bag norsk-dansk forsvarssamarbejde): No validation fixes needed
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 (Hemmelige aftaler bag norsk-dansk forsvarssamarbejde): PASSED validation
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 raw object: {"overskrift": "Norsk oprustning skaber splid i fredsbevægelsen", "beskrivelse": "Fredsaktivister er internt uenige om hvordan de skal forholde sig til Norges militære oprustning. Nogle ser den som en krigsopildnende provokation, mens andre anerkender behovet for et stærkt forsvar.", "begrundelse": "Vinklen viser de komplekse debatter og dilemmaer, som findes i fredsbevægelsen. Den undgår letkøbte konklusioner og giver indblik i aktivisternes virkelighed.", "nyhedskriterier": ["konflikt", "identifikation"], "startSpørgsmål": ["Hvad er hovedargumenterne for og imod at støtte oprustningen blandt fredsaktivister?", "Hvordan påvirker den interne splid fredsarbejdet og bevægelsens gennemslagskraft?", "Er det muligt at forene fredsvision med anerkendelse af forsvarets rolle?"]}
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 (Norsk oprustning skaber splid i fredsbevægelsen): No validation fixes needed
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 (Norsk oprustning skaber splid i fredsbevægelsen): PASSED validation
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 raw object: {"overskrift": "Nynazister infiltrerer Norges nye 'superværn'", "beskrivelse": "Hemmelige rapporter viser at højreekstremister målrettet søger ind i det udbyggede norske forsvar for at få kamperfaring og adgang til våben. Forsvaret kritiseres for manglende baggrundstjek.", "begrundelse": "Vinklen afslører en skræmmende og overset konsekvens af oprustningen. Den sætter kritisk fokus på ekstremisme og forsvarsstrukturens rolle i at facilitere den.", "nyhedskriterier": ["sensation", "identifikation", "konflikt"], "startSpørgsmål": ["Hvad gør det norske forsvar for at forhindre ekstremister i deres rækker?", "Hvor udbredt er problemet og hvad er konsekvenserne på sigt?", "Hvordan kan forsvarsstrukturen ændres for at modvirke højreradikalisering?"]}
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 (Nynazister infiltrerer Norges nye 'superværn'): No validation fixes needed
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 (Nynazister infiltrerer Norges nye 'superværn'): PASSED validation
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 raw object: {"overskrift": "Unge norske værnepligtige: Vi vil hellere bygge end bombe", "beskrivelse": "En ny generation af værnepligtige udfordrer militarismen og kræver at bruge deres tjeneste på samfundsnyttige opgaver. De vil hellere bekæmpe klimaforandringer end andre lande.", "begrundelse": "Vinklen giver stemme til en marginaliseret gruppe, de værnepligtige, og deres alternative perspektiv. Den sætter fokus på andre prioriteter end militær og støtter unges idealisme.", "nyhedskriterier": ["identifikation", "konflikt"], "startSpørgsmål": ["Hvad fik jer til at stille spørgsmålstegn ved den klassiske værnepligt?", "Hvilke konkrete samfundsopgaver mener I værnepligten kunne bidrage til?", "Hvordan er reaktionen fra militæret og politikerne på jeres idéer?"]}
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 (Unge norske værnepligtige: Vi vil hellere bygge end bombe): No validation fixes needed
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 (Unge norske værnepligtige: Vi vil hellere bygge end bombe): PASSED validation
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 raw object: {"overskrift": "Kunstnere: Norsk militærbudget kunne finansiere kulturrevolution", "beskrivelse": "Oprørske kunstnere udregner at de 385 milliarder til militæret kunne give et massivt boost til norsk kunst og kultur. De opfordrer til en kreativ oprustning i stedet.", "begrundelse": "Vinklen anlægger et overraskende og kreativt perspektiv på budgetprioriteterne. Den giver stemme til kunstnernes samfundsvision og sætter militarismen i relief.", "nyhedskriterier": ["konflikt", "identifikation"], "startSpørgsmål": ["Hvilke kulturområder ville I prioritere med et budget i den størrelse?", "Hvordan ville en 'kulturel oprustning' gavne det norske samfund?", "Tror I kunst kan være med til at fremme fred og nedrusting?"]}
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 (Kunstnere: Norsk militærbudget kunne finansiere kulturrevolution): No validation fixes needed
-2025-04-14 20:33:52,437 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 (Kunstnere: Norsk militærbudget kunne finansiere kulturrevolution): PASSED validation
-2025-04-14 20:33:52,438 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 raw object: {"overskrift": "Whistleblower: Norsk militær overvåger civile aktivister", "beskrivelse": "En tidligere ansat i forsvaret står frem med afsløringer om hvordan efterretningstjenesten systematisk overvåger og registrerer progressive aktivister og miljøforkæmpere.", "begrundelse": "Vinklen afslører magtmisbrug og angreb på frihedsrettigheder. Den giver stemme til en modig whistleblower og forsvarer retten til fri politisk aktivitet.", "nyhedskriterier": ["konflikt", "væsentlighed", "sensation"], "startSpørgsmål": ["Hvad fik dig til at stå frem med afsløringerne trods personlig risiko?", "Hvor udbredt er overvågningen og hvad bruges informationerne til?", "Hvad bør der gøres for at beskytte aktivister mod militær overvågning?"]}
-2025-04-14 20:33:52,438 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 (Whistleblower: Norsk militær overvåger civile aktivister): No validation fixes needed
-2025-04-14 20:33:52,438 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 (Whistleblower: Norsk militær overvåger civile aktivister): PASSED validation
-2025-04-14 20:33:52,438 - prompt_engineering - INFO - [ANGLE_VALIDATION] Final validation result: 8 valid angles out of 8 raw angles
-2025-04-14 20:33:52,438 - vinkeljernet.cache - INFO - Cache hit for fetch_source_suggestions
-2025-04-14 20:33:52,439 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 20:33:52,439 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Norge', 'angle_headline': 'Aktivister: Norsk militær truer arktisk miljø', 'angle_description': 'Miljøforkæmpere advarer om at Norges militære satsning kan skade det skrøbelige arktiske økosystem. De kræver øget gennemsigtighed og civilt opsyn.'}
-2025-04-14 20:33:52,439 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 20:33:52,439 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Norge', 'angle_headline': 'Unge norske værnepligtige: Vi vil hellere bygge end bombe', 'angle_description': 'En ny generation af værnepligtige udfordrer militarismen og kræver at bruge deres tjeneste på samfundsnyttige opgaver. De vil hellere bekæmpe klimaforandringer end andre lande.'}
-2025-04-14 20:33:52,439 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 20:33:52,439 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Norge', 'angle_headline': "Nynazister infiltrerer Norges nye 'superværn'", 'angle_description': 'Hemmelige rapporter viser at højreekstremister målrettet søger ind i det udbyggede norske forsvar for at få kamperfaring og adgang til våben. Forsvaret kritiseres for manglende baggrundstjek.'}
-2025-04-14 20:34:19,775 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+    "overskrift": "Merz leder historisk ændring i tysk finanspolitik",
+    "beskrivelse": "Fri...
+2025-04-14 21:18:56,367 - json_parser - INFO - Successfully parsed JSON directly: 8 items found
+2025-04-14 21:18:56,367 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 raw object: {"overskrift": "Merz leder historisk ændring i tysk finanspolitik", "beskrivelse": "Friedrich Merz spiller en central rolle i beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur. Dette markerer et markant skifte i Tysklands traditionelt restriktive finanspolitik.", "begrundelse": "Vinklen fokuserer på en markant politisk og økonomisk udvikling i Tyskland og sætter den i et historisk perspektiv. Dette passer godt med vores konservativ-liberale og analyserende profil.", "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"], "startSpørgsmål": ["Hvad er de langsigtede konsekvenser af at lempe gældsbremsen?", "Hvordan adskiller Merz' tilgang sig fra tidligere tysk finanspolitik?", "Hvilken modstand er der mod denne nye kurs internt i Tyskland?"]}
+2025-04-14 21:18:56,367 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 (Merz leder historisk ændring i tysk finanspolitik): No validation fixes needed
+2025-04-14 21:18:56,367 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 (Merz leder historisk ændring i tysk finanspolitik): PASSED validation
+2025-04-14 21:18:56,367 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 raw object: {"overskrift": "Tysk oprustning kan stimulere europæisk økonomi", "beskrivelse": "Tysklands massive investeringer i forsvar og infrastruktur kan potentielt give et boost til økonomien i hele Europa. Beslutningen åbner nye muligheder for virksomheder på tværs af sektorer.", "begrundelse": "Vinklen anlægger et erhvervsøkonomisk perspektiv på oprustningen og fremhæver de positive markedsmuligheder. Dette passer godt til vores erhvervsorienterede fokus.", "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"], "startSpørgsmål": ["Hvilke sektorer står særligt til at nyde godt af investeringerne?", "Hvordan kan danske virksomheder positionere sig for at drage fordel?", "Vil effekten primært mærkes i Tyskland eller bredere i Europa?"]}
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 (Tysk oprustning kan stimulere europæisk økonomi): No validation fixes needed
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 (Tysk oprustning kan stimulere europæisk økonomi): PASSED validation
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 raw object: {"overskrift": "Usikkerhed om USA tvinger Tyskland til handling", "beskrivelse": "Efter en periode med tvivl om USA's engagement i europæisk sikkerhed ser Tyskland sig nødsaget til at tage ansvar for egen sikkerhed. Oprustningen er et direkte svar på den transatlantiske usikkerhed.", "begrundelse": "Vinklen sætter udviklingen ind i en bredere geopolitisk kontekst og fremhæver Tysklands ændrede rolle. Perspektivet på de transatlantiske relationer passer til vores fokus på internationale forhold.", "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"], "startSpørgsmål": ["Hvor bekymret er man i Tyskland for USA's fremtidige kurs?", "Vil andre europæiske lande følge Tysklands eksempel?", "Hvordan vil USA reagere på Tysklands nye selvstændige linje?"]}
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 (Usikkerhed om USA tvinger Tyskland til handling): No validation fixes needed
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 (Usikkerhed om USA tvinger Tyskland til handling): PASSED validation
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 raw object: {"overskrift": "Massiv tysk satsning på infrastruktur og digitalisering", "beskrivelse": "Ud over forsvaret investerer Tyskland 500 milliarder euro i en infrastrukturfond. Midlerne skal opgradere veje, broer og skoler samt fremme digitaliseringen af samfundet.", "begrundelse": "Vinklen fokuserer på de store offentlige investeringer i infrastruktur og teknologi. Dette er i tråd med vores fokus på erhvervsliv, teknologi og innovation.", "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"], "startSpørgsmål": ["Hvilke konkrete infrastrukturprojekter prioriteres højest?", "Hvordan vil man sikre effektiv implementering af digitaliseringen?", "Hvilke muligheder åbner infrastrukturfonden for danske virksomheder?"]}
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 (Massiv tysk satsning på infrastruktur og digitalisering): No validation fixes needed
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 (Massiv tysk satsning på infrastruktur og digitalisering): PASSED validation
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 raw object: {"overskrift": "Tyskland sætter ambitiøst nyt mål for forsvarsudgifter", "beskrivelse": "Som led i oprustningen overvejer Tyskland at hæve forsvarsudgifterne til 3,5% af BNP. Dette ville placere landet blandt de absolutte topspendere i NATO.", "begrundelse": "Vinklen fremhæver det markante skifte i Tysklands forsvarspolitiske ambitioner gennem et konkret nøgletal. Fokus på forsvar og sikkerhedspolitik er vigtigt for vores konservative læsere.", "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"], "startSpørgsmål": ["Hvordan vil en forøgelse til 3,5% af BNP ændre Tysklands militær?", "Forventer man modstand mod de øgede forsvarsudgifter i befolkningen?", "Hvilke specifikke militære kapaciteter planlægger Tyskland at investere i?"]}
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 (Tyskland sætter ambitiøst nyt mål for forsvarsudgifter): No validation fixes needed
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 (Tyskland sætter ambitiøst nyt mål for forsvarsudgifter): PASSED validation
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 raw object: {"overskrift": "Oprustning styrker Tysklands uafhængighed og sikkerhed", "beskrivelse": "Ved at investere massivt i forsvaret søger Tyskland at styrke sin strategiske autonomi og sikkerhed. Målet er at gøre landet mindre afhængigt af USA og bedre i stand til at håndtere trusler.", "begrundelse": "Vinklen anlægger et sikkerhedspolitisk perspektiv på oprustningen og fremhæver de langsigtede strategiske mål. Dette passer til vores fokus på grundig analyse og respekt for statens sikkerhedsansvar.", "nyhedskriterier": ["væsentlighed", "aktualitet"], "startSpørgsmål": ["Hvilke konkrete trusler bekymrer Tyskland mest?", "Hvor hurtigt forventes det at oprustningen vil øge Tysklands kapaciteter?", "Vil en større tysk uafhængighed svække NATO-samarbejdet?"]}
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 (Oprustning styrker Tysklands uafhængighed og sikkerhed): No validation fixes needed
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 (Oprustning styrker Tysklands uafhængighed og sikkerhed): PASSED validation
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 raw object: {"overskrift": "Tyskland viser solidaritet med Ukraine gennem enorm støtte", "beskrivelse": "En væsentlig del af de planlagte lån på 400 milliarder euro er øremærket til støtte til Ukraine. Tyskland påtager sig dermed en ledende rolle i den europæiske støtte til landet.", "begrundelse": "Vinklen sætter fokus på Tysklands markante humanitære og politiske engagement i Ukraine-krigen. Dette er i tråd med vores vægt på Europas stabilitet og værdier.", "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"], "startSpørgsmål": ["Hvordan vil støtten konkret blive anvendt i Ukraine?", "Lægger Tyskland pres på andre lande for også at øge støtten?", "Hvordan balancerer man støtte til Ukraine med risiko for optrapning ift. Rusland?"]}
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 (Tyskland viser solidaritet med Ukraine gennem enorm støtte): No validation fixes needed
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 (Tyskland viser solidaritet med Ukraine gennem enorm støtte): PASSED validation
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 raw object: {"overskrift": "Lempelse af gældsbremse udfordrer tysk økonomisk tradition", "beskrivelse": "Beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur bryder med Tysklands stærke tradition for finanspolitisk disciplin. Dette vækker bekymring hos nogle økonomer.", "begrundelse": "Vinklen går i dybden med de økonomiske principper bag beslutningen og sætter den i et historisk lys. Dette passer godt til vores fokus på grundig, konservativ analyse.", "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"], "startSpørgsmål": ["Hvor stor er risikoen for at den øgede gæld løber løbsk?", "Er der fare for at inflationen tager til som følge af de store investeringer?", "Hvordan vurderer økonomerne de langsigtede konsekvenser for tysk økonomi?"]}
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 (Lempelse af gældsbremse udfordrer tysk økonomisk tradition): No validation fixes needed
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 (Lempelse af gældsbremse udfordrer tysk økonomisk tradition): PASSED validation
+2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Final validation result: 8 valid angles out of 8 raw angles
+2025-04-14 21:18:56,368 - vinkeljernet.cache - INFO - Cache hit for fetch_source_suggestions
+2025-04-14 21:18:56,369 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 21:18:56,369 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Tyskland', 'angle_headline': 'Massiv tysk satsning på infrastruktur og digitalisering', 'angle_description': 'Ud over forsvaret investerer Tyskland 500 milliarder euro i en infrastrukturfond. Midlerne skal opgradere veje, broer og skoler samt fremme digitaliseringen af samfundet.'}
+2025-04-14 21:18:56,370 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 21:18:56,370 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Tyskland', 'angle_headline': 'Merz leder historisk ændring i tysk finanspolitik', 'angle_description': 'Friedrich Merz spiller en central rolle i beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur. Dette markerer et markant skifte i Tysklands traditionelt restriktive finanspolitik.'}
+2025-04-14 21:18:56,370 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-04-14 21:18:56,370 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Tyskland', 'angle_headline': 'Tysk oprustning kan stimulere europæisk økonomi', 'angle_description': 'Tysklands massive investeringer i forsvar og infrastruktur kan potentielt give et boost til økonomien i hele Europa. Beslutningen åbner nye muligheder for virksomheder på tværs af sektorer.'}
+2025-04-14 21:19:10,135 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
 {
   "eksperter": [
     {
-      "navn": "Aslak Storaker",
-      "titel": "Forsker",
-      "or...
-2025-04-14 20:34:19,775 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 20:34:19,776 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 20:34:19,776 - vinkeljernet.api - INFO - Expert source suggestions generated in 27.34 seconds
-2025-04-14 20:34:21,062 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+      "navn": "Lars Feld",
+      "titel": "Professor of Economic Po...
+2025-04-14 21:19:10,136 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 21:19:10,136 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 21:19:10,136 - vinkeljernet.api - INFO - Expert source suggestions generated in 13.77 seconds
+2025-04-14 21:19:46,614 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
 {
   "eksperter": [
     {
-      "navn": "Tina Wilchen",
-      "titel": "Antropolog og forsker...
-2025-04-14 20:34:21,062 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 20:34:21,062 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 20:34:21,062 - vinkeljernet.api - INFO - Expert source suggestions generated in 28.62 seconds
-2025-04-14 20:34:26,125 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
+      "navn": "Lars Klingbeil",
+      "titel": "Co-leader of the So...
+2025-04-14 21:19:46,615 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 21:19:46,615 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 21:19:46,615 - vinkeljernet.api - INFO - Expert source suggestions generated in 50.25 seconds
+2025-04-14 21:19:55,009 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
 {
   "eksperter": [
     {
-      "navn": "Tormod Heier",
-      "titel": "Professor i militær s...
-2025-04-14 20:34:26,125 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 20:34:26,125 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 20:34:26,125 - vinkeljernet.api - INFO - Expert source suggestions generated in 33.69 seconds
-2025-04-14 20:34:26,134 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 20:34:26,139 - vinkeljernet.api - INFO - API client shut down successfully
+      "navn": "Ulrik Harald Bie",
+      "titel": "Økonomisk redaktø...
+2025-04-14 21:19:55,010 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
+2025-04-14 21:19:55,010 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
+2025-04-14 21:19:55,010 - vinkeljernet.api - INFO - Expert source suggestions generated in 58.64 seconds
+2025-04-14 21:19:55,020 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-04-14 21:19:55,027 - vinkeljernet.api - INFO - API client shut down successfully
