@@ -196,54 +196,34 @@ async def process_generation_request(
             progress_stages["GENERATING_SOURCES"](ProcessStage.GENERATING_SOURCES, 
                                                "Finder eksperter og kilder...")
                                                
-        # Generate source suggestions
-        logger.info("Generating general source suggestions...")
+        # Generate expert sources for each angle
+        logger.info("Generating expert sources for each angle...")
         try:
-            from api_clients_wrapper import fetch_source_suggestions
-            source_text = await fetch_source_suggestions(topic, bypass_cache=bypass_cache)
-            if source_text:
-                for angle in ranked_angles:
-                    if isinstance(angle, dict):
-                        angle['kildeForslagInfo'] = source_text
+            from api_clients_optimized import generate_expert_source_suggestions
+            for angle in ranked_angles:
+                if isinstance(angle, dict):
+                    try:
+                        expert_sources = await generate_expert_source_suggestions(
+                            topic=topic,
+                            angle_headline=angle.get('overskrift', ''),
+                            angle_description=angle.get('beskrivelse', ''),
+                            bypass_cache=bypass_cache
+                        )
+                        if expert_sources:
+                            angle['ekspertKilder'] = expert_sources
+                            angle['harEkspertKilder'] = True
+                    except Exception as e:
+                        logger.error(f"Error generating expert sources for angle: {str(e)}")
+                        continue
         except Exception as e:
-            logger.error(f"Error fetching source suggestions: {str(e)}")
-            # Continue without source suggestions
-            
+            logger.error(f"Error generating expert sources: {str(e)}")
+            # Continue without expert sources
+        
         # Set stage to generating expert sources if callback provided
         if "GENERATING_EXPERT_SOURCES" in progress_stages:
             progress_stages["GENERATING_EXPERT_SOURCES"](ProcessStage.GENERATING_EXPERT_SOURCES, 
                                                      "Finder ekspertkilder til vinkler...")
                                                      
-        # Generate expert sources for each angle
-        logger.info("Generating expert sources for each angle...")
-        for i, angle in enumerate(ranked_angles):
-            if not isinstance(angle, dict):
-                continue
-                
-            # Only process top 3 angles to limit API calls
-            if i >= 3:
-                break
-                
-            try:
-                headline = angle.get('overskrift', f"Vinkel om {topic}")
-                description = angle.get('beskrivelse', "")
-                
-                from api_clients_wrapper import generate_expert_source_suggestions
-                expert_sources = await generate_expert_source_suggestions(
-                    topic=topic,
-                    angle_headline=headline,
-                    angle_description=description,
-                    bypass_cache=bypass_cache
-                )
-                
-                if expert_sources:
-                    angle['ekspertKilder'] = expert_sources
-                    angle['harEkspertKilder'] = True
-                    
-            except Exception as e:
-                logger.warning(f"Failed to generate expert sources for angle: {headline}")
-                # Continue without expert sources for this angle
-        
         # After ranking angles, match sources to each angle
         def match_sources_to_angle(angle, sources):
             # Simple keyword match: if any word from headline/desc in source title

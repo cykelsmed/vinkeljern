@@ -43,7 +43,7 @@ except ImportError:
     # Default values if not in config
     from config import PERPLEXITY_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY
     PERPLEXITY_TIMEOUT = 60  # seconds
-    ANTHROPIC_TIMEOUT = 90  # seconds
+    ANTHROPIC_TIMEOUT = 180  # seconds
     OPENAI_TIMEOUT = 60  # seconds
     USE_STREAMING = False
     MAX_CONCURRENT_REQUESTS = 5
@@ -52,13 +52,15 @@ except ImportError:
 logger = logging.getLogger("vinkeljernet.api")
 
 # API endpoints
-PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions'
+# Fjern Perplexity API URL og nøgle, brug kun Anthropic
+# PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions'
 ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
 OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 
 # Connection pool for API requests
 _connection_pool = None
 _session_pool = {}
+_initialization_logged = False  # Track if initialization has been logged
 
 def get_connection_pool(max_workers=MAX_CONCURRENT_REQUESTS):
     """Get the global thread pool executor for API requests."""
@@ -163,7 +165,7 @@ async def close_all_sessions():
     initial_backoff=1.0,
     backoff_factor=2.0,
     exceptions=[aiohttp.ClientError, asyncio.TimeoutError, ConnectionError],
-    circuit_name="perplexity_api"
+    circuit_name="claude_topic_info"
 )
 @safe_execute_async(fallback_return=None)
 async def fetch_topic_information(
@@ -174,7 +176,7 @@ async def fetch_topic_information(
     detailed: bool = False
 ) -> Optional[dict]:
     """
-    Fetch information about a topic using the Perplexity API asynchronously with optimized performance.
+    Fetch information about a topic using the Claude API asynchronously.
     
     Args:
         topic: The news topic to fetch information about
@@ -186,224 +188,98 @@ async def fetch_topic_information(
     Returns:
         Optional[dict]: The information retrieved or None if failed
     """
-    if not PERPLEXITY_API_KEY:
-        raise APIKeyMissingError("Perplexity API nøgle mangler. Sørg for at have en PERPLEXITY_API_KEY i din .env fil.")
+    if not ANTHROPIC_API_KEY:
+        raise APIKeyMissingError("Claude (Anthropic) API nøgle mangler. Sørg for at have en ANTHROPIC_API_KEY i din .env fil.")
     
     # Update progress if callback provided
     if progress_callback:
         await progress_callback(25)
 
-    # Improved prompts for better performance
+    # Prompt til Claude
     if detailed:
-        # More comprehensive prompt for detailed report with specific structure
         user_prompt = f"""
         Giv en grundig og velstruktureret analyse af emnet '{topic}' med følgende sektioner:
-        
-        # OVERSIGT
-        En kort 3-5 linjers opsummering af emnet, der dækker det mest centrale.
-        
-        # BAGGRUND
-        Relevant historisk kontekst og udvikling indtil nu. Inkluder vigtige begivenheder og milepæle med præcise datoer.
-        
-        # AKTUEL STATUS
-        Den nuværende situation med fokus på de seneste udviklinger. Beskriv præcist hvad der sker lige nu og hvorfor det er vigtigt.
-        
-        # NØGLETAL
-        Konkrete statistikker, data og fakta relateret til emnet. Inkluder tal, procenter og, hvis muligt, kilder til informationen.
-        
-        # PERSPEKTIVER
-        De forskellige synspunkter og holdninger til emnet fra forskellige aktører og interessenter. Præsenter de forskellige sider objektivt.
-        
-        # RELEVANS FOR DANMARK
-        Hvordan emnet specifikt relaterer til eller påvirker Danmark og danskerne. Inkluder lokale eksempler når det er relevant.
-        
-        # FREMTIDSUDSIGTER
-        Forventede eller mulige fremtidige udviklinger og tendenser baseret på de aktuelle fakta.
-        
-        # KILDER
-        En liste over 3-5 pålidelige danske kilder, hvor man kan finde yderligere information om emnet.
-        
-        Formatér svaret med tydelige overskrifter for hver sektion. Sørg for at information er så faktabaseret og objektiv som muligt.
+        \n# OVERSIGT\nEn kort 3-5 linjers opsummering af emnet, der dækker det mest centrale.
+        \n# BAGGRUND\nRelevant historisk kontekst og udvikling indtil nu. Inkluder vigtige begivenheder og milepæle med præcise datoer.
+        \n# AKTUEL STATUS\nDen nuværende situation med fokus på de seneste udviklinger. Beskriv præcist hvad der sker lige nu og hvorfor det er vigtigt.
+        \n# NØGLETAL\nKonkrete statistikker, data og fakta relateret til emnet. Inkluder tal, procenter og, hvis muligt, kilder til informationen.
+        \n# PERSPEKTIVER\nDe forskellige synspunkter og holdninger til emnet fra forskellige aktører og interessenter. Præsenter de forskellige sider objektivt.
+        \n# RELEVANS FOR DANMARK\nHvordan emnet specifikt relaterer til eller påvirker Danmark og danskerne. Inkluder lokale eksempler når det er relevant.
+        \n# FREMTIDSUDSIGTER\nForventede eller mulige fremtidige udviklinger og tendenser baseret på de aktuelle fakta.
+        \n# KILDER\nEn liste over 3-5 pålidelige danske kilder, hvor man kan finde yderligere information om emnet.\nFormatér svaret med tydelige overskrifter for hver sektion. Sørg for at information er så faktabaseret og objektiv som muligt.
         """
         max_tokens = 1500
     else:
-        # Optimized standard prompt for faster response
         user_prompt = f"""
         Giv en koncis og velstruktureret oversigt over følgende nyhedsemne: '{topic}'.
-        
-        Din oversigt skal indeholde:
-        
-        # OVERSIGT
-        En kort 2-3 linjers sammenfatning af, hvad emnet handler om.
-        
-        # AKTUEL STATUS
-        Den nuværende situation og hvorfor emnet er relevant lige nu.
-        
-        # NØGLETAL
-        2-3 vigtige fakta, statistikker eller tal relateret til emnet.
-        
-        # PERSPEKTIVER
-        Kort opsummering af forskellige synspunkter på emnet.
-        
-        Hold svaret faktuelt og præcist med vigtige datoer og konkrete detaljer.
+        \nDin oversigt skal indeholde:
+        \n# OVERSIGT\nEn kort 2-3 linjers sammenfatning af, hvad emnet handler om.
+        \n# AKTUEL STATUS\nDen nuværende situation og hvorfor emnet er relevant lige nu.
+        \n# NØGLETAL\n2-3 vigtige fakta, statistikker eller tal relateret til emnet.
+        \n# PERSPEKTIVER\nKort opsummering af forskellige synspunkter på emnet.\nHold svaret faktuelt og præcist med vigtige datoer og konkrete detaljer.
         """
-        max_tokens = 800  # Reduced token count for faster response
+        max_tokens = 800
 
-    # Optimized system prompt for better performance
     system_prompt = """Du er en erfaren dansk journalist med ekspertise i at fremstille komplekse emner på en struktureret og faktabaseret måde. Din opgave er at give pålidelig og velstruktureret information om aktuelle nyhedsemner. Vær koncis og fokuseret."""
 
     payload = {
-        "model": "sonar",
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
+        "model": "claude-3-haiku-20240307",
         "max_tokens": max_tokens,
         "temperature": 0.2,
-        "top_p": 0.85,
-        "return_images": False,
-        "return_related_questions": False
+        "system": system_prompt,
+        "messages": [
+            {"role": "user", "content": user_prompt}
+        ]
     }
 
-    # Update progress if callback provided
     if progress_callback:
         await progress_callback(40)
 
-    # Get session from pool
-    session = await get_aiohttp_session(key="perplexity", timeout=PERPLEXITY_TIMEOUT)
-    
-    headers = {
-        "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    start_time = time.time()
-    
-    try:
-        # Make API request with timeout
-        async with session.post(PERPLEXITY_API_URL, json=payload, headers=headers) as response:
-            # Update progress
-            if progress_callback:
-                await progress_callback(70)
-                
-            if response.status != 200:
-                error_text = await response.text()
-                logger.error(f"Perplexity API error: status={response.status}, response={error_text}")
-                return f"Fejl ved hentning af emne-information: Status {response.status}"
-            
-            try:
-                response_data = await response.json()
-            except json.JSONDecodeError as e:
-                logger.error(f"Invalid JSON in Perplexity API response: {e}")
-                return "Fejl: Modtog ikke gyldigt svar fra API'et"
-            
-            # Update progress
-            if progress_callback:
-                await progress_callback(90)
-                
-            # Extract content with error handling
-            try:
-                content = response_data['choices'][0]['message']['content']
-                if not content:
-                    logger.error("Empty content in Perplexity API response for topic info")
-                    return "Ingen information tilgængelig. Der var et problem med API-svaret."
-            except (KeyError, IndexError, TypeError) as e:
-                logger.error(f"Failed to extract content from Perplexity API response: {e}")
-                return f"Kunne ikke hente information: {str(e)}"
-            
-            # --- NEW: Extract sources section ---
-            sources = {}
-            # Look for a section like '# KILDER' or similar
-            kilder_match = re.search(r"# KILDER\s*(.*?)($|#|\Z)", content, re.DOTALL | re.IGNORECASE)
-            if kilder_match:
-                kilder_text = kilder_match.group(1)
-                # Find lines like [1] Title (URL)
-                for line in kilder_text.splitlines():
-                    ref_match = re.match(r"\[(\d+)\]\s*(.*?)\s*\((https?://[^)]+)\)", line.strip())
-                    if ref_match:
-                        ref_num = ref_match.group(1)
-                        title = ref_match.group(2).strip()
-                        url = ref_match.group(3).strip()
-                        sources[ref_num] = {"title": title, "url": url}
-            
-            # Record latency
-            latency = time.time() - start_time
-            logger.info(f"Perplexity API request completed in {latency:.2f} seconds")
-            
-            # Final progress update
-            if progress_callback:
-                await progress_callback(100)
-                
-            # Return both the content and the sources dict
-            return {"text": content, "sources": sources}
-    except Exception as e:
-        logger.error(f"Error fetching topic information: {str(e)}")
-        # Attempt to close and recreate the session on error
-        try:
-            if "perplexity" in _session_pool:
-                await _session_pool["perplexity"].close()
-                del _session_pool["perplexity"]
-        except:
-            pass
-        raise
-
-@cached_api(ttl=86400)  # Cache for 24 hours - sources don't change often
-async def fetch_source_suggestions(
-    topic: str,
-    bypass_cache: bool = False
-) -> Optional[str]:
-    """
-    Fetch source suggestions for a topic using Claude API.
-    
-    Args:
-        topic: The news topic to find sources for
-        bypass_cache: If True, ignore cached results
-        
-    Returns:
-        Optional[str]: Source suggestions or None if failed
-    """
-    if not ANTHROPIC_API_KEY:
-        logger.warning("Anthropic API key missing, cannot fetch source suggestions")
-        return None
-        
-    # Optimized prompt for source suggestions
-    prompt = f"""
-    Baseret på emnet '{topic}', giv en kort liste med 3-5 relevante og troværdige danske kilder, 
-    som en journalist kunne bruge til research. Inkluder officielle hjemmesider, forskningsinstitutioner, 
-    eksperter og organisationer. Formater som en simpel punktopstilling med korte beskrivelser på dansk.
-    Hold dit svar under 250 ord og fokuser på de mest pålidelige kilder.
-    """
-    
+    session = await get_aiohttp_session(key="anthropic_topic_info", timeout=60)
     headers = {
         "Content-Type": "application/json",
         "x-api-key": ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01"
     }
-    
-    payload = {
-        "model": "claude-3-haiku-20240307",
-        "max_tokens": 500,
-        "temperature": 0.2,
-        "system": "Du er en hjælpsom researchassistent med stort kendskab til troværdige danske kilder. Du svarer altid på dansk.",
-        "messages": [{"role": "user", "content": prompt}],
-    }
-    
-    # Get session from pool
-    session = await get_aiohttp_session(key="anthropic_sources", timeout=30)  # Shorter timeout for this simpler task
-    
+    start_time = time.time()
     try:
         async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
+            if progress_callback:
+                await progress_callback(70)
             if response.status != 200:
                 error_text = await response.text()
-                logger.error(f"Anthropic API error (sources): status={response.status}, response={error_text}")
-                return None
-                
-            response_data = await response.json()
-            return response_data['content'][0]['text']
-            
+                logger.error(f"Claude API error: status={response.status}, response={error_text}")
+                return f"Fejl ved hentning af emne-information: Status {response.status}"
+            try:
+                response_data = await response.json()
+            except json.JSONDecodeError as e:
+                logger.error(f"Invalid JSON in Claude API response: {e}")
+                return "Fejl: Modtog ikke gyldigt svar fra API'et"
+            if progress_callback:
+                await progress_callback(90)
+            try:
+                content = response_data['content'][0]['text']
+                if not content:
+                    logger.error("Empty content in Claude API response for topic info")
+                    return "Ingen information tilgængelig. Der var et problem med API-svaret."
+            except (KeyError, IndexError, TypeError) as e:
+                logger.error(f"Failed to extract content from Claude API response: {e}")
+                return f"Kunne ikke hente information: {str(e)}"
+            # Ingen kildeudtræk - returner kun tekst
+            latency = time.time() - start_time
+            logger.info(f"Claude API request completed in {latency:.2f} seconds")
+            if progress_callback:
+                await progress_callback(100)
+            return {"text": content, "sources": {}}
     except Exception as e:
-        logger.error(f"Error fetching source suggestions: {str(e)}")
-        return None
+        logger.error(f"Error fetching topic information: {str(e)}")
+        try:
+            if "anthropic_topic_info" in _session_pool:
+                await _session_pool["anthropic_topic_info"].close()
+                del _session_pool["anthropic_topic_info"]
+        except:
+            pass
+        raise
 
 async def generate_editorial_considerations(
     topic: str, 
@@ -515,7 +391,7 @@ async def _stream_claude_response(prompt, system_prompt=""):
     
     payload = {
         "model": "claude-3-opus-20240229",
-        "max_tokens": 2500,
+        "max_tokens": 1200,
         "temperature": 0.7,
         "stream": True,
         "system": system_prompt or "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler.",
@@ -563,18 +439,18 @@ async def process_generation_request(
     include_knowledge_distillate: bool = True,
 ) -> List[Dict[str, Any]]:
     """
-    Process an angle generation request with optimized parallel API calls.
+    Process a generation request with the given args using the optimized API client.
     
     Args:
-        topic: News topic to generate angles for
-        profile: Editorial DNA profile to use
-        bypass_cache: If True, ignore cached results
-        progress_callback: Optional callback function for progress updates
-        include_expert_sources: If True, generate expert source suggestions for each angle
-        include_knowledge_distillate: If True, generate a knowledge distillate from background info
+        topic: The topic to generate angles for
+        profile: The editorial DNA profile
+        bypass_cache: If True, bypass the cache
+        progress_callback: Optional callback for progress updates
+        include_expert_sources: If True, include expert sources
+        include_knowledge_distillate: If True, include knowledge distillate
         
     Returns:
-        List[Dict]: Generated angles with additional information
+        List[Dict[str, Any]]: The generated angles
     """
     try:
         # Update progress - check if progress_callback is callable
@@ -663,6 +539,7 @@ async def process_generation_request(
                 knowledge_distillate_text += "\n"
         
         # Create the prompt for angle generation, now including knowledge distillate
+        output_format = "array"
         prompt = construct_angle_prompt(
             topic,
             topic_info,
@@ -671,7 +548,8 @@ async def process_generation_request(
             fokusomrader,
             nyhedskriterier,
             nogo_omrader,
-            additional_context=knowledge_distillate_text  # Add this param to your construct_angle_prompt function
+            additional_context=knowledge_distillate_text,
+            output_format=output_format
         )
         
         # Update progress - check if progress_callback is callable
@@ -691,34 +569,77 @@ async def process_generation_request(
                     "x-api-key": ANTHROPIC_API_KEY,
                     "anthropic-version": "2023-06-01"
                 }
-                
                 payload = {
                     "model": "claude-3-opus-20240229",
-                    "max_tokens": 2500,
+                    "max_tokens": 4096,
                     "temperature": 0.7,
                     "system": "Du er en erfaren journalist med ekspertise i at udvikle kreative og relevante nyhedsvinkler.",
                     "messages": [{"role": "user", "content": prompt}],
                 }
-                
-                # Get session
                 session = await get_aiohttp_session(key="anthropic", timeout=ANTHROPIC_TIMEOUT)
-                
-                async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
-                    if response.status != 200:
+                try:
+                    async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
+                        if response.status != 200:
+                            error_text = await response.text()
+                            logger.error(f"Claude API error: {response.status}, {error_text}")
+                            raise APIConnectionError(f"Claude API fejl: {response.status}")
+                        response_data = await response.json()
+                        logger.warning(f"Claude API response_data (angles): {json.dumps(response_data, ensure_ascii=False)[:2000]}")
+                        # Log finish_reason hvis tilgængelig
+                        finish_reason = None
+                        if 'stop_reason' in response_data:
+                            finish_reason = response_data['stop_reason']
+                        elif 'content' in response_data and response_data['content'] and 'stop_reason' in response_data['content'][0]:
+                            finish_reason = response_data['content'][0]['stop_reason']
+                        elif 'content' in response_data and response_data['content'] and 'finish_reason' in response_data['content'][0]:
+                            finish_reason = response_data['content'][0]['finish_reason']
+                        if finish_reason:
+                            log_level = logging.INFO if finish_reason == 'end_turn' else logging.WARNING
+                            logger.log(log_level, f"Claude API finish_reason: {finish_reason}")
+                            if finish_reason in ('max_tokens', 'length'):
+                                logger.error("Claude API response was truncated due to max_tokens. Overvej at generere færre elementer pr. kald eller brug JSON Lines.")
+                        response_text = response_data['content'][0]['text'] if 'content' in response_data and response_data['content'] and 'text' in response_data['content'][0] else None
+                        if not response_text:
+                            logger.error(f"Claude API response_data (no text found, angles): {json.dumps(response_data, ensure_ascii=False)[:1000]}")
+                except Exception as api_exc:
+                    import traceback
+                    logger.error(f"Exception under Claude API-kald (angles): {type(api_exc).__name__}: {api_exc}\n{traceback.format_exc()}")
+                    try:
                         error_text = await response.text()
-                        logger.error(f"Claude API error: {response.status}, {error_text}")
-                        raise APIConnectionError(f"Claude API fejl: {response.status}")
-                        
-                    response_data = await response.json()
-                    response_text = response_data['content'][0]['text']
-            
+                        logger.error(f"Claude API raw response.text: {error_text[:1000]}")
+                    except Exception:
+                        pass
+                    raise
+
+            # Log hele Claude-svaret før parsing
+            logger.debug(f"Raw Claude response: {response_text}")
+
             # Update progress - check if progress_callback is callable
             if progress_callback and callable(progress_callback):
                 await progress_callback(60)
-                
+
             # Parse angles from response
             angles = parse_angles_from_response(response_text)
-            
+            # Hvis parsing fejler eller trunkering mistænkes, prøv JSON Lines fallback
+            if not angles or (len(angles) == 1 and 'Fejl' in angles[0].get('overskrift', '')):
+                jsonl_objs = []
+                for l in (response_text or '').splitlines():
+                    l = l.strip()
+                    if l.startswith('{') and l.endswith('}'):
+                        try:
+                            obj = json.loads(l)
+                            jsonl_objs.append(obj)
+                        except Exception:
+                            continue
+                if jsonl_objs:
+                    angles = jsonl_objs
+            # Gem fejl-vinkler hvis parsing fejler
+            error_angles = []
+            if angles and len(angles) == 1 and (
+                'Fejl' in angles[0].get('overskrift', '') or 'Ingen vinkler' in angles[0].get('overskrift', '')
+            ):
+                error_angles = angles.copy()
+
             if not angles or len(angles) == 0:
                 logger.error(f"No angles parsed from response. Raw response text (first 200 chars): {response_text[:200]}")
                 return [{
@@ -727,12 +648,7 @@ async def process_generation_request(
                     "nyhedskriterier": ["aktualitet"],
                     "error": "No angles could be parsed from the response"
                 }]
-                
-            # Sources task (can run in parallel while parsing angles)
-            source_task = asyncio.create_task(
-                fetch_source_suggestions(topic, bypass_cache=bypass_cache)
-            )
-            
+
             # Add background info to each angle
             perplexity_extract = topic_info["text"][:1000] + ("..." if len(topic_info["text"]) > 1000 else "")
             for angle in angles:
@@ -743,23 +659,15 @@ async def process_generation_request(
             if progress_callback and callable(progress_callback):
                 await progress_callback(70)
             
-            # Wait for the source suggestions to complete
-            try:
-                source_text = await source_task
-                if source_text:
-                    for angle in angles:
-                        if isinstance(angle, dict):
-                            angle['kildeForslagInfo'] = source_text
-            except Exception as e:
-                logger.error(f"Error getting source suggestions: {e}")
-                # Continue without source suggestions if they fail
-            
             # Filter and rank angles
             from angle_processor import filter_and_rank_angles
             ranked_angles = filter_and_rank_angles(angles, profile, 5)
-            
-            if not ranked_angles or len(ranked_angles) == 0:
+
+            # Hvis alle vinkler filtreres væk, returnér fejl-vinklerne hvis de findes
+            if (not ranked_angles or len(ranked_angles) == 0):
                 logger.error("No angles left after filtering")
+                if error_angles:
+                    return error_angles
                 return [{
                     "overskrift": "Ingen vinkler efter filtrering",
                     "beskrivelse": "Filtreringen fjernede alle vinkler. Dette kan skyldes at de genererede vinkler ikke passede til profilen.",
@@ -809,63 +717,48 @@ async def process_generation_request(
             # Generate expert source suggestions for each angle if requested
             if include_expert_sources:
                 expert_sources_tasks = []
-                
-                # Start expert source suggestions tasks for each angle
+                # Start expert source suggestions tasks for each angle (ingen begrænsning på antal)
                 for i, angle in enumerate(ranked_angles):
                     if not isinstance(angle, dict):
                         continue
-                        
-                    # Only process top angles to avoid too many API calls
-                    if i >= 3:  # Limit to top 3 angles
-                        break
-                        
-                    try:
-                        # Extract headline and description for the expert source suggestion
-                        headline = angle.get('overskrift', f"Vinkel om {topic}")
-                        description = angle.get('beskrivelse', "")
-                        
-                        # Create task for expert source suggestions
-                        task = asyncio.create_task(
-                            generate_expert_source_suggestions(
-                                topic=topic,
-                                angle_headline=headline,
-                                angle_description=description,
-                                bypass_cache=bypass_cache
-                            )
+                    # Brug altid faktiske felter, ikke defaults
+                    headline = angle.get('overskrift', f"Vinkel om {topic}")
+                    description = angle.get('beskrivelse', '')
+                    if description.strip().lower().startswith('ingen beskrivelse'):
+                        description = ''
+                    rationale = angle.get('begrundelse', '')
+                    # Byg prompt med alle relevante felter
+                    task = asyncio.create_task(
+                        generate_expert_source_suggestions(
+                            topic=topic,
+                            angle_headline=headline,
+                            angle_description=description,
+                            bypass_cache=bypass_cache,
+                            progress_callback=None,
+                            rationale=rationale if rationale else None
                         )
-                        
-                        # Store task with its angle index
-                        expert_sources_tasks.append((i, task))
-                    except Exception as e:
-                        logger.error(f"Failed to start expert source suggestions task for angle {i}: {e}")
-                
+                    )
+                    expert_sources_tasks.append((i, task))
                 # Update progress - check if progress_callback is callable
                 if progress_callback and callable(progress_callback):
                     await progress_callback(90)
-                
-                # Wait for all expert source tasks to complete
+                # Wait for all expert source tasks to complete og map korrekt
                 for i, task in expert_sources_tasks:
                     try:
                         expert_sources = await task
                         if expert_sources and i < len(ranked_angles):
-                            # Check if there's an error in the expert sources
                             if isinstance(expert_sources, dict) and "error" in expert_sources:
                                 logger.warning(f"Expert sources for angle {i} contains error: {expert_sources.get('error')}")
-                                # Still attach it as it has empty arrays for experts, institutions, etc.
-                            
-                            # Add expert sources to the angle
                             ranked_angles[i]['ekspertKilder'] = expert_sources
                             ranked_angles[i]['harEkspertKilder'] = True
                     except Exception as e:
-                        logger.error(f"Error generating expert sources for angle {i}: {e}")
-                        # Create a fallback expert sources structure with error information
+                        logger.error(f"Error generating expert sources for angle {i}: {str(e)}")
                         fallback_sources = {
                             "experts": [],
                             "institutions": [],
                             "data_sources": [],
                             "error": f"Kunne ikke generere ekspertkilder: {str(e)}"
                         }
-                        # Still add the fallback to prevent UI errors
                         if i < len(ranked_angles):
                             ranked_angles[i]['ekspertKilder'] = fallback_sources
                             ranked_angles[i]['harEkspertKilder'] = True
@@ -981,8 +874,9 @@ def get_performance_metrics() -> Dict[str, Any]:
 
 async def initialize_api_client():
     """Initialize the API client, warming up connections."""
+    global _initialization_logged
+    
     # Pre-create sessions for each API
-    await get_aiohttp_session(key="perplexity", timeout=PERPLEXITY_TIMEOUT)
     await get_aiohttp_session(key="anthropic", timeout=ANTHROPIC_TIMEOUT)
     await get_aiohttp_session(key="anthropic_sources", timeout=30)
     await get_aiohttp_session(key="anthropic_editorial", timeout=45)
@@ -997,7 +891,9 @@ async def initialize_api_client():
     from cache_manager import _check_cache_size
     await _check_cache_size()
     
-    logger.info("API client initialized and ready")
+    if not _initialization_logged:
+        logger.info("API client initialized and ready")
+        _initialization_logged = True
 
 @cached_api(ttl=7200)  # Cache for 2 hours
 @retry_with_circuit_breaker(
@@ -1252,7 +1148,7 @@ Vær yderst præcis og faktuel, brug kun information der er direkte nævnt i tek
     initial_backoff=1.0,
     backoff_factor=2.0,
     exceptions=[aiohttp.ClientError, asyncio.TimeoutError, ConnectionError],
-    circuit_name="perplexity_expert_sources"
+    circuit_name="anthropic_expert_sources"
 )
 @safe_execute_async(fallback_return=None)
 async def generate_expert_source_suggestions(
@@ -1260,214 +1156,180 @@ async def generate_expert_source_suggestions(
     angle_headline: str,
     angle_description: str,
     bypass_cache: bool = False,
-    progress_callback: Optional[Callable] = None
+    progress_callback: Optional[Callable] = None,
+    rationale: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
     """
-    Generate detailed suggestions for expert sources and institutions for a specific news angle.
-    
-    Args:
-        topic: The general news topic
-        angle_headline: The headline of the specific angle
-        angle_description: Description of the news angle
-        bypass_cache: If True, ignore cached results
-        progress_callback: Optional callback function to report progress (0-100)
-        
-    Returns:
-        Optional[Dict]: Structured dictionary with expert sources, institutions, and data sources
+    Generate detailed suggestions for expert sources and institutions for a specific news angle using Claude API.
     """
-    if not PERPLEXITY_API_KEY:
-        raise APIKeyMissingError("Perplexity API nøgle mangler. Sørg for at have en PERPLEXITY_API_KEY i din .env fil.")
-    
-    # Update progress if callback provided
+    # Definer system_prompt i starten af funktionen for at sikre, at den altid er tilgængelig
+    system_prompt = """Du er en erfaren journalist med specialviden om ekspertkilder, organisationer og datakilder i Danmark. 
+Din opgave er at identificere de mest relevante og pålidelige eksperter og institutioner til specifikke journalistiske vinkler.
+
+Returner altid et velformateret JSON-objekt med følgende struktur:
+{
+  "eksperter": [
+    {
+      "navn": "Jens Hansen",
+      "titel": "Professor i miljøret",
+      "organisation": "Københavns Universitet, Juridisk Fakultet",
+      "ekspertise": "Specialiseret i miljølovgivning og bæredygtighedsregulering",
+      "kontakt": "jens.hansen@jur.ku.dk",
+      "relevans": "Kan belyse de juridiske aspekter af kompostregulering i byområder"
+    }
+  ],
+  "institutioner": [
+    {
+      "navn": "Miljøstyrelsen",
+      "type": "Offentlig myndighed",
+      "relevans": "Ansvarlig for regulering af affaldssortering og miljøgodkendelser",
+      "kontaktperson": "Anne Nielsen, Presseafdeling",
+      "kontakt": "presse@mst.dk"
+    }
+  ],
+  "datakilder": [
+    {
+      "titel": "Affaldsstatistik 2023",
+      "udgiver": "Danmarks Statistik",
+      "beskrivelse": "Årlig rapport med data om affaldshåndtering fordelt på typer og kommuner",
+      "link": "https://www.dst.dk/affaldsstatistik2023",
+      "senest_opdateret": "Marts 2023"
+    }
+  ]
+}
+
+Fokuser på at finde reelle personer med relevant ekspertise, faktiske institutioner og pålidelige datakilder, der specifikt relaterer til den journalistiske vinkel. Sørg for diversitet i køn og institutionel tilknytning blandt eksperterne."""
+
+    if not ANTHROPIC_API_KEY:
+        raise APIKeyMissingError("Anthropic API nøgle mangler. Sørg for at have en ANTHROPIC_API_KEY i din .env fil.")
+
     if progress_callback:
         await progress_callback(20)
-    
-    # Comprehensive system prompt for expert source suggestions
-    system_prompt = """Du er en specialiseret research-assistent med dyb kendskab til ekspertkilder i Danmark. 
-Din opgave er at identificere og foreslå reelle, navngivne eksperter, organisationer og datakilder til journalistisk arbejde.
-Du skal fokusere på at give konkrete, specifikke forslag der er direkte relevante for den angivne vinkel.
-Prioriter danske eksperter og institutioner, og inkluder kun internationale kilder hvis de er særligt relevante.
-Vær yderst præcis med navne, titler og organisationer. Undgå hypotetiske eller generiske forslag."""
 
-    # User prompt with specific instructions for structured output
-    user_prompt = f"""
-    Find konkrete ekspertkilder, institutioner og datakilder til følgende journalistiske vinkel:
-    
-    EMNE: {topic}
-    OVERSKRIFT: {angle_headline}
-    BESKRIVELSE: {angle_description}
-    
-    Formater dit svar som et JSON-objekt med følgende felter:
-    
-    1. "eksperter": En liste med 4-6 konkrete ekspertkilder, hver med følgende struktur:
-       - "navn": Ekspertens fulde navn (SKAL være en reel person)
-       - "titel": Ekspertens titel og rolle
-       - "organisation": Arbejdsplads eller tilknytning
-       - "ekspertise": Kort beskrivelse af relevant ekspertise
-       - "kontakt": Kontaktinformation, hvis tilgængelig (email, telefon, eller henvisning til institution)
-       - "relevans": Kort forklaring på hvorfor denne ekspert er relevant for vinklen
-    
-    2. "institutioner": En liste med 3-5 relevante organisationer, hver med følgende struktur:
-       - "navn": Organisationens fulde navn
-       - "type": Type af organisation (universitet, myndighed, NGO, etc.)
-       - "relevans": Hvorfor denne organisation er relevant
-       - "kontaktperson": Navngiven kontaktperson/presseansvarlig hvis kendt, ellers "Presseafdeling"
-       - "kontakt": Kontaktinformation til organisationen/presseafdelingen
-    
-    3. "datakilder": En liste med 2-4 specifikke datakilder, hver med følgende struktur:
-       - "titel": Titel på rapport, database eller datasæt
-       - "udgiver": Organisation der har udgivet eller vedligeholder datakilden
-       - "beskrivelse": Kort beskrivelse af hvilke data der findes her
-       - "link": Link til datakilden, hvis tilgængelig
-       - "senest_opdateret": Hvornår datakilden sidst blev opdateret (hvis kendt)
-    
-    VIGTIGE KRAV:
-    - Alle eksperter SKAL være reelle personer med korrekte titler og tilknytninger
-    - Undgå generiske beskrivelser som "en ekspert i [emne]" - navngiv konkrete personer
-    - Organisationer skal være reelle, eksisterende institutioner
-    - For kilder med tilknytning til universiteter, angiv specifikt institut/afdeling
-    - Prioriter diversitet i både køn og institutionel tilknytning
-    - Inkluder både akademiske eksperter, praktikere og relevante myndighedspersoner
-    - Sørg for at alle forslag er direkte relevante for den konkrete vinkel, ikke bare det overordnede emne
-    - Inkluder kun kontaktoplysninger du er sikker på er korrekte (ellers angiv "Ikke offentligt tilgængelig")
-    
-    Svar udelukkende med det rene JSON-objekt, uden forklarende tekst eller indledning.
-    """
-    
-    # Update progress if callback provided
+    rationale_str = f"\nBEGRUNDELSE: {rationale}" if rationale else ""
+    user_prompt = (
+        "Find konkrete ekspertkilder, institutioner og datakilder til følgende journalistiske vinkel:"
+        f"\nEMNE: {topic}"
+        f"\nOVERSKRIFT: {angle_headline}"
+        f"\nBESKRIVELSE: {angle_description}"
+        f"{rationale_str}"
+        "\nFormater dit svar som et JSON-objekt med følgende felter:"
+        "\n1. \"eksperter\": En liste med 4-6 konkrete ekspertkilder, hver med følgende struktur:"
+        "\n   - \"navn\": Ekspertens fulde navn (SKAL være en reel person)"
+        "\n   - \"titel\": Ekspertens titel og rolle"
+        "\n   - \"organisation\": Arbejdsplads eller tilknytning"
+        "\n   - \"ekspertise\": Kort beskrivelse af relevant ekspertise"
+        "\n   - \"kontakt\": Kontaktinformation, hvis tilgængelig (email, telefon, eller henvisning til institution)"
+        "\n   - \"relevans\": Kort forklaring på hvorfor denne ekspert er relevant for vinklen"
+        "\n2. \"institutioner\": En liste med 3-5 relevante organisationer, hver med følgende struktur:"
+        "\n   - \"navn\": Organisationens fulde navn"
+        "\n   - \"type\": Type af organisation (universitet, myndighed, NGO, etc.)"
+        "\n   - \"relevans\": Hvorfor denne organisation er relevant"
+        "\n   - \"kontaktperson\": Navngiven kontaktperson/presseansvarlig hvis kendt, ellers \"Presseafdeling\""
+        "\n   - \"kontakt\": Kontaktinformation til organisationen/presseafdelingen"
+        "\n3. \"datakilder\": En liste med 2-4 specifikke datakilder, hver med følgende struktur:"
+        "\n   - \"titel\": Titel på rapport, database eller datasæt"
+        "\n   - \"udgiver\": Organisation der har udgivet eller vedligeholder datakilden"
+        "\n   - \"beskrivelse\": Kort beskrivelse af hvilke data der findes her"
+        "\n   - \"link\": Link til datakilden, hvis tilgængelig"
+        "\n   - \"senest_opdateret\": Hvornår datakilden sidst blev opdateret (hvis kendt)"
+        "\nVIGTIGE KRAV:"
+        "\n- Alle eksperter SKAL være reelle personer med korrekte titler og tilknytninger"
+        "\n- Undgå generiske beskrivelser som \"en ekspert i [emne]\" - navngiv konkrete personer"
+        "\n- Organisationer skal være reelle, eksisterende institutioner"
+        "\n- For kilder med tilknytning til universiteter, angiv specifikt institut/afdeling"
+        "\n- Prioriter diversitet i både køn og institutionel tilknytning"
+        "\n- Inkluder både akademiske eksperter, praktikere og relevante myndighedspersoner"
+        "\n- Sørg for at alle forslag er direkte relevante for den konkrete vinkel, ikke bare det overordnede emne"
+        "\n- Inkluder kun kontaktoplysninger du er sikker på er korrekte (ellers angiv \"Ikke offentligt tilgængelig\")"
+        "\nSvar udelukkende med det rene JSON-objekt, uden forklarende tekst eller indledning."
+    )
+
     if progress_callback:
         await progress_callback(40)
-    
-    # Get session from pool
-    session = await get_aiohttp_session(key="perplexity_experts", timeout=PERPLEXITY_TIMEOUT)
-    
+
     headers = {
-        "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
     }
-    
+
     payload = {
-        "model": "sonar",  # Using Perplexity's most up-to-date model for current information
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
-        "max_tokens": 2000,
-        "temperature": 0.2,  # Lower temperature for more deterministic results
-        "top_p": 0.85,
-        "return_images": False,
-        "return_related_questions": False
+        "model": "claude-3-haiku-20240307",
+        "max_tokens": 4096,
+        "temperature": 0.2,
+        "system": system_prompt,
+        "messages": [{"role": "user", "content": user_prompt + "\n\nReturnér udelukkende gyldig JSON. Ingen forklaringer, ingen tekst udenfor JSON."}],
     }
-    
-    start_time = time.time()
-    
+
+    session = await get_aiohttp_session(key="anthropic_expert_sources", timeout=45)
+
     try:
-        # Make API request with timeout
-        async with session.post(PERPLEXITY_API_URL, json=payload, headers=headers) as response:
-            # Update progress
-            if progress_callback:
-                await progress_callback(70)
-                
+        async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
+            raw_bytes = await response.read()
+            logger.debug(f"Raw Claude API response bytes: {raw_bytes[:500]}{'...' if len(raw_bytes) > 500 else ''}")
+            try:
+                raw_text = raw_bytes.decode('utf-8')
+            except UnicodeDecodeError:
+                raw_text = raw_bytes.decode('utf-8', errors='replace')
+            logger.debug(f"Raw Claude API response text: {raw_text[:500]}{'...' if len(raw_text) > 500 else ''}")
+            # Reset response for json parsing
+            import io
+            response._body = raw_bytes
+            response.content._cursor = 0
             if response.status != 200:
-                error_text = await response.text()
-                logger.error(f"Perplexity API error (expert sources): status={response.status}, response={error_text}")
-                return {
-                    "experts": [],
-                    "institutions": [],
-                    "data_sources": [],
-                    "error": f"API Error: Status {response.status}"
-                }
-            
+                error_text = raw_text
+                logger.error(f"Claude API error: status={response.status}, response={error_text}")
+                return f"Fejl ved hentning af emne-information: Status {response.status}"
             try:
                 response_data = await response.json()
-            except json.JSONDecodeError as e:
-                logger.error(f"Invalid JSON in Perplexity API response: {e}")
+            except Exception as e:
+                logger.error(f"Invalid JSON in Claude API response: {e}. Preview: {raw_text[:500]}{'...' if len(raw_text) > 500 else ''}")
+                return "Fejl: Modtog ikke gyldigt svar fra API'et"
+            logger.warning(f"Claude API response_data (expert sources): {json.dumps(response_data, ensure_ascii=False)[:2000]}")
+            content = response_data['content'][0]['text'] if 'content' in response_data and response_data['content'] and 'text' in response_data['content'][0] else None
+            if not content:
+                logger.error(f"Anthropic API response_data (no text found): {json.dumps(response_data, ensure_ascii=False)[:1000]}")
                 return {
-                    "experts": [],
-                    "institutions": [],
-                    "data_sources": [],
-                    "error": "Response is not valid JSON"
+                    "eksperter": [],
+                    "institutioner": [],
+                    "datakilder": [],
+                    "error": "No content returned from Claude API"
                 }
-            
-            # Update progress
-            if progress_callback:
-                await progress_callback(85)
-                
-            # Extract content with error handling
-            try:
-                content = response_data['choices'][0]['message']['content']
-                if not content:
-                    logger.error("Empty content in Perplexity API response")
-                    return {
-                        "experts": [],
-                        "institutions": [],
-                        "data_sources": [],
-                        "error": "Empty content received from API"
-                    }
-            except (KeyError, IndexError, TypeError) as e:
-                logger.error(f"Failed to extract content from Perplexity API response: {e}")
-                return {
-                    "experts": [],
-                    "institutions": [],
-                    "data_sources": [],
-                    "error": f"Failed to extract content: {str(e)}"
-                }
-            
-            # Use the enhanced JSON parser for robust parsing
+    
+            # Robust JSON parsing
             from json_parser import safe_parse_json
-            
-            # Define expected structure for expert sources
             expected_format = {
-                "experts": [],         # or "eksperter": []
-                "institutions": [],    # or "institutioner": []
-                "data_sources": []     # or "datakilder": []
+                "eksperter": [],
+                "institutioner": [],
+                "datakilder": []
             }
-            
-            # Parse the content using the robust parser
-            source_suggestions = safe_parse_json(
+            expert_suggestions = safe_parse_json(
                 content,
                 context="expert source suggestions",
                 fallback={
                     "error": "Failed to parse expert sources",
-                    "experts": [],
-                    "institutions": [],
-                    "data_sources": [],
+                    "eksperter": [],
+                    "institutioner": [],
+                    "datakilder": [],
                     "raw_response": content[:300] + ("..." if len(content) > 300 else "")
                 }
             )
-            
-            # Normalize field names if they use Danish variants
-            if "eksperter" in source_suggestions and "experts" not in source_suggestions:
-                source_suggestions["experts"] = source_suggestions.pop("eksperter")
-            if "institutioner" in source_suggestions and "institutions" not in source_suggestions:
-                source_suggestions["institutions"] = source_suggestions.pop("institutioner")
-            if "datakilder" in source_suggestions and "data_sources" not in source_suggestions:
-                source_suggestions["data_sources"] = source_suggestions.pop("datakilder")
-            
             # Ensure all required fields exist
             for field in expected_format:
-                if field not in source_suggestions:
-                    source_suggestions[field] = []
-            
-            # Record latency
-            latency = time.time() - start_time
-            logger.info(f"Expert source suggestions generated in {latency:.2f} seconds")
-            
-            # Final progress update
+                if field not in expert_suggestions:
+                    expert_suggestions[field] = []
             if progress_callback:
                 await progress_callback(100)
-                
-            return source_suggestions
+            return expert_suggestions
     except Exception as e:
         logger.error(f"Error generating expert source suggestions: {str(e)}")
-        # Attempt to close and recreate the session on error
-        try:
-            if "perplexity_experts" in _session_pool:
-                await _session_pool["perplexity_experts"].close()
-                del _session_pool["perplexity_experts"]
-        except:
-            pass
-        raise
+        return {
+            "eksperter": [],
+            "institutioner": [],
+            "datakilder": [],
+            "error": f"Exception: {str(e)}"
+        }
 
 async def shutdown_api_client():
     """Properly shut down the API client, closing connections."""
@@ -1827,7 +1689,7 @@ async def generate_optimized_angles(
             )
             
             if cached_result:
-                logger.info(f"Serving cached angles for topic '{topic}', profile {profile.id if hasattr(profile, "id") else "unknown"}")
+                logger.info(f"Serving cached angles for topic '{topic}', profile {profile.id if hasattr(profile, 'id') else 'unknown'}")
                 execution_time = time.time() - start_time
                 
                 # Registrer cache hit
@@ -1935,16 +1797,28 @@ async def generate_optimized_angles(
                 async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
                     if response.status != 200:
                         error_text = await response.text()
-                        raise DetailedAngleError(
-                            f"Claude API fejl: status={response.status}, response={error_text}",
-                            error_type="api_error",
-                            user_friendly_message=f"API fejl (status {response.status})",
-                            debug_info={"status_code": response.status, "error_response": error_text}
-                        )
-                        
+                        logger.error(f"Claude API error: {response.status}, {error_text}")
+                        raise APIConnectionError(f"Claude API fejl: {response.status}")
                     response_data = await response.json()
-                    return response_data['content'][0]['text']
-            
+                    # Log altid hele response_data
+                    logger.warning(f"Claude API response_data (angles): {json.dumps(response_data, ensure_ascii=False)[:2000]}")
+                    # Log finish_reason hvis tilgængelig
+                    finish_reason = None
+                    if 'stop_reason' in response_data:
+                        finish_reason = response_data['stop_reason']
+                    elif 'content' in response_data and response_data['content'] and 'stop_reason' in response_data['content'][0]:
+                        finish_reason = response_data['content'][0]['stop_reason']
+                    elif 'content' in response_data and response_data['content'] and 'finish_reason' in response_data['content'][0]:
+                        finish_reason = response_data['content'][0]['finish_reason']
+                    if finish_reason:
+                        log_level = logging.INFO if finish_reason == 'end_turn' else logging.WARNING
+                        logger.log(log_level, f"Claude API finish_reason: {finish_reason}")
+                        if finish_reason in ('max_tokens', 'length'):
+                            logger.error("Claude API response was truncated due to max_tokens. Overvej at generere færre elementer pr. kald eller brug JSON Lines.")
+                    response_text = response_data['content'][0]['text'] if 'content' in response_data and response_data['content'] and 'text' in response_data['content'][0] else None
+                    if not response_text:
+                        logger.error(f"Claude API response_data (no text found, angles): {json.dumps(response_data, ensure_ascii=False)[:1000]}")
+
             # Eksekver API kald med timeout og retry
             api_response = await with_timeout(
                 with_retry(
@@ -1979,6 +1853,11 @@ async def generate_optimized_angles(
                 context="angle generation",
                 return_debug_info=True
             )
+            # Hvis partial extraction bruges, log tabt data
+            if debug_info.get("partial_extraction"):
+                lost_segments = debug_info.get("unparsed_segments", [])
+                for seg in lost_segments:
+                    logger.error(f"Partial JSON extraction: Tabt segment: '{seg[:100]}{'...' if len(seg) > 100 else ''}'")
             
             if not debug_info["success"]:
                 # Hvis parsing fejlede, prøv fallback parsing

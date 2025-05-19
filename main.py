@@ -35,6 +35,7 @@ from prompt_toolkit.shortcuts import clear, message_dialog, button_dialog
 from prompt_toolkit.application import run_in_terminal
 
 from models import RedaktionelDNA, KildeModel, KnowledgeDistillate  # <--- Updated imports
+from vinkeljernet.ui_utils import display_knowledge_distillate, display_angles_panels
 
 # Configure root logger
 logging.basicConfig(
@@ -176,6 +177,18 @@ def parse_arguments() -> Namespace:
         "--debug",
         action="store_true",
         help="Aktiver debug tilstand med ekstra output"
+    )
+    
+    parser.add_argument(
+        "--fulde-kilder",
+        action="store_true",
+        help="Vis alle detaljer om ekspertkilder, institutioner og datakilder"
+    )
+    
+    parser.add_argument(
+        "--detaljerede-kilder",
+        action="store_true",
+        help="Vis alle tilgængelige felter for alle kilder"
     )
     
     args = parser.parse_args()
@@ -444,112 +457,9 @@ async def main_async() -> None:
     
     console.print(f"[green]✓[/green] Genereret {len(angles)} vinkler")
     
-    # Check if we have a knowledge distillate
-    has_distillate = False
-    for angle in angles:
-        if angle.get('videnDistillat') and not has_distillate:
-            has_distillate = True
-            distillate = angle.get('videnDistillat')
-            
-            # Display knowledge distillate panel
-            console.print("\n[bold blue]📊 Videndistillat:[/bold blue]")
-            
-            distillate_content = []
-            
-            # Add key statistics if available
-            if 'noegletal' in distillate and distillate['noegletal']:
-                distillate_content.append("[bold cyan]Nøgletal:[/bold cyan]")
-                for stat in distillate['noegletal']:
-                    source = f" [dim]({stat.get('kilde')})[/dim]" if stat.get('kilde') else ""
-                    distillate_content.append(f"• [bold]{stat.get('tal')}[/bold]: {stat.get('beskrivelse')}{source}")
-                distillate_content.append("")
-            
-            # Add key claims if available
-            if 'centralePaastand' in distillate and distillate['centralePaastand']:
-                distillate_content.append("[bold cyan]Centrale påstande:[/bold cyan]")
-                for claim in distillate['centralePaastand']:
-                    source = f" [dim]({claim.get('kilde')})[/dim]" if claim.get('kilde') else ""
-                    distillate_content.append(f"• {claim.get('paastand')}{source}")
-                distillate_content.append("")
-            
-            # Add different perspectives if available
-            if 'vinkler' in distillate and distillate['vinkler']:
-                distillate_content.append("[bold cyan]Perspektiver:[/bold cyan]")
-                for perspective in distillate['vinkler']:
-                    actor = f" [dim]({perspective.get('aktør')})[/dim]" if perspective.get('aktør') else ""
-                    distillate_content.append(f"• {perspective.get('vinkel')}{actor}")
-                distillate_content.append("")
-            
-            # Add important dates if available
-            if 'datoer' in distillate and distillate['datoer']:
-                distillate_content.append("[bold cyan]Vigtige datoer:[/bold cyan]")
-                for date_info in distillate['datoer']:
-                    importance = f" - {date_info.get('betydning')}" if date_info.get('betydning') else ""
-                    distillate_content.append(f"• [bold]{date_info.get('dato')}[/bold]: {date_info.get('begivenhed')}{importance}")
-            
-            # Display the distillate panel
-            console.print(Panel(
-                "\n".join(distillate_content),
-                title="[bold blue]Videndistillat[/bold blue]",
-                border_style="blue",
-                expand=False
-            ))
-            
-            # Only show the distillate once
-            break
-    
-    # Present results with nice formatting
-    console.print("\n[bold blue]🎯 Anbefalede vinkler:[/bold blue]")
-    for i, angle in enumerate(angles, 1):
-        # Handle potentially missing keys with .get()
-        headline = angle.get('overskrift', 'Ingen overskrift')
-        description = angle.get('beskrivelse', 'Ingen beskrivelse')
-        rationale = angle.get('begrundelse', 'Ingen begrundelse')
-        criteria = angle.get('nyhedskriterier', [])
-        questions = angle.get('startSpørgsmål', [])
-        score = angle.get('kriterieScore', 'N/A')
-        
-        # Create panel for each angle
-        panel_content = [
-            f"[bold white]{headline}[/bold white]",
-            f"\n{description}",
-            f"\n[dim blue]Begrundelse:[/dim blue] [dim]{rationale}[/dim]",
-            f"\n[dim blue]Nyhedskriterier:[/dim blue] [dim]{', '.join(criteria)}[/dim]"
-        ]
-        
-        # Add start questions if available
-        if questions:
-            panel_content.append(f"\n[dim blue]Startspørgsmål:[/dim blue]")
-            for q in questions:
-                panel_content.append(f"[dim]• {q}[/dim]")
-        
-        if score != 'N/A':
-            panel_content.append(f"\n[dim blue]Score:[/dim blue] [dim]{score}[/dim]")
-        
-        # Add expert sources if available for this angle
-        if angle.get('ekspertKilder'):
-            panel_content.append(f"\n[bold cyan]Ekspertkilder:[/bold cyan]")
-            
-            # Add experts
-            if 'experts' in angle['ekspertKilder'] and angle['ekspertKilder']['experts']:
-                for expert in angle['ekspertKilder']['experts'][:3]:  # Limit to 3 experts to avoid overload
-                    name = expert.get('navn', 'N/A')
-                    title = expert.get('titel', 'N/A')
-                    org = expert.get('organisation', 'N/A')
-                    contact = f" [dim]({expert.get('kontakt')})[/dim]" if expert.get('kontakt') else ""
-                    panel_content.append(f"• [bold]{name}[/bold]: {title}, {org}{contact}")
-            
-            # Add data sources (just a mention)
-            if 'data_sources' in angle['ekspertKilder'] and angle['ekspertKilder']['data_sources']:
-                data_count = len(angle['ekspertKilder']['data_sources'])
-                panel_content.append(f"[dim]+ {data_count} datakilder tilgængelige[/dim]")
-        
-        console.print(Panel(
-            "\n".join(panel_content),
-            title=f"[bold green]Vinkel {i}[/bold green]",
-            border_style="green",
-            expand=False
-        ))
+    # Videndistillat vises allerede i display_angles_panels
+    console.print("\n[bold green]Viser genererede vinkler:[/bold green]")
+    display_angles_panels(angles, args.fulde_kilder, args.detaljerede_kilder)
     
     # Save to output file if specified
     if args.output:
@@ -682,7 +592,7 @@ def display_help() -> None:
     console.print(md)
 
 
-async def run_interactive_cli() -> None:
+async def run_interactive_cli(args) -> None:
     """Run the interactive CLI interface."""
     # Setup the prompt session with history
     history_file = Path.home() / ".vinkeljernet_history"
@@ -694,7 +604,7 @@ async def run_interactive_cli() -> None:
         # Fallback simple mode for non-interactive environments
         console.print(f"[yellow]Kunne ikke starte interaktiv tilstand: {e}[/yellow]")
         console.print("[yellow]Bruger simpel kommandolinje-tilstand i stedet.[/yellow]")
-        return await run_simple_cli()
+        return await run_simple_cli(args)
     
     # Set up the style
     style = Style.from_dict({
@@ -781,8 +691,7 @@ async def run_interactive_cli() -> None:
                     table.add_row("Kerneprincipper", principles)
                     table.add_row("Tone og stil", profile.tone_og_stil)
                     table.add_row("Antal nyhedskriterier", str(len(profile.nyhedsprioritering)))
-                    table.add_row("Antal fokusområder", str(len(profile.fokusOmrader)))
-                    table.add.row("Antal no-go områder", str(len(profile.noGoOmrader)))
+                    table.add.row("Antal fokusområder", str(len(profile.fokusOmrader)))
                     
                     console.print(table)
                 except FileNotFoundError:
@@ -801,7 +710,7 @@ async def run_interactive_cli() -> None:
                 else:
                     profile_path = profile_name
                 
-                # Create an args-like object to pass to the main function
+                # Create a simpler processing object
                 class Args:
                     pass
                 
@@ -816,6 +725,7 @@ async def run_interactive_cli() -> None:
                 args.show_circuits = False
                 args.reset_circuits = False
                 args.debug = debug_mode
+                args.fulde_kilder = False
                 
                 try:
                     # Run the main function but capture its output for the interactive CLI
@@ -1017,114 +927,39 @@ async def process_generation_request(args) -> None:
     
     console.print(f"[green]✓[/green] Genereret {len(angles)} vinkler")
     
-    # Check if we have a knowledge distillate
-    has_distillate = False
-    for angle in angles:
-        if angle.get('videnDistillat') and not has_distillate:
-            has_distillate = True
-            distillate = angle.get('videnDistillat')
-            
-            # Display knowledge distillate panel
-            console.print("\n[bold blue]📊 Videndistillat:[/bold blue]")
-            
-            distillate_content = []
-            
-            # Add key statistics if available
-            if 'noegletal' in distillate and distillate['noegletal']:
-                distillate_content.append("[bold cyan]Nøgletal:[/bold cyan]")
-                for stat in distillate['noegletal']:
-                    source = f" [dim]({stat.get('kilde')})[/dim]" if stat.get('kilde') else ""
-                    distillate_content.append(f"• [bold]{stat.get('tal')}[/bold]: {stat.get('beskrivelse')}{source}")
-                distillate_content.append("")
-            
-            # Add key claims if available
-            if 'centralePaastand' in distillate and distillate['centralePaastand']:
-                distillate_content.append("[bold cyan]Centrale påstande:[/bold cyan]")
-                for claim in distillate['centralePaastand']:
-                    source = f" [dim]({claim.get('kilde')})[/dim]" if claim.get('kilde') else ""
-                    distillate_content.append(f"• {claim.get('paastand')}{source}")
-                distillate_content.append("")
-            
-            # Add different perspectives if available
-            if 'vinkler' in distillate and distillate['vinkler']:
-                distillate_content.append("[bold cyan]Perspektiver:[/bold cyan]")
-                for perspective in distillate['vinkler']:
-                    actor = f" [dim]({perspective.get('aktør')})[/dim]" if perspective.get('aktør') else ""
-                    distillate_content.append(f"• {perspective.get('vinkel')}{actor}")
-                distillate_content.append("")
-            
-            # Add important dates if available
-            if 'datoer' in distillate and distillate['datoer']:
-                distillate_content.append("[bold cyan]Vigtige datoer:[/bold cyan]")
-                for date_info in distillate['datoer']:
-                    importance = f" - {date_info.get('betydning')}" if date_info.get('betydning') else ""
-                    distillate_content.append(f"• [bold]{date_info.get('dato')}[/bold]: {date_info.get('begivenhed')}{importance}")
-            
-            # Display the distillate panel
-            console.print(Panel(
-                "\n".join(distillate_content),
-                title="[bold blue]Videndistillat[/bold blue]",
-                border_style="blue",
-                expand=False
-            ))
-            
-            # Only show the distillate once
-            break
+    # Videndistillat vises allerede i display_angles_panels
+    console.print("\n[bold green]Viser genererede vinkler:[/bold green]")
+    display_angles_panels(angles, args.fulde_kilder, args.detaljerede_kilder)
     
-    # Present results with nice formatting
-    console.print("\n[bold blue]🎯 Anbefalede vinkler:[/bold blue]")
-    for i, angle in enumerate(angles, 1):
-        # Handle potentially missing keys with .get()
-        headline = angle.get('overskrift', 'Ingen overskrift')
-        description = angle.get('beskrivelse', 'Ingen beskrivelse')
-        rationale = angle.get('begrundelse', 'Ingen begrundelse')
-        criteria = angle.get('nyhedskriterier', [])
-        questions = angle.get('startSpørgsmål', [])
-        score = angle.get('kriterieScore', 'N/A')
-        
-        # Create panel for each angle
-        panel_content = [
-            f"[bold white]{headline}[/bold white]",
-            f"\n{description}",
-            f"\n[dim blue]Begrundelse:[/dim blue] [dim]{rationale}[/dim]",
-            f"\n[dim blue]Nyhedskriterier:[/dim blue] [dim]{', '.join(criteria)}[/dim]"
-        ]
-        
-        # Add start questions if available
-        if questions:
-            panel_content.append(f"\n[dim blue]Startspørgsmål:[/dim blue]")
-            for q in questions:
-                panel_content.append(f"[dim]• {q}[/dim]")
-        
-        if score != 'N/A':
-            panel_content.append(f"\n[dim blue]Score:[/dim blue] [dim]{score}[/dim]")
-        
-        # Add expert sources if available for this angle
-        if angle.get('ekspertKilder'):
-            panel_content.append(f"\n[bold cyan]Ekspertkilder:[/bold cyan]")
+    # Save to output file if specified
+    if args.output:
+        try:
+            from formatters import format_angles
             
-            # Add experts
-            if 'experts' in angle['ekspertKilder'] and angle['ekspertKilder']['experts']:
-                for expert in angle['ekspertKilder']['experts'][:3]:  # Limit to 3 experts to avoid overload
-                    name = expert.get('navn', 'N/A')
-                    title = expert.get('titel', 'N/A')
-                    org = expert.get('organisation', 'N/A')
-                    contact = f" [dim]({expert.get('kontakt')})[/dim]" if expert.get('kontakt') else ""
-                    panel_content.append(f"• [bold]{name}[/bold]: {title}, {org}{contact}")
+            # Extract profile name from the path
+            profile_name = Path(args.profil).stem
             
-            # Add data sources (just a mention)
-            if 'data_sources' in angle['ekspertKilder'] and angle['ekspertKilder']['data_sources']:
-                data_count = len(angle['ekspertKilder']['data_sources'])
-                panel_content.append(f"[dim]+ {data_count} datakilder tilgængelige[/dim]")
-        
-        console.print(Panel(
-            "\n".join(panel_content),
-            title=f"[bold green]Vinkel {i}[/bold green]",
-            border_style="green",
-            expand=False
-        ))
-    
-    # Clean up resources
+            format_angles(
+                angles, 
+                format_type=args.format,
+                profile_name=profile_name,
+                topic=args.emne,
+                output_path=args.output
+            )
+            
+            console.print(f"\n[green]✓[/green] Resultater gemt i {args.output} ({args.format} format)")
+        except ImportError:
+            # Fallback to JSON if formatter module not available
+            with open(args.output, 'w', encoding='utf-8') as outfile:
+                json.dump(angles, outfile, ensure_ascii=False, indent=2)
+            console.print(f"\n[green]✓[/green] Resultater gemt i {args.output} (JSON format)")
+        except IOError as e:
+            console.print(f"\n[bold red]Fejl ved skrivning til fil:[/bold red] {e}")
+            console.print(f"[yellow]Tjek om stien eksisterer og om du har skriverettigheder.[/yellow]")
+        except Exception as e:
+            console.print(f"\n[bold red]Uventet fejl ved skrivning til fil:[/bold red] {e}")
+            
+    # Properly clean up API client on exit
     try:
         await shutdown_api_client()
     except Exception as e:
@@ -1163,7 +998,7 @@ async def process_generation_request(args) -> None:
                     format_type = 'markdown'  # Default
                 
                 format_angles(
-                    ranked_angles, 
+                    angles, 
                     format_type=format_type,
                     profile_name=profile_name,
                     topic=args.emne,
@@ -1178,7 +1013,7 @@ async def process_generation_request(args) -> None:
     # run_in_terminal(ask_save_output)
 
 
-async def run_simple_cli() -> None:
+async def run_simple_cli(args) -> None:
     """Run a simplified CLI interface for environments where prompt_toolkit doesn't work."""
     display_welcome_message()
     display_help()
@@ -1252,6 +1087,7 @@ async def run_simple_cli() -> None:
                 args.show_circuits = False
                 args.reset_circuits = False
                 args.debug = False
+                args.fulde_kilder = False
                 
                 try:
                     # Call the main processing function
@@ -1279,22 +1115,50 @@ def main() -> None:
     Main function that orchestrates the application flow.
     """
     try:
+        # Parse command-line arguments
         args = parse_arguments()
         
-        # Check if we should run in interactive mode
-        if args.interactive:
-            asyncio.run(run_interactive_cli())
-        else:
-            # Traditional CLI mode
-            asyncio.run(main_async())
+        if args.performance:
+            show_performance_metrics()
+            sys.exit(0)
+        
+        if args.optimize_cache:
+            from vinkeljernet.cache import optimize_cache
+            results = optimize_cache()
+            console.print(results)
+            sys.exit(0)
+
+        # Create new event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        try:
+            # Initialize the API client
+            loop.run_until_complete(initialize_api_client())
+            
+            # Run in interactive or simple CLI mode depending on environment
+            if args.interactive:
+                try:
+                    # Try to run interactive mode
+                    loop.run_until_complete(run_interactive_cli(args))
+                except ImportError:
+                    # Fall back to simple CLI if prompt_toolkit is not available
+                    console.print("[yellow]prompt_toolkit not available, falling back to simple CLI[/yellow]")
+                    loop.run_until_complete(run_simple_cli(args))
+            else:
+                # Run traditional CLI mode
+                loop.run_until_complete(process_generation_request(args))
+                
+        finally:
+            # Clean up
+            try:
+                loop.run_until_complete(shutdown_api_client())
+            except:
+                pass
+            loop.close()
             
     except KeyboardInterrupt:
         console.print("\n[yellow]Program afbrudt af bruger.[/yellow]")
-        # Do a final attempt to clean up resources
-        try:
-            asyncio.run(shutdown_api_client())
-        except:
-            pass
         sys.exit(0)
     except ValueError as e:
         # Håndter ValueError separat, da disse ofte er forventede fejl
@@ -1303,12 +1167,6 @@ def main() -> None:
     except Exception as e:
         console.print(f"\n[bold red]Uventet fejl:[/bold red] {e}")
         console.print("[yellow]Dette er sandsynligvis en bug i programmet. Indsend venligst en fejlrapport.[/yellow]")
-        
-        # Do a final attempt to clean up resources
-        try:
-            asyncio.run(shutdown_api_client())
-        except:
-            pass
         sys.exit(1)
 
 

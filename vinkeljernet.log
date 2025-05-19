@@ -1,207 +1,225 @@
-2025-04-14 21:17:28,876 - root - DEBUG - Logging initialized
-2025-04-14 21:17:28,876 - root - INFO - Vinkeljernet starting up
-2025-04-14 21:17:28,879 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
-2025-04-14 21:17:28,879 - vinkeljernet.config - INFO - Loaded OPENAI_API_KEY: sk-p************************************************************************************************************************************************************oZ4A
-2025-04-14 21:17:28,879 - vinkeljernet.config - INFO - Loaded PERPLEXITY_API_KEY: pplx*********************************************mkop
-2025-04-14 21:17:28,879 - vinkeljernet.config - INFO - Loaded ANTHROPIC_API_KEY: sk-a****************************************************************************************************TAAA
-2025-04-14 21:17:28,958 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-04-14 21:17:28,959 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 21:17:28,976 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity
-2025-04-14 21:17:28,991 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
-2025-04-14 21:17:29,006 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
-2025-04-14 21:17:29,020 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
-2025-04-14 21:17:29,035 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
-2025-04-14 21:17:29,049 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
-2025-04-14 21:17:29,063 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
-2025-04-14 21:17:29,063 - vinkeljernet.api - INFO - API client initialized and ready
-2025-04-14 21:17:29,067 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: Berlingske
-2025-04-14 21:17:29,070 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 21:17:29,070 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-04-14 21:17:29,070 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function main_async.<locals>.progress_callback at 0x109b99300>}
-2025-04-14 21:17:37,382 - vinkeljernet.api - INFO - Perplexity API request completed in 8.31 seconds
-2025-04-14 21:17:37,382 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
-2025-04-14 21:17:37,382 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': {'text': "## OVERSIGT\nTyskland planlægger en massiv oprustning af sit forsvar, hvilket er den største siden Den Kolde Krig. Dette sker som en del af en bredere strategi for at styrke landets sikkerhed og uafhængighed, samt for at støtte Ukraine. Oprustningen indebærer også betydelige investeringer i infrastruktur.\n\n## AKTUEL STATUS\nEmnet er relevant lige nu, da den tyske regering har besluttet at lempe gældsbremsen for at finansiere oprustningen og infrastrukturprojekter. Dette sker efter en periode med usikkerhed omkring USA's engagement i europæisk sikkerhed, især efter Donald Trumps udtalelser. Den tyske kanslerkandidat Friedrich Merz har spillet en central rolle i disse beslutninger.\n\n## NØGLETAL\n- **400 milliarder euro**: Det beløb, som Tyskland planlægger at låne til oprustning og støtte til Ukraine.\n- **500 milliarder euro**: Det beløb, der er afsat til en infrastrukturfond for at forbedre veje, broer, skoler og digitalisering.\n- **3,5% af BNP**: Det mål for forsvarsudgifter, som Tyskland overvejer at nå fremover.\n\n## PERSPEKTIVER\nForskellige synspunkter på oprustningen inkluderer:\n- **Sikkerhedsperspektiv**: Oprustningen ses som en nødvendighed for at sikre Tysklands og Europas sikkerhed i lyset af usikkerhed omkring USA's engagement.\n- **Økonomisk perspektiv**: Beslutningen om at lempe gældsbremsen kan have langsigtede økonomiske konsekvenser, men også muligheder for at stimulere det europæiske marked.\n- **Politisk perspektiv**: Oprustningen er en markant ændring i Tysklands traditionelt restriktive finanspolitik og kan have betydning for landets rolle i Europa.", 'sources': {}}, 'topic': 'Oprustning i Tyskland', 'progress_callback': <function main_async.<locals>.progress_callback at 0x109b99300>}
-2025-04-14 21:17:41,076 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
+2025-05-19 03:35:09,987 - root - DEBUG - Logging initialized
+2025-05-19 03:35:09,987 - root - INFO - Vinkeljernet starting up
+2025-05-19 03:35:09,998 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
+2025-05-19 03:35:09,998 - vinkeljernet.config - INFO - OPENAI_API_KEY API Key loaded successfully
+2025-05-19 03:35:09,998 - vinkeljernet.config - INFO - PERPLEXITY_API_KEY API Key loaded successfully
+2025-05-19 03:35:09,998 - vinkeljernet.config - INFO - ANTHROPIC_API_KEY API Key loaded successfully
+2025-05-19 03:35:10,086 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-05-19 03:35:10,086 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-05-19 03:35:10,093 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
+2025-05-19 03:35:10,098 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
+2025-05-19 03:35:10,103 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
+2025-05-19 03:35:10,108 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
+2025-05-19 03:35:10,113 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
+2025-05-19 03:35:10,118 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
+2025-05-19 03:35:10,119 - vinkeljernet.api - INFO - API client initialized and ready
+2025-05-19 03:35:10,122 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: DR - Danmarks Radio
+2025-05-19 03:35:10,124 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-05-19 03:35:10,124 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function process_generation_request.<locals>.progress_callback at 0x107186ca0>}
+2025-05-19 03:35:10,129 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_topic_info
+2025-05-19 03:35:13,073 - vinkeljernet.api - INFO - Claude API request completed in 2.94 seconds
+2025-05-19 03:35:13,075 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-05-19 03:35:13,075 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': {'text': '# OVERSIGT\n\nKaffe er en af verdens mest populære drikkevarer, der fremstilles af kaffebønner fra kaffeplanten. Kaffe drikkes over hele verden og har stor økonomisk og kulturel betydning.\n\n# AKTUEL STATUS\n\nKaffesalget er steget markant de seneste år, drevet af øget efterspørgsel i vækstøkonomier som Kina og Indien. Samtidig er der stigende bekymring for kaffebøndernes levevilkår og bæredygtigheden i kaffeindustrien.\n\n# NØGLETAL\n\n- Kaffe er den næststørste handelsvare i verden efter olie.\n- Globalt drikkes der over 400 milliarder kopper kaffe om året.\n- Kaffeindustrien beskæftiger over 125 millioner mennesker på verdensplan.\n\n# PERSPEKTIVER\n\nDer er debat om kaffeindustriens bæredygtighed, herunder lave priser for bønderne, miljøpåvirkning og arbejdsforhold. Samtidig viser forskning, at moderat kaffeforbrug kan have sundhedsmæssige fordele. Kaffeindustrien arbejder på at gøre produktionen mere bæredygtig.', 'sources': {}}, 'topic': 'kaffe', 'progress_callback': <function process_generation_request.<locals>.progress_callback at 0x107186ca0>}
+2025-05-19 03:35:16,887 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
     "hovedpunkter": [
-        "Tyskland planlægger en massiv oprustning af sit forsvar, hvilket er den største siden Den Kolde Krig.",
-        "Oprustningen indebærer også betydelige investeringer i infrastruktur.",
-        "Tyskland har besluttet at lempe gældsbremsen for at finansiere oprustningen og infrastrukturprojekter.",
-        "Oprustningen ses som en nødvendighed for at sikre Tysklands og Europas sikkerhed i lyset af usikkerhed omkring USA's engagement."
+        "Kaffe er en af verdens mest populære drikkevarer, der fremstilles af kaffebønner fra kaffeplanten",
+        "Kaffesalget er steget markant de seneste år, drevet af øget efterspørgsel i vækstøkonomier som Kina og Indien",
+        "Der er stigende bekymring for kaffebøndernes levevilkår og bæredygtigheden i kaffeindustrien",
+        "Kaffeindustrien beskæftiger over 125 millioner mennesker på verdensplan"
     ],
     "noegletal": [
         {
-            "tal": "400 milliarder euro",
-            "beskrivelse": "Det beløb, som Tyskland planlægger at låne til oprustning og støtte til Ukraine."
+            "tal": "400 milliarder",
+            "beskrivelse": "Globalt drikkes der over 400 milliarder kopper kaffe om året"
         },
         {
-            "tal": "500 milliarder euro",
-            "beskrivelse": "Det beløb, der er afsat til en infrastrukturfond for at forbedre veje, broer, skoler og digitalisering."
+            "tal": "2",
+            "beskrivelse": "Kaffe er den næststørste handelsvare i verden efter olie"
         },
         {
-            "tal": "3,5% af BNP",
-            "beskrivelse": "Det mål for forsvarsudgifter, som Tyskland overvejer at nå fre...
-2025-04-14 21:17:41,076 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+            "tal": "125 millioner",
+            "beskrivelse": "Kaffeindustrien beskæftiger over 125 millioner mennesker på verdensplan"
+        }
+    ],
+    "centralePaastand": [
+        {
+            "paastand": "Der er debat om kaffeindustrie...
+2025-05-19 03:35:16,887 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
     "hovedpunkter": [
-        "Tyskland planlægger en massiv oprustning af sit forsvar, hvilket er...
-2025-04-14 21:17:41,076 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-04-14 21:17:41,076 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 3.69 seconds
-2025-04-14 21:18:56,366 - prompt_engineering - INFO - [ANGLE_VALIDATION] Raw LLM response: [
+        "Kaffe er en af verdens mest populære drikkevarer, der fremstilles a...
+2025-05-19 03:35:16,887 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-19 03:35:16,888 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 3.81 seconds
+2025-05-19 03:35:57,821 - vinkeljernet.api - WARNING - Claude API response_data (angles): {"id": "msg_01HBmD5KGSS69PQvUUfPNbMj", "type": "message", "role": "assistant", "model": "claude-3-opus-20240229", "content": [{"type": "text", "text": "[\n  {\n    \"overskrift\": \"Kaffebønder under pres: Lave priser truer bæredygtig produktion\",\n    \"beskrivelse\": \"En undersøgelse af de udfordringer, som kaffebønder står over for på grund af de lave priser på verdensmarkedet. Fokus på konsekvenserne for bøndernes levevilkår og muligheden for at opretholde en bæredygtig kaffeproduktion.\",\n    \"begrundelse\": \"Historien sætter fokus på et vigtigt globalt problem og appellerer til læsere, der interesserer sig for bæredygtighed, sociale forhold og etisk forbrug.\",\n    \"startSpørgsmål\": [\n      \"Hvordan har prisudviklingen på kaffe påvirket bøndernes indtjening de seneste år?\",\n      \"Hvilke konsekvenser har de lave priser for bøndernes mulighed for at investere i bæredygtig produktion?\"\n    ],\n    \"nyhedskriterier\": [\"væsentlighed\", \"konflikt\"]\n  },\n  {\n    \"overskrift\": \"Kaffe som sundhedseliksir: Ny forskning peger på overraskende fordele\",\n    \"beskrivelse\": \"En gennemgang af den seneste forskning, der viser, at moderat kaffeforbrug kan have en række positive effekter på sundheden, herunder nedsat risiko for visse kræftformer og type 2-diabetes.\",\n    \"begrundelse\": \"Historien er relevant for den brede befolkning, da kaffe er en populær hverdagsdrik. Den giver læserne ny viden om sundhed og velvære.\",\n    \"startSpørgsmål\": [\n      \"Hvilke konkrete sundhedsmæssige fordele har forskningen fundet ved kaffeforbrug?\",\n      \"Hvor meget kaffe er optimalt at drikke for at opnå sundhedsfordelene?\"\n    ],\n    \"nyhedskriterier\": [\"identifikation\", \"aktualitet\"]\n  },\n  {\n    \"overskrift\": \"Kaffekultur i forandring: Specialkaffe vinder frem hos danskerne\",\n    \"beskrivelse\": \"En udforskning af den voksende interesse for specialkaffe i Danmark, fra små lokale risterier til kaffebarer og hjemmebrygning. Hvad
+2025-05-19 03:35:57,822 - vinkeljernet.api - INFO - Claude API finish_reason: end_turn
+2025-05-19 03:35:57,822 - vinkeljernet.api - DEBUG - Raw Claude response: [
   {
-    "overskrift": "Merz leder historisk ændring i tysk finanspolitik",
-    "beskrivelse": "Friedrich Merz spiller en central rolle i beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur. Dette markerer et markant skifte i Tysklands traditionelt restriktive finanspolitik.",
-    "begrundelse": "Vinklen fokuserer på en markant politisk og økonomisk udvikling i Tyskland og sætter den i et historisk perspektiv. Dette passer godt med vores konservativ-liberale og analyserende profil.",
-    "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"],
+    "overskrift": "Kaffebønder under pres: Lave priser truer bæredygtig produktion",
+    "beskrivelse": "En undersøgelse af de udfordringer, som kaffebønder står over for på grund af de lave priser på verdensmarkedet. Fokus på konsekvenserne for bøndernes levevilkår og muligheden for at opretholde en bæredygtig kaffeproduktion.",
+    "begrundelse": "Historien sætter fokus på et vigtigt globalt problem og appellerer til læsere, der interesserer sig for bæredygtighed, sociale forhold og etisk forbrug.",
     "startSpørgsmål": [
-      "Hvad er de langsigtede konsekvenser af at lempe gældsbremsen?",
-      "Hvordan adskiller Merz' tilgang sig fra tidligere tysk finanspolitik?", 
-      "Hvilken modstand er der mod denne nye kurs internt i Tyskland?"
-    ]
+      "Hvordan har prisudviklingen på kaffe påvirket bøndernes indtjening de seneste år?",
+      "Hvilke konsekvenser har de lave priser for bøndernes mulighed for at investere i bæredygtig produktion?"
+    ],
+    "nyhedskriterier": ["væsentlighed", "konflikt"]
   },
   {
-    "overskrift": "Tysk oprustning kan stimulere europæisk økonomi",
-    "beskrivelse": "Tysklands massive investeringer i forsvar og infrastruktur kan potentielt give et boost til økonomien i hele Europa. Beslutningen åbner nye muligheder for virksomheder på tværs af sektorer.",
-    "begrundelse": "Vinklen anlægger et erhvervsøkonomisk perspektiv på oprustningen og fremhæver de positive markedsmuligheder. Dette passer godt til vores erhvervsorienterede fokus.",
-    "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"],
+    "overskrift": "Kaffe som sundhedseliksir: Ny forskning peger på overraskende fordele",
+    "beskrivelse": "En gennemgang af den seneste forskning, der viser, at moderat kaffeforbrug kan have en række positive effekter på sundheden, herunder nedsat risiko for visse kræftformer og type 2-diabetes.",
+    "begrundelse": "Historien er relevant for den brede befolkning, da kaffe er en populær hverdagsdrik. Den giver læserne ny viden om sundhed og velvære.",
     "startSpørgsmål": [
-      "Hvilke sektorer står særligt til at nyde godt af investeringerne?",
-      "Hvordan kan danske virksomheder positionere sig for at drage fordel?",
-      "Vil effekten primært mærkes i Tyskland eller bredere i Europa?"
-    ]
+      "Hvilke konkrete sundhedsmæssige fordele har forskningen fundet ved kaffeforbrug?",
+      "Hvor meget kaffe er optimalt at drikke for at opnå sundhedsfordelene?"
+    ],
+    "nyhedskriterier": ["identifikation", "aktualitet"]
   },
   {
-    "overskrift": "Usikkerhed om USA tvinger Tyskland til handling",
-    "beskrivelse": "Efter en periode med tvivl om USA's engagement i europæisk sikkerhed ser Tyskland sig nødsaget til at tage ansvar for egen sikkerhed. Oprustningen er et direkte svar på den transatlantiske usikkerhed.",
-    "begrundelse": "Vinklen sætter udviklingen ind i en bredere geopolitisk kontekst og fremhæver Tysklands ændrede rolle. Perspektivet på de transatlantiske relationer passer til vores fokus på internationale forhold.",
-    "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"],
+    "overskrift": "Kaffekultur i forandring: Specialkaffe vinder frem hos danskerne",
+    "beskrivelse": "En udforskning af den voksende interesse for specialkaffe i Danmark, fra små lokale risterier til kaffebarer og hjemmebrygning. Hvad driver tendensen, og hvordan påvirker det danskernes forhold til kaffe?",
+    "begrundelse": "Historien tager udgangspunkt i en aktuel trend og giver indblik i en forandring i dansk kultur og forbrug. Den appellerer til læsere med interesse for livsstil og forbrugerforhold.",
     "startSpørgsmål": [
-      "Hvor bekymret er man i Tyskland for USA's fremtidige kurs?",
-      "Vil andre europæiske lande følge Tysklands eksempel?",
-      "Hvordan vil USA reagere på Tysklands nye selvstændige linje?"
-    ]
+      "Hvordan har salget af specialkaffe udviklet sig de seneste år?",
+      "Hvad motiverer forbrugerne til at vælge specialkaffe frem for almindelig kaffe?",
+      "Hvordan adskiller smagen og oplevelsen sig ved specialkaffe?"
+    ],
+    "nyhedskriterier": ["aktualitet", "identifikation"]
   },
   {
-    "overskrift": "Massiv tysk satsning på infrastruktur og digitalisering",
-    "beskrivelse": "Ud over forsvaret investerer Tyskland 500 milliarder euro i en infrastrukturfond. Midlerne skal opgradere veje, broer og skoler samt fremme digitaliseringen af samfundet.",
-    "begrundelse": "Vinklen fokuserer på de store offentlige investeringer i infrastruktur og teknologi. Dette er i tråd med vores fokus på erhvervsliv, teknologi og innovation.",
-    "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"],
+    "overskrift": "Klimaforandringer truer kaffens fremtid",
+    "beskrivelse": "En analyse af hvordan klimaforandringer som tørke og ekstreme vejrforhold påvirker kaffeproduktionen globalt. Eksperter vurderer konsekvenserne for udbuddet og prisen på kaffe i de kommende årtier.",
+    "begrundelse": "Historien sætter fokus på et væsentligt emne med store potentielle konsekvenser for både forbrugere, industrien og bønder. Den passer med profilens fokus på klima og bæredygtighed.",
     "startSpørgsmål": [
-      "Hvilke konkrete infrastrukturprojekter prioriteres højest?",
-      "Hvordan vil man sikre effektiv implementering af digitaliseringen?", 
-      "Hvilke muligheder åbner infrastrukturfonden for danske virksomheder?"
-    ]
+      "Hvilke konkrete trusler udgør klimaforandringerne for kaffeproduktionen?",
+      "Hvad gør industrien og bønderne for at tilpasse sig de ændrede forhold?"
+    ],
+    "nyhedskriterier": ["væsentlighed", "aktualitet"]
   },
   {
-    "overskrift": "Tyskland sætter ambitiøst nyt mål for forsvarsudgifter",
-    "beskrivelse": "Som led i oprustningen overvejer Tyskland at hæve forsvarsudgifterne til 3,5% af BNP. Dette ville placere landet blandt de absolutte topspendere i NATO.",
-    "begrundelse": "Vinklen fremhæver det markante skifte i Tysklands forsvarspolitiske ambitioner gennem et konkret nøgletal. Fokus på forsvar og sikkerhedspolitik er vigtigt for vores konservative læsere.",
-    "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"],
+    "overskrift": "Kaffeindustriens skyggesider: Bønder udnyttes trods certificeringer",
+    "beskrivelse": "En dybdegående undersøgelse af arbejdsforholdene på kaffeplantager, der afslører udbredt underbetaling og udnyttelse af arbejdere, på trods af industriens bæredygtighedscertificeringer.",
+    "begrundelse": "Historien stiller skarpt på et kontroversielt emne og lever op til profilens fokus på kritisk journalistik og sociale forhold. Den giver læserne et nuanceret indblik bag certificeringerne.",
     "startSpørgsmål": [
-      "Hvordan vil en forøgelse til 3,5% af BNP ændre Tysklands militær?",
-      "Forventer man modstand mod de øgede forsvarsudgifter i befolkningen?",
-      "Hvilke specifikke militære kapaciteter planlægger Tyskland at investere i?"
-    ]
-  },
-  {
-    "overskrift": "Oprustning styrker Tysklands uafhængighed og sikkerhed",
-    "beskrivelse": "Ved at investere massivt i forsvaret søger Tyskland at styrke sin strategiske autonomi og sikkerhed. Målet er at gøre landet mindre afhængigt af USA og bedre i stand til at håndtere trusler.",
-    "begrundelse": "Vinklen anlægger et sikkerhedspolitisk perspektiv på oprustningen og fremhæver de langsigtede strategiske mål. Dette passer til vores fokus på grundig analyse og respekt for statens sikkerhedsansvar.",
-    "nyhedskriterier": ["væsentlighed", "aktualitet"],
-    "startSpørgsmål": [
-      "Hvilke konkrete trusler bekymrer Tyskland mest?",
-      "Hvor hurtigt forventes det at oprustningen vil øge Tysklands kapaciteter?",
-      "Vil en større tysk uafhængighed svække NATO-samarbejdet?"
-    ]
-  },
-  {
-    "overskrift": "Tyskland viser solidaritet med Ukraine gennem enorm støtte",
-    "beskrivelse": "En væsentlig del af de planlagte lån på 400 milliarder euro er øremærket til støtte til Ukraine. Tyskland påtager sig dermed en ledende rolle i den europæiske støtte til landet.",
-    "begrundelse": "Vinklen sætter fokus på Tysklands markante humanitære og politiske engagement i Ukraine-krigen. Dette er i tråd med vores vægt på Europas stabilitet og værdier.",
-    "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"],
-    "startSpørgsmål": [
-      "Hvordan vil støtten konkret blive anvendt i Ukraine?", 
-      "Lægger Tyskland pres på andre lande for også at øge støtten?",
-      "Hvordan balancerer man støtte til Ukraine med risiko for optrapning ift. Rusland?"
-    ]
-  },
-  {
-    "overskrift": "Lempelse af gældsbremse udfordrer tysk økonomisk tradition",
-    "beskrivelse": "Beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur bryder med Tysklands stærke tradition for finanspolitisk disciplin. Dette vækker bekymring hos nogle økonomer.",
-    "begrundelse": "Vinklen går i dybden med de økonomiske principper bag beslutningen og sætter den i et historisk lys. Dette passer godt til vores fokus på grundig, konservativ analyse.",
-    "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"],
-    "startSpørgsmål": [
-      "Hvor stor er risikoen for at den øgede gæld løber løbsk?",
-      "Er der fare for at inflationen tager til som følge af de store investeringer?",
-      "Hvordan vurderer økonomerne de langsigtede konsekvenser for tysk økonomi?"
-    ]
+      "Hvilke konkrete problemer findes der med arbejdsforhold og løn på kaffeplantager?",
+      "Hvordan kan det være, at problemerne eksisterer på trods af certificeringer?",
+      "Hvad siger industrien og certificeringsorganerne til kritikken?"
+    ],
+    "nyhedskriterier": ["væsentlighed", "konflikt"]
   }
 ]
-2025-04-14 21:18:56,366 - prompt_engineering - DEBUG - Parsing angles from response (preview): [
+2025-05-19 03:35:57,822 - prompt_engineering - DEBUG - Raw LLM response: [
   {
-    "overskrift": "Merz leder historisk ændring i tysk finanspolitik",
-    "beskrivelse": "Friedrich Merz spiller en central rolle i beslutningen om at lempe gældsbremsen for at finansiere oprus...
-2025-04-14 21:18:56,366 - json_parser - DEBUG - Attempting to parse JSON from angle generation response. Preview: [
+    "overskrift": "Kaffebønder under pres: Lave priser truer bæredygtig produktion",
+    "beskrivelse": "En undersøgelse af de udfordringer, som kaffebønder står over for på grund af de lave priser på verdensmarkedet. Fokus på konsekvenserne for bøndernes levevilkår og muligheden for at opretholde en bæredygtig kaffeproduktion.",
+    "begrundelse": "Historien sætter fokus på et vigtigt globalt problem og appellerer til læsere, der interesserer sig for bæredygtighed, sociale forhold og etisk forbrug.",
+    "startSpørgsmål": [
+      "Hvordan har prisudviklingen på kaffe påvirket bøndernes indtjening de seneste år?",
+      "Hvilke konsekvenser har de lave priser for bøndernes mulighed for at investere i bæredygtig produktion?"
+    ],
+    "nyhedskriterier": ["væsentlighed", "konflikt"]
+  },
   {
-    "overskrift": "Merz leder historisk ændring i tysk finanspolitik",
-    "beskrivelse": "Fri...
-2025-04-14 21:18:56,367 - json_parser - INFO - Successfully parsed JSON directly: 8 items found
-2025-04-14 21:18:56,367 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 raw object: {"overskrift": "Merz leder historisk ændring i tysk finanspolitik", "beskrivelse": "Friedrich Merz spiller en central rolle i beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur. Dette markerer et markant skifte i Tysklands traditionelt restriktive finanspolitik.", "begrundelse": "Vinklen fokuserer på en markant politisk og økonomisk udvikling i Tyskland og sætter den i et historisk perspektiv. Dette passer godt med vores konservativ-liberale og analyserende profil.", "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"], "startSpørgsmål": ["Hvad er de langsigtede konsekvenser af at lempe gældsbremsen?", "Hvordan adskiller Merz' tilgang sig fra tidligere tysk finanspolitik?", "Hvilken modstand er der mod denne nye kurs internt i Tyskland?"]}
-2025-04-14 21:18:56,367 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 (Merz leder historisk ændring i tysk finanspolitik): No validation fixes needed
-2025-04-14 21:18:56,367 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 1 (Merz leder historisk ændring i tysk finanspolitik): PASSED validation
-2025-04-14 21:18:56,367 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 raw object: {"overskrift": "Tysk oprustning kan stimulere europæisk økonomi", "beskrivelse": "Tysklands massive investeringer i forsvar og infrastruktur kan potentielt give et boost til økonomien i hele Europa. Beslutningen åbner nye muligheder for virksomheder på tværs af sektorer.", "begrundelse": "Vinklen anlægger et erhvervsøkonomisk perspektiv på oprustningen og fremhæver de positive markedsmuligheder. Dette passer godt til vores erhvervsorienterede fokus.", "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"], "startSpørgsmål": ["Hvilke sektorer står særligt til at nyde godt af investeringerne?", "Hvordan kan danske virksomheder positionere sig for at drage fordel?", "Vil effekten primært mærkes i Tyskland eller bredere i Europa?"]}
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 (Tysk oprustning kan stimulere europæisk økonomi): No validation fixes needed
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 2 (Tysk oprustning kan stimulere europæisk økonomi): PASSED validation
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 raw object: {"overskrift": "Usikkerhed om USA tvinger Tyskland til handling", "beskrivelse": "Efter en periode med tvivl om USA's engagement i europæisk sikkerhed ser Tyskland sig nødsaget til at tage ansvar for egen sikkerhed. Oprustningen er et direkte svar på den transatlantiske usikkerhed.", "begrundelse": "Vinklen sætter udviklingen ind i en bredere geopolitisk kontekst og fremhæver Tysklands ændrede rolle. Perspektivet på de transatlantiske relationer passer til vores fokus på internationale forhold.", "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"], "startSpørgsmål": ["Hvor bekymret er man i Tyskland for USA's fremtidige kurs?", "Vil andre europæiske lande følge Tysklands eksempel?", "Hvordan vil USA reagere på Tysklands nye selvstændige linje?"]}
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 (Usikkerhed om USA tvinger Tyskland til handling): No validation fixes needed
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 3 (Usikkerhed om USA tvinger Tyskland til handling): PASSED validation
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 raw object: {"overskrift": "Massiv tysk satsning på infrastruktur og digitalisering", "beskrivelse": "Ud over forsvaret investerer Tyskland 500 milliarder euro i en infrastrukturfond. Midlerne skal opgradere veje, broer og skoler samt fremme digitaliseringen af samfundet.", "begrundelse": "Vinklen fokuserer på de store offentlige investeringer i infrastruktur og teknologi. Dette er i tråd med vores fokus på erhvervsliv, teknologi og innovation.", "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"], "startSpørgsmål": ["Hvilke konkrete infrastrukturprojekter prioriteres højest?", "Hvordan vil man sikre effektiv implementering af digitaliseringen?", "Hvilke muligheder åbner infrastrukturfonden for danske virksomheder?"]}
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 (Massiv tysk satsning på infrastruktur og digitalisering): No validation fixes needed
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 4 (Massiv tysk satsning på infrastruktur og digitalisering): PASSED validation
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 raw object: {"overskrift": "Tyskland sætter ambitiøst nyt mål for forsvarsudgifter", "beskrivelse": "Som led i oprustningen overvejer Tyskland at hæve forsvarsudgifterne til 3,5% af BNP. Dette ville placere landet blandt de absolutte topspendere i NATO.", "begrundelse": "Vinklen fremhæver det markante skifte i Tysklands forsvarspolitiske ambitioner gennem et konkret nøgletal. Fokus på forsvar og sikkerhedspolitik er vigtigt for vores konservative læsere.", "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"], "startSpørgsmål": ["Hvordan vil en forøgelse til 3,5% af BNP ændre Tysklands militær?", "Forventer man modstand mod de øgede forsvarsudgifter i befolkningen?", "Hvilke specifikke militære kapaciteter planlægger Tyskland at investere i?"]}
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 (Tyskland sætter ambitiøst nyt mål for forsvarsudgifter): No validation fixes needed
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 5 (Tyskland sætter ambitiøst nyt mål for forsvarsudgifter): PASSED validation
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 raw object: {"overskrift": "Oprustning styrker Tysklands uafhængighed og sikkerhed", "beskrivelse": "Ved at investere massivt i forsvaret søger Tyskland at styrke sin strategiske autonomi og sikkerhed. Målet er at gøre landet mindre afhængigt af USA og bedre i stand til at håndtere trusler.", "begrundelse": "Vinklen anlægger et sikkerhedspolitisk perspektiv på oprustningen og fremhæver de langsigtede strategiske mål. Dette passer til vores fokus på grundig analyse og respekt for statens sikkerhedsansvar.", "nyhedskriterier": ["væsentlighed", "aktualitet"], "startSpørgsmål": ["Hvilke konkrete trusler bekymrer Tyskland mest?", "Hvor hurtigt forventes det at oprustningen vil øge Tysklands kapaciteter?", "Vil en større tysk uafhængighed svække NATO-samarbejdet?"]}
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 (Oprustning styrker Tysklands uafhængighed og sikkerhed): No validation fixes needed
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 6 (Oprustning styrker Tysklands uafhængighed og sikkerhed): PASSED validation
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 raw object: {"overskrift": "Tyskland viser solidaritet med Ukraine gennem enorm støtte", "beskrivelse": "En væsentlig del af de planlagte lån på 400 milliarder euro er øremærket til støtte til Ukraine. Tyskland påtager sig dermed en ledende rolle i den europæiske støtte til landet.", "begrundelse": "Vinklen sætter fokus på Tysklands markante humanitære og politiske engagement i Ukraine-krigen. Dette er i tråd med vores vægt på Europas stabilitet og værdier.", "nyhedskriterier": ["væsentlighed", "aktualitet", "identifikation"], "startSpørgsmål": ["Hvordan vil støtten konkret blive anvendt i Ukraine?", "Lægger Tyskland pres på andre lande for også at øge støtten?", "Hvordan balancerer man støtte til Ukraine med risiko for optrapning ift. Rusland?"]}
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 (Tyskland viser solidaritet med Ukraine gennem enorm støtte): No validation fixes needed
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 7 (Tyskland viser solidaritet med Ukraine gennem enorm støtte): PASSED validation
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 raw object: {"overskrift": "Lempelse af gældsbremse udfordrer tysk økonomisk tradition", "beskrivelse": "Beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur bryder med Tysklands stærke tradition for finanspolitisk disciplin. Dette vækker bekymring hos nogle økonomer.", "begrundelse": "Vinklen går i dybden med de økonomiske principper bag beslutningen og sætter den i et historisk lys. Dette passer godt til vores fokus på grundig, konservativ analyse.", "nyhedskriterier": ["væsentlighed", "aktualitet", "konflikt"], "startSpørgsmål": ["Hvor stor er risikoen for at den øgede gæld løber løbsk?", "Er der fare for at inflationen tager til som følge af de store investeringer?", "Hvordan vurderer økonomerne de langsigtede konsekvenser for tysk økonomi?"]}
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 (Lempelse af gældsbremse udfordrer tysk økonomisk tradition): No validation fixes needed
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Angle 8 (Lempelse af gældsbremse udfordrer tysk økonomisk tradition): PASSED validation
-2025-04-14 21:18:56,368 - prompt_engineering - INFO - [ANGLE_VALIDATION] Final validation result: 8 valid angles out of 8 raw angles
-2025-04-14 21:18:56,368 - vinkeljernet.cache - INFO - Cache hit for fetch_source_suggestions
-2025-04-14 21:18:56,369 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 21:18:56,369 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Tyskland', 'angle_headline': 'Massiv tysk satsning på infrastruktur og digitalisering', 'angle_description': 'Ud over forsvaret investerer Tyskland 500 milliarder euro i en infrastrukturfond. Midlerne skal opgradere veje, broer og skoler samt fremme digitaliseringen af samfundet.'}
-2025-04-14 21:18:56,370 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 21:18:56,370 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Tyskland', 'angle_headline': 'Merz leder historisk ændring i tysk finanspolitik', 'angle_description': 'Friedrich Merz spiller en central rolle i beslutningen om at lempe gældsbremsen for at finansiere oprustning og infrastruktur. Dette markerer et markant skifte i Tysklands traditionelt restriktive finanspolitik.'}
-2025-04-14 21:18:56,370 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-04-14 21:18:56,370 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'Oprustning i Tyskland', 'angle_headline': 'Tysk oprustning kan stimulere europæisk økonomi', 'angle_description': 'Tysklands massive investeringer i forsvar og infrastruktur kan potentielt give et boost til økonomien i hele Europa. Beslutningen åbner nye muligheder for virksomheder på tværs af sektorer.'}
-2025-04-14 21:19:10,135 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
-{
+    "overskrift": "Kaffe som sundhedseliksir: Ny forskning peger på overraskende fordele",
+    "beskrivelse": "En gennemgang af den seneste forskning, der viser, at moderat kaffeforbrug kan have en række positive effekter på sundheden, herunder nedsat risiko for visse kræftformer og type 2-diabetes.",
+    "begrundelse": "Historien er relevant for den brede befolkning, da kaffe er en populær hverdagsdrik. Den giver læserne ny viden om sundhed og velvære.",
+    "startSpørgsmål": [
+      "Hvilke konkrete sundhedsmæssige fordele har forskningen fundet ved kaffeforbrug?",
+      "Hvor meget kaffe er optimalt at drikke for at opnå sundhedsfordelene?"
+    ],
+    "nyhedskriterier": ["identifikation", "aktualitet"]
+  },
+  {
+    "overskrift": "Kaffekultur i forandring: Specialkaffe vinder frem hos danskerne",
+    "beskrivelse": "En udforskning af den voksende interesse for specialkaffe i Danmark, fra små lokale risterier til kaffebarer og hjemmebrygning. Hvad driver tendensen, og hvordan påvirker det danskernes forhold til kaffe?",
+    "begrundelse": "Historien tager udgangspunkt i en aktuel trend og giver indblik i en forandring i dansk kultur og forbrug. Den appellerer til læsere med interesse for livsstil og forbrugerforhold.",
+    "startSpørgsmål": [
+      "Hvordan har salget af specialkaffe udviklet sig de seneste år?",
+      "Hvad motiverer forbrugerne til at vælge specialkaffe frem for almindelig kaffe?",
+      "Hvordan adskiller smagen og oplevelsen sig ved specialkaffe?"
+    ],
+    "nyhedskriterier": ["aktualitet", "identifikation"]
+  },
+  {
+    "overskrift": "Klimaforandringer truer kaffens fremtid",
+    "beskrivelse": "En analyse af hvordan klimaforandringer som tørke og ekstreme vejrforhold påvirker kaffeproduktionen globalt. Eksperter vurderer konsekvenserne for udbuddet og prisen på kaffe i de kommende årtier.",
+    "begrundelse": "Historien sætter fokus på et væsentligt emne med store potentielle konsekvenser for både forbrugere, industrien og bønder. Den passer med profilens fokus på klima og bæredygtighed.",
+    "startSpørgsmål": [
+      "Hvilke konkrete trusler udgør klimaforandringerne for kaffeproduktionen?",
+      "Hvad gør industrien og bønderne for at tilpasse sig de ændrede forhold?"
+    ],
+    "nyhedskriterier": ["væsentlighed", "aktualitet"]
+  },
+  {
+    "overskrift": "Kaffeindustriens skyggesider: Bønder udnyttes trods certificeringer",
+    "beskrivelse": "En dybdegående undersøgelse af arbejdsforholdene på kaffeplantager, der afslører udbredt underbetaling og udnyttelse af arbejdere, på trods af industriens bæredygtighedscertificeringer.",
+    "begrundelse": "Historien stiller skarpt på et kontroversielt emne og lever op til profilens fokus på kritisk journalistik og sociale forhold. Den giver læserne et nuanceret indblik bag certificeringerne.",
+    "startSpørgsmål": [
+      "Hvilke konkrete problemer findes der med arbejdsforhold og løn på kaffeplantager?",
+      "Hvordan kan det være, at problemerne eksisterer på trods af certificeringer?",
+      "Hvad siger industrien og certificeringsorganerne til kritikken?"
+    ],
+    "nyhedskriterier": ["væsentlighed", "konflikt"]
+  }
+]
+2025-05-19 03:35:57,822 - json_parser - DEBUG - Attempting to parse JSON from angle generation response. Preview: [
+  {
+    "overskrift": "Kaffebønder under pres: Lave priser truer bæredygtig produktion",
+    "besk...
+2025-05-19 03:35:57,822 - json_parser - INFO - Successfully parsed JSON directly: 5 items found
+2025-05-19 03:35:57,824 - prompt_engineering - INFO - Successfully parsed and validated 5 angles from response
+2025-05-19 03:35:57,825 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-19 03:35:57,825 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Klimaforandringer truer kaffens fremtid', 'angle_description': 'En analyse af hvordan klimaforandringer som tørke og ekstreme vejrforhold påvirker kaffeproduktionen globalt. Eksperter vurderer konsekvenserne for udbuddet og prisen på kaffe i de kommende årtier.', 'progress_callback': None, 'rationale': 'Historien sætter fokus på et væsentligt emne med store potentielle konsekvenser for både forbrugere, industrien og bønder. Den passer med profilens fokus på klima og bæredygtighed.'}
+2025-05-19 03:35:57,840 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_expert_sources
+2025-05-19 03:35:57,841 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-19 03:35:57,841 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Kaffebønder under pres: Lave priser truer bæredygtig produktion', 'angle_description': 'En undersøgelse af de udfordringer, som kaffebønder står over for på grund af de lave priser på verdensmarkedet. Fokus på konsekvenserne for bøndernes levevilkår og muligheden for at opretholde en bæredygtig kaffeproduktion.', 'progress_callback': None, 'rationale': 'Historien sætter fokus på et vigtigt globalt problem og appellerer til læsere, der interesserer sig for bæredygtighed, sociale forhold og etisk forbrug.'}
+2025-05-19 03:35:57,841 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-19 03:35:57,841 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Kaffeindustriens skyggesider: Bønder udnyttes trods certificeringer', 'angle_description': 'En dybdegående undersøgelse af arbejdsforholdene på kaffeplantager, der afslører udbredt underbetaling og udnyttelse af arbejdere, på trods af industriens bæredygtighedscertificeringer.', 'progress_callback': None, 'rationale': 'Historien stiller skarpt på et kontroversielt emne og lever op til profilens fokus på kritisk journalistik og sociale forhold. Den giver læserne et nuanceret indblik bag certificeringerne.'}
+2025-05-19 03:35:57,842 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-19 03:35:57,842 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Kaffe som sundhedseliksir: Ny forskning peger på overraskende fordele', 'angle_description': 'En gennemgang af den seneste forskning, der viser, at moderat kaffeforbrug kan have en række positive effekter på sundheden, herunder nedsat risiko for visse kræftformer og type 2-diabetes.', 'progress_callback': None, 'rationale': 'Historien er relevant for den brede befolkning, da kaffe er en populær hverdagsdrik. Den giver læserne ny viden om sundhed og velvære.'}
+2025-05-19 03:35:57,842 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-19 03:35:57,842 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Kaffekultur i forandring: Specialkaffe vinder frem hos danskerne', 'angle_description': 'En udforskning af den voksende interesse for specialkaffe i Danmark, fra små lokale risterier til kaffebarer og hjemmebrygning. Hvad driver tendensen, og hvordan påvirker det danskernes forhold til kaffe?', 'progress_callback': None, 'rationale': 'Historien tager udgangspunkt i en aktuel trend og giver indblik i en forandring i dansk kultur og forbrug. Den appellerer til læsere med interesse for livsstil og forbrugerforhold.'}
+2025-05-19 03:36:06,310 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01FpZwVeaKpvrhRm71kQ1YUY","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Susanne B\xc3\xb8dker\\",\\n      \\"titel\\": \\"Professor i folkesundhedsvidenskab\\",\\n      \\"organisation\\": \\"Aarhus Universitet, Institut for Folkesundhed\\",\\n      \\"ekspertise\\": \\"Forskning i sundhedseffekter af koffein og andre bioaktive stoffer i kaffe\\",\\n      \\"kontakt\\": \\"susanne.bodker@ph.au.dk\\",\\n     '...
+2025-05-19 03:36:06,312 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01FpZwVeaKpvrhRm71kQ1YUY","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Susanne Bødker\",\n      \"titel\": \"Professor i folkesundhedsvidenskab\",\n      \"organisation\": \"Aarhus Universitet, Institut for Folkesundhed\",\n      \"ekspertise\": \"Forskning i sundhedseffekter af koffein og andre bioaktive stoffer i kaffe\",\n      \"kontakt\": \"susanne.bodker@ph.au.dk\",\n      ...
+2025-05-19 03:36:06,313 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_01FpZwVeaKpvrhRm71kQ1YUY", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Susanne Bødker\",\n      \"titel\": \"Professor i folkesundhedsvidenskab\",\n      \"organisation\": \"Aarhus Universitet, Institut for Folkesundhed\",\n      \"ekspertise\": \"Forskning i sundhedseffekter af koffein og andre bioaktive stoffer i kaffe\",\n      \"kontakt\": \"susanne.bodker@ph.au.dk\",\n      \"relevans\": \"Kan kommentere på de sundhedsmæssige fordele ved moderat kaffeforbrug\"\n    },\n    {\n      \"navn\": \"Lars Ove Dragsted\",\n      \"titel\": \"Professor i human ernæring\",\n      \"organisation\": \"Københavns Universitet, Institut for Idræt og Ernæring\",\n      \"ekspertise\": \"Ekspert i bioaktive stoffer i fødevarer og deres sundhedseffekter\",\n      \"kontakt\": \"l.dragsted@nexs.ku.dk\",\n      \"relevans\": \"Kan forklare de biokemiske mekanismer bag kaffens sundhedsfordele\"\n    },\n    {\n      \"navn\": \"Mette Sørensen\",\n      \"titel\": \"Seniorforsker i epidemiologi\",\n      \"organisation\": \"Kræftens Bekæmpelse\",\n      \"ekspertise\": \"Forskning i sammenhænge mellem kost, livsstil og kræftrisiko\",\n      \"kontakt\": \"mette.soerensen@cancer.dk\",\n      \"relevans\": \"Kan kommentere på nyere studier om kaffe og nedsat kræftrisiko\"\n    },\n    {\n      \"navn\": \"Peter Astrup\",\n      \"titel\": \"Overlæge i endokrinologi\",\n      \"organisation\": \"Steno Diabetes Center Copenhagen\",\n      \"ekspertise\": \"Ekspert i diabetes og metaboliske sygdomme\",\n      \"kontakt\": \"peter.astrup@regionh.dk\",\n      \"relevans\": \"Kan belyse kaffens mulige forebyggende effekt på type 2-diabetes\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Fødevarestyrelsen\",\n      \"type\": \"Offentlig myndighed\",\n      \"relevans\": \"Myndighed med ansvar for fødevaresikkerhed og -information\",\n      \"konta
+2025-05-19 03:36:06,313 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
   "eksperter": [
     {
-      "navn": "Lars Feld",
-      "titel": "Professor of Economic Po...
-2025-04-14 21:19:10,136 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 21:19:10,136 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 21:19:10,136 - vinkeljernet.api - INFO - Expert source suggestions generated in 13.77 seconds
-2025-04-14 21:19:46,614 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
-{
+      "navn": "Susanne Bødker",
+      "titel": "Professor i folkesundhedsvi...
+2025-05-19 03:36:06,313 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-19 03:36:06,347 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_018XpPwgQGyzRFYNzw4fD1K3","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Maja Grann\\",\\n      \\"titel\\": \\"Lektor i b\xc3\xa6redygtig f\xc3\xb8devareproduktion\\",\\n      \\"organisation\\": \\"K\xc3\xb8benhavns Universitet, Institut for F\xc3\xb8devare- og Ressource\xc3\xb8konomi\\",\\n      \\"ekspertise\\": \\"Forskning i udfordringer for sm\xc3\xa5skala kaffeb\xc3\xb8nder i udviklingslande\\",\\n      \\"kontakt\\": \\"maja.grann@if'...
+2025-05-19 03:36:06,347 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_018XpPwgQGyzRFYNzw4fD1K3","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Maja Grann\",\n      \"titel\": \"Lektor i bæredygtig fødevareproduktion\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevare- og Ressourceøkonomi\",\n      \"ekspertise\": \"Forskning i udfordringer for småskala kaffebønder i udviklingslande\",\n      \"kontakt\": \"maja.grann@ifro.ku.d...
+2025-05-19 03:36:06,348 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_018XpPwgQGyzRFYNzw4fD1K3", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Maja Grann\",\n      \"titel\": \"Lektor i bæredygtig fødevareproduktion\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevare- og Ressourceøkonomi\",\n      \"ekspertise\": \"Forskning i udfordringer for småskala kaffebønder i udviklingslande\",\n      \"kontakt\": \"maja.grann@ifro.ku.dk\",\n      \"relevans\": \"Kan belyse de økonomiske og sociale konsekvenser af lave kaffepriser for bønderne\"\n    },\n    {\n      \"navn\": \"Juan Valdez\",\n      \"titel\": \"Direktør for Fairtrade International, Latin Amerika\",\n      \"organisation\": \"Fairtrade International\",\n      \"ekspertise\": \"Erfaring med at støtte bæredygtig kaffeproduktion og retfærdig handel\",\n      \"kontakt\": \"juan.valdez@fairtrade.net\",\n      \"relevans\": \"Kan forklare, hvordan Fairtrade-certificering kan hjælpe kaffebønder\"\n    },\n    {\n      \"navn\": \"Maria Pereira\",\n      \"titel\": \"Seniorforsker i klimatilpasning i landbruget\",\n      \"organisation\": \"FN's Fødevare- og Landbrugsorganisation (FAO)\",\n      \"ekspertise\": \"Forskning i bæredygtige dyrkningsmetoder og klimarisici for kaffebønder\",\n      \"kontakt\": \"maria.pereira@fao.org\",\n      \"relevans\": \"Kan belyse, hvordan klimaforandringer påvirker kaffeproduktionen\"\n    },\n    {\n      \"navn\": \"Ahmed Khalid\",\n      \"titel\": \"Programkoordinator, Kaffebøndernes Interesseorganisation\",\n      \"organisation\": \"Kaffebøndernes Interesseorganisation, Kenya\",\n      \"ekspertise\": \"Direkte erfaring med udfordringer for kaffebønder i udviklingslande\",\n      \"kontakt\": \"ahmed.khalid@kaffebonder.ke\",\n      \"relevans\": \"Kan give førstehåndsviden om kaffebøndernes levevilkår og behov\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"International Kaff
+2025-05-19 03:36:06,348 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
   "eksperter": [
     {
-      "navn": "Lars Klingbeil",
-      "titel": "Co-leader of the So...
-2025-04-14 21:19:46,615 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 21:19:46,615 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 21:19:46,615 - vinkeljernet.api - INFO - Expert source suggestions generated in 50.25 seconds
-2025-04-14 21:19:55,009 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: ```json
-{
+      "navn": "Maja Grann",
+      "titel": "Lektor i bæredygtig fødevarepro...
+2025-05-19 03:36:06,348 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-19 03:36:06,373 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01VPTEf2EzSSuJrQeyobRAft","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Mette Lykke Nielsen\\",\\n      \\"titel\\": \\"Lektor i f\xc3\xb8devarevidenskab\\",\\n      \\"organisation\\": \\"K\xc3\xb8benhavns Universitet, Institut for F\xc3\xb8devarevidenskab\\",\\n      \\"ekspertise\\": \\"Specialiseret i forbrugeradf\xc3\xa6rd og trends inden for kaffe og specialkaffe\\",\\n      \\"kontakt\\": \\"mette.lykke@food.ku.dk\\",'...
+2025-05-19 03:36:06,373 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01VPTEf2EzSSuJrQeyobRAft","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mette Lykke Nielsen\",\n      \"titel\": \"Lektor i fødevarevidenskab\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevarevidenskab\",\n      \"ekspertise\": \"Specialiseret i forbrugeradfærd og trends inden for kaffe og specialkaffe\",\n      \"kontakt\": \"mette.lykke@food.ku.dk\",\n  ...
+2025-05-19 03:36:06,373 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_01VPTEf2EzSSuJrQeyobRAft", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mette Lykke Nielsen\",\n      \"titel\": \"Lektor i fødevarevidenskab\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevarevidenskab\",\n      \"ekspertise\": \"Specialiseret i forbrugeradfærd og trends inden for kaffe og specialkaffe\",\n      \"kontakt\": \"mette.lykke@food.ku.dk\",\n      \"relevans\": \"Kan belyse de kulturelle og adfærdsmæssige ændringer i danskernes kaffeforbrug\"\n    },\n    {\n      \"navn\": \"Jesper Bruun\",\n      \"titel\": \"Direktør\",\n      \"organisation\": \"Kafferisteriet ApS\",\n      \"ekspertise\": \"Erfaren kaffeiværksætter med indsigt i udviklingen af specialkaffemarkedet i Danmark\",\n      \"kontakt\": \"jesper@kafferisteriet.dk\",\n      \"relevans\": \"Kan give et praktisk perspektiv på fremvæksten af små lokale kaffeirosterier\"\n    },\n    {\n      \"navn\": \"Rikke Draborg\",\n      \"titel\": \"Sensorisk ekspert og kaffedommer\",\n      \"organisation\": \"Dansk Kaffeinstitut\",\n      \"ekspertise\": \"Specialiseret i sensorisk analyse og bedømmelse af specialkaffe\",\n      \"kontakt\": \"rikke@kaffeinstitut.dk\",\n      \"relevans\": \"Kan forklare, hvad der kendetegner specialkaffe og hvordan smag og kvalitet vurderes\"\n    },\n    {\n      \"navn\": \"Søren Espersen\",\n      \"titel\": \"Forbrugeranalytiker\",\n      \"organisation\": \"Retail Institute Scandinavia\",\n      \"ekspertise\": \"Ekspert i forbrugertrends og ændringer i detailhandlen, herunder kaffesegmentet\",\n      \"kontakt\": \"soe@retail-institute.dk\",\n      \"relevans\": \"Kan analysere de overordnede forbrugertrends og ændringer i kaffekulturen\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Dansk Kaffeinformation\",\n      \"type\": \"Brancheorganisation\",\n      \"relevans\": \"Repræsenterer kaffeb
+2025-05-19 03:36:06,374 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
   "eksperter": [
     {
-      "navn": "Ulrik Harald Bie",
-      "titel": "Økonomisk redaktø...
-2025-04-14 21:19:55,010 - json_parser - WARNING - Direct JSON parsing failed (JSONDecodeError): Expecting value: line 1 column 1 (char 0)
-2025-04-14 21:19:55,010 - json_parser - INFO - Successfully parsed JSON after stripping non-JSON prefix/suffix: 1 items found
-2025-04-14 21:19:55,010 - vinkeljernet.api - INFO - Expert source suggestions generated in 58.64 seconds
-2025-04-14 21:19:55,020 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-04-14 21:19:55,027 - vinkeljernet.api - INFO - API client shut down successfully
+      "navn": "Mette Lykke Nielsen",
+      "titel": "Lektor i fødevareviden...
+2025-05-19 03:36:06,374 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-19 03:36:07,343 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01WpQNSzGNQfAYoFaaXQWJTh","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Jannie Vestergaard\\",\\n      \\"titel\\": \\"Professor i klimaforandringer og landbrugsproduktion\\",\\n      \\"organisation\\": \\"Aarhus Universitet, Institut for Agro\xc3\xb8kologi\\",\\n      \\"ekspertise\\": \\"Forsker i effekter af t\xc3\xb8rke og ekstreme vejrforhold p\xc3\xa5 afgr\xc3\xb8deproduktion, herunder kaffe\\",\\n      \\"kontakt\\'...
+2025-05-19 03:36:07,344 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01WpQNSzGNQfAYoFaaXQWJTh","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Jannie Vestergaard\",\n      \"titel\": \"Professor i klimaforandringer og landbrugsproduktion\",\n      \"organisation\": \"Aarhus Universitet, Institut for Agroøkologi\",\n      \"ekspertise\": \"Forsker i effekter af tørke og ekstreme vejrforhold på afgrødeproduktion, herunder kaffe\",\n      \"kontakt\": \...
+2025-05-19 03:36:07,344 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_01WpQNSzGNQfAYoFaaXQWJTh", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Jannie Vestergaard\",\n      \"titel\": \"Professor i klimaforandringer og landbrugsproduktion\",\n      \"organisation\": \"Aarhus Universitet, Institut for Agroøkologi\",\n      \"ekspertise\": \"Forsker i effekter af tørke og ekstreme vejrforhold på afgrødeproduktion, herunder kaffe\",\n      \"kontakt\": \"jannie.vestergaard@agro.au.dk\",\n      \"relevans\": \"Kan vurdere de konkrete klimarelaterede trusler mod kaffedyrkning globalt\"\n    },\n    {\n      \"navn\": \"Mads Sørensen\",\n      \"titel\": \"Seniorforsker i international handel og fødevaremarkeder\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevare- og Ressourceøkonomi\",\n      \"ekspertise\": \"Specialiseret i prisdannelse og udbudssituationen for globale landbrugsvarer som kaffe\",\n      \"kontakt\": \"mads.soerensen@ifro.ku.dk\",\n      \"relevans\": \"Kan analysere de økonomiske konsekvenser af faldende kaffeproduktion for forbrugere og industri\"\n    },\n    {\n      \"navn\": \"Fatima Aziz\",\n      \"titel\": \"Leder af bæredygtighedsprogrammet, Fairtrade International\",\n      \"organisation\": \"Fairtrade International\",\n      \"ekspertise\": \"Ekspert i bæredygtig kaffedyrkning og udfordringer for småskala kaffeproducenter\",\n      \"kontakt\": \"fatima.aziz@fairtrade.net\",\n      \"relevans\": \"Kan belyse de sociale og økonomiske konsekvenser af klimaforandringer for kaffeproducenter i udviklingslandene\"\n    },\n    {\n      \"navn\": \"Lisbeth Grønbæk\",\n      \"titel\": \"Seniorrådgiver, Verdensnaturfonden (WWF)\",\n      \"organisation\": \"Verdensnaturfonden (WWF), Afdeling for Fødevarer og Landbrug\",\n      \"ekspertise\": \"Specialiseret i bæredygtig fødevareproduktion og klimatilpasning i landbruget\",\n      \"kontakt\": \"lisbeth.gronbaek@wwf.dk
+2025-05-19 03:36:07,344 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
+  "eksperter": [
+    {
+      "navn": "Jannie Vestergaard",
+      "titel": "Professor i klimaforand...
+2025-05-19 03:36:07,344 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-19 03:36:07,857 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01BhznCYn3yDfp7vNbKa21Bi","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Sonia Guajajara\\",\\n      \\"titel\\": \\"Leder af Den Brasilianske Urfolksalliance\\",\\n      \\"organisation\\": \\"Den Brasilianske Urfolksalliance\\",\\n      \\"ekspertise\\": \\"Specialiseret i urfolks rettigheder og b\xc3\xa6redygtig udvikling i kaffeindustrien\\",\\n      \\"kontakt\\": \\"sonia.guajajara@apib.info\\",\\n     '...
+2025-05-19 03:36:07,857 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01BhznCYn3yDfp7vNbKa21Bi","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Sonia Guajajara\",\n      \"titel\": \"Leder af Den Brasilianske Urfolksalliance\",\n      \"organisation\": \"Den Brasilianske Urfolksalliance\",\n      \"ekspertise\": \"Specialiseret i urfolks rettigheder og bæredygtig udvikling i kaffeindustrien\",\n      \"kontakt\": \"sonia.guajajara@apib.info\",\n      ...
+2025-05-19 03:36:07,857 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_01BhznCYn3yDfp7vNbKa21Bi", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Sonia Guajajara\",\n      \"titel\": \"Leder af Den Brasilianske Urfolksalliance\",\n      \"organisation\": \"Den Brasilianske Urfolksalliance\",\n      \"ekspertise\": \"Specialiseret i urfolks rettigheder og bæredygtig udvikling i kaffeindustrien\",\n      \"kontakt\": \"sonia.guajajara@apib.info\",\n      \"relevans\": \"Kan belyse udnyttelsen af urfolksarbejdere på kaffeplantager i Brasilien\"\n    },\n    {\n      \"navn\": \"Fatima Ismael\",\n      \"titel\": \"Generalsekretær, SOPPEXCCA Kaffebøndekooperativ\",\n      \"organisation\": \"SOPPEXCCA Kaffebøndekooperativ, Nicaragua\",\n      \"ekspertise\": \"Erfaring med fair handel og bæredygtige kaffepraksisser\",\n      \"kontakt\": \"fatima.ismael@soppexcca.org\",\n      \"relevans\": \"Kan give indsigt i udfordringer for småskala kaffebønder i udviklingslande\"\n    },\n    {\n      \"navn\": \"Ximena Warnaars\",\n      \"titel\": \"Seniorforsker, Oxfam International\",\n      \"organisation\": \"Oxfam International\",\n      \"ekspertise\": \"Forskning i social ulighed og arbejdsrettigheder i landbrugseksport\",\n      \"kontakt\": \"ximena.warnaars@oxfam.org\",\n      \"relevans\": \"Kan bidrage med viden om udnyttelse af arbejdere i globale forsyningskæder\"\n    },\n    {\n      \"navn\": \"Marcos Pimenta\",\n      \"titel\": \"Leder af Arbejderkomitéen for Kaffeplantager\",\n      \"organisation\": \"Arbejderkomitéen for Kaffeplantager, Brasilien\",\n      \"ekspertise\": \"Førstehåndsviden om arbejdsforhold og organisering på kaffeplantager\",\n      \"kontakt\": \"marcos.pimenta@cafetrabalhador.org.br\",\n      \"relevans\": \"Kan give direkte indsigt i udfordringer for kaffeplantagearbejdere\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Rainforest Alliance\",\n      \"type\": \"Cert
+2025-05-19 03:36:07,857 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
+  "eksperter": [
+    {
+      "navn": "Sonia Guajajara",
+      "titel": "Leder af Den Brasilianske ...
+2025-05-19 03:36:07,857 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-19 03:36:07,898 - vinkeljernet.api - INFO - API client shut down successfully
+2025-05-19 03:36:07,898 - vinkeljernet.api - INFO - API client shut down successfully

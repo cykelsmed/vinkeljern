@@ -246,25 +246,38 @@ def robust_json_parse(response_text: str, context: str = "response") -> Tuple[Li
     try:
         # Complex regex for JSON object detection 
         object_pattern = r'{[^{}]*(?:{[^{}]*}[^{}]*)*}'
-        potential_objects = re.findall(object_pattern, response_text)
-        
-        if potential_objects:
-            valid_objects = []
-            for obj_text in potential_objects:
-                try:
-                    # Apply the fixes to each potential object
-                    fixed_obj_text = obj_text
-                    for pattern, replacement in fixes:
-                        fixed_obj_text = re.sub(pattern, replacement, fixed_obj_text)
-                    
-                    obj = json.loads(fixed_obj_text)
-                    valid_objects.append(obj)
-                except Exception:
-                    continue
-            
-            if valid_objects:
-                logger.info(f"Extracted {len(valid_objects)} partial JSON objects")
-                return valid_objects, "Partial parsing succeeded, but some data may be missing"
+        potential_objects = list(re.finditer(object_pattern, response_text))
+        valid_objects = []
+        parsed_spans = []
+        for match in potential_objects:
+            obj_text = match.group(0)
+            start, end = match.start(), match.end()
+            try:
+                # Apply the fixes to each potential object
+                fixed_obj_text = obj_text
+                for pattern, replacement in fixes:
+                    fixed_obj_text = re.sub(pattern, replacement, fixed_obj_text)
+                obj = json.loads(fixed_obj_text)
+                valid_objects.append(obj)
+                parsed_spans.append((start, end))
+            except Exception:
+                continue
+        if valid_objects:
+            # Log hvilke dele af strengen der ikke blev parsed
+            unparsed_spans = []
+            last_end = 0
+            for start, end in parsed_spans:
+                if start > last_end:
+                    unparsed_spans.append((last_end, start))
+                last_end = end
+            if last_end < len(response_text):
+                unparsed_spans.append((last_end, len(response_text)))
+            for us in unparsed_spans:
+                unparsed_text = response_text[us[0]:us[1]].strip()
+                if unparsed_text:
+                    logger.warning(f"Partial JSON extraction: Unparsed segment [{us[0]}:{us[1]}]: '{unparsed_text[:100]}{'...' if len(unparsed_text) > 100 else ''}'")
+            logger.info(f"Extracted {len(valid_objects)} partial JSON objects; {len(unparsed_spans)} unparsed segments found.")
+            return valid_objects, "Partial parsing succeeded, but some data may be missing"
     except Exception as e:
         logger.warning(f"Error during partial object extraction: {str(e)}")
         logger.debug(traceback.format_exc())

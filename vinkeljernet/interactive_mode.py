@@ -301,7 +301,7 @@ async def generate_angles_interactive(
         )
         
         # Display the results
-        display_angles_panels(ranked_angles)
+        display_angles_panels(ranked_angles, verbose=args.fulde_kilder if hasattr(args, 'fulde_kilder') else False)
         
         # Ask if user wants to save the results
         ask_save_output(ranked_angles, profile, topic)
@@ -480,7 +480,7 @@ async def run_simple_cli(args: Namespace) -> None:
                     )
                     
                     # Display the results
-                    display_angles_panels(ranked_angles)
+                    display_angles_panels(ranked_angles, verbose=args.fulde_kilder if hasattr(args, 'fulde_kilder') else False)
                 except Exception as e:
                     console.print(f"[bold red]Error generating angles:[/bold red] {e}")
             

@@ -131,7 +131,7 @@ async def run_standard_mode(args: Namespace) -> None:
         display_profile_info(profile)
         
         # Present results with nice formatting
-        display_angles_panels(ranked_angles)
+        display_angles_panels(ranked_angles, verbose=args.fulde_kilder if hasattr(args, 'fulde_kilder') else False)
         
         if args.output:
             console.print(f"\n[green]✓[/green] Results saved to {args.output} ({args.format} format)")

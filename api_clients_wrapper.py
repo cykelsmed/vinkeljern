@@ -11,6 +11,7 @@ from models import RedaktionelDNA  # Add missing import
 
 # Client state management
 _main_event_loop = None
+_initialization_logged = False  # Track if initialization has been logged
 
 # Import the actual implementation
 try:
@@ -68,18 +69,26 @@ def get_implementation():
     Returns:
         Module: Either the optimized or original API client module
     """
+    global _initialization_logged
+    
     if USE_OPTIMIZED_CLIENT:
         try:
             import api_clients_optimized
-            logger.info("Using optimized API client implementation")
+            if not _initialization_logged:
+                logger.info("Using optimized API client implementation")
+                _initialization_logged = True
             return api_clients_optimized
         except ImportError:
             import api_clients
-            logger.warning("Optimized API client not available, using original implementation")
+            if not _initialization_logged:
+                logger.warning("Optimized API client not available, using original implementation")
+                _initialization_logged = True
             return api_clients
     else:
         import api_clients
-        logger.info("Using original API client implementation")
+        if not _initialization_logged:
+            logger.info("Using original API client implementation")
+            _initialization_logged = True
         return api_clients
 
 def ensure_event_loop():
@@ -372,7 +381,9 @@ async def initialize_api_client():
     if hasattr(implementation, 'initialize_api_client'):
         await implementation.initialize_api_client()
     else:
-        logger.info("API client initialization not available in current implementation")
+        if not _initialization_logged:
+            logger.info("API client initialization not available in current implementation")
+            _initialization_logged = True
 
 async def shutdown_api_client():
     """Properly shut down the API client, closing connections."""

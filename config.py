@@ -74,16 +74,10 @@ def load_api_keys() -> Dict[str, str]:
                 logger.critical(error_msg)
                 raise ValueError(error_msg)
                 
-    # Mask API keys for logging
-    def mask_key(key):
-        if not key:
-            return "None"
-        return key[:4] + '*' * (len(key) - 8) + key[-4:] if len(key) > 8 else "***"
-    
-    # Log loaded keys (masked for security)
+    # Log loaded keys (kun generel besked eller sidste 4 tegn)
     for key_name, key_value in keys.items():
         if key_value:
-            logger.info(f"Loaded {key_name}: {mask_key(key_value)}")
+            logger.info(f"{key_name} API Key loaded successfully")
         else:
             logger.warning(f"{key_name} not found")
             

@@ -241,6 +241,8 @@ class AsyncAPIClient:
     ratelimiting og adaptive timeout.
     """
     
+    _initialization_logged = {}  # Track initialization status per base_url
+    
     def __init__(
         self, 
         base_url: str, 
@@ -311,7 +313,9 @@ class AsyncAPIClient:
                 headers=self._get_default_headers()
             )
             
-            self.logger.info(f"Initialized AsyncAPIClient for {self.base_url}")
+            if self.base_url not in self._initialization_logged:
+                self.logger.info(f"Initialized AsyncAPIClient for {self.base_url}")
+                self._initialization_logged[self.base_url] = True
     
     def _get_default_headers(self) -> Dict[str, str]:
         """Genererer default headers til alle requests"""

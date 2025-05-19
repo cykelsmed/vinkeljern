@@ -188,87 +188,76 @@ def construct_angle_prompt(
     fokusområder: str,
     nyhedskriterier: str,
     nogo_områder: str,
-    additional_context: str = ""  # Add this parameter with default empty string
+    additional_context: str = "",
+    output_format: str = "array"  # 'array' eller 'jsonl'
 ) -> str:
     """
     Construct a prompt for the angle generation API.
-    
     Args:
         topic: The news topic
         topic_info: Research information about the topic
         principper: Editorial principles
         tone_og_stil: Editorial tone and style
-        fokusområder: Focus areas
+        fokusområder: Editorial focus areas
         nyhedskriterier: News criteria
         nogo_områder: No-go areas
-        additional_context: Optional additional context like knowledge distillate
-        
+        additional_context: Extra context (e.g. knowledge distillate)
+        output_format: 'array' (default) or 'jsonl'
     Returns:
-        str: The formatted prompt
+        str: Prompt for LLM
     """
     prompt = f"""
-    Du er en erfaren journalist med ekspertise i at udvikle nyhedsvinkler.
-    
-    # Nyhedsemne:
-    {topic}
-    
-    # Baggrundsinformation:
-    {topic_info}
-    
-    # Redaktionel DNA-profil:
-    ## Kerneprincipper:
-    {principper}
-    
-    ## Tone og stil:
-    {tone_og_stil}
-    
-    ## Fokusområder:
-    {fokusområder}
-    
-    ## Nyhedskriterier vi prioriterer:
-    {nyhedskriterier}
-    
-    ## No-go områder:
-    {nogo_områder}
-    
-    # Opgave:
-    
-    Baseret på informationen, generer 8 forskellige vinkler på nyhedsemnet, der passer til vores redaktionelle DNA.
-    For hver vinkel, angiv:
-    1. En præcis overskrift (maks 10 ord)
-    2. En kort beskrivelse af vinklen (2-3 sætninger)
-    3. En begrundelse for hvorfor vinklen passer til vores profil (2-3 sætninger)
-    4. Liste af nyhedskriterier som vinklen rammer (vælg fra: {nyhedskriterier})
-    5. Tre gode startspørgsmål til interviews inden for denne vinkel
-    
-    VIGTIGT: Dit svar SKAL være i JSON-format og MÅ IKKE indeholde nogen form for indledende eller afsluttende tekst. Start direkte med JSON-objektet.
-    
-    Returnér resultat i dette JSON-format og intet andet:
-    [
-      {{
-        "overskrift": "Overskrift på vinkel",
-        "beskrivelse": "Kort beskrivelse af vinklen",
-        "begrundelse": "Begrundelse for valg af vinkel",
-        "nyhedskriterier": ["kriterium1", "kriterium2"],
-        "startSpørgsmål": ["Spørgsmål 1?", "Spørgsmål 2?", "Spørgsmål 3?"]
-      }},
-      {{
-        "overskrift": "Overskrift på en anden vinkel",
-        "beskrivelse": "Kort beskrivelse af vinklen",
-        "begrundelse": "Begrundelse for valg af vinkel",
-        "nyhedskriterier": ["kriterium1", "kriterium3"],
-        "startSpørgsmål": ["Spørgsmål 1?", "Spørgsmål 2?", "Spørgsmål 3?"]
-      }},
-      // flere vinkler...
-    ]
-    
-    HUSK: Begynd dit svar med [ og afslut med ] - returnér KUN JSON-data og absolut ingen anden tekst.
-    """
-    
-    # Add additional context to the prompt if provided
-    if additional_context:
-        prompt += f"\n\n# YDERLIGERE KONTEKST:\n{additional_context}\n"
-        
+# EMNE
+{topic}
+
+# BAGGRUNDSINFORMATION
+{topic_info}
+
+# VIDENDISTILLAT / EKSTRA KONTEKST
+{additional_context}
+
+# REDAKTIONEL PROFIL
+Kerneprincipper: {principper}
+Nyhedskriterier: {nyhedskriterier}
+Fokusområder: {fokusområder}
+No-go områder: {nogo_områder}
+Tone og stil: {tone_og_stil}
+
+# OPGAVE
+Du er en erfaren dansk journalist. Generér 5-8 forskellige, relevante vinkler på emnet, der matcher profilen. Hver vinkel skal være detaljeret, original og målrettet målgruppen.
+
+# OUTPUTFORMAT
+Returnér KUN et gyldigt JSON-array (liste) hvor hvert objekt har PRÆCIS disse felter:
+- "overskrift": string (fængende, dækkende overskrift)
+- "beskrivelse": string (detaljeret uddybning af vinklen)
+- "begrundelse": string (hvorfor er denne vinkel relevant for målgruppen/profilen?)
+- "startSpørgsmål": liste af strings (2-3 gode, konkrete spørgsmål til research/interview)
+- "nyhedskriterier": liste af strings (1-3 relevante nyhedskriterier)
+
+Eksempel på format:
+[
+  {{
+    "overskrift": "Danskerne sorterer mere affald – men hvad sker der med komposten?",
+    "beskrivelse": "En dybdegående analyse af hvordan øget affaldssortering har påvirket mængden og kvaliteten af kompost i Danmark. Fokus på både miljømæssige og økonomiske konsekvenser.",
+    "begrundelse": "Relevant for læsere, der interesserer sig for miljø og bæredygtighed. Matcher profilens fokus på oplysning og samfundsperspektiv.",
+    "startSpørgsmål": [
+      "Hvordan har affaldssortering ændret sig de seneste 5 år?",
+      "Hvilke udfordringer oplever kommunerne med kompostkvalitet?"
+    ],
+    "nyhedskriterier": ["aktualitet", "væsentlighed"]
+  }}
+]
+
+VIGTIGT:
+- Returnér KUN et gyldigt JSON-array uden nogen forklarende tekst før eller efter
+- Brug nøjagtigt de feltnavne der er angivet ovenfor
+- Alle felter er påkrævede og skal være udfyldt
+- Brug dobbelte anførselstegn for alle strenge
+- Svar på dansk
+- Maks 8 vinkler
+"""
+    if output_format == "jsonl":
+        prompt += "\nHvis du ikke kan returnere hele listen som ét JSON-array, så returnér én gyldig JSON pr. linje (JSON Lines format)."
     return prompt
 
 def construct_expert_prompt(topic: str, angle_headline: str, angle_description: str) -> str:
@@ -348,11 +337,7 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
         return []
         
     # Log the entire raw response for debugging
-    logger.info(f"[ANGLE_VALIDATION] Raw LLM response: {response_text}")
-    
-    # Log a preview of the response for debugging (for backward compatibility)
-    log_preview = response_text[:200] + ("..." if len(response_text) > 200 else "")
-    logger.debug(f"Parsing angles from response (preview): {log_preview}")
+    logger.debug(f"Raw LLM response: {response_text}")
         
     try:
         # First try using the more robust parser from json_parser if available
@@ -391,167 +376,70 @@ def parse_angles_from_response(response_text: str) -> List[Dict[str, Any]]:
                 raw_angles = []
 
         angles = []
-        for i, raw_angle in enumerate(raw_angles):
-            if not isinstance(raw_angle, dict):
-                logger.warning(f"[ANGLE_VALIDATION] Angle {i+1}: Expected dict but got {type(raw_angle)}, skipping")
-                continue
-                
-            # Log the raw angle object
-            logger.info(f"[ANGLE_VALIDATION] Angle {i+1} raw object: {json.dumps(raw_angle, ensure_ascii=False)}")
-            
-            # Create a copy to avoid modifying the original
-            angle_data = raw_angle.copy()
-            
-            # Track validation fixes for detailed logging
-            validation_fixes = []
-            
-            # Ensure required fields exist with defaults if missing
-            required_fields = ["overskrift", "beskrivelse", "begrundelse", "nyhedskriterier"]
-            for field in required_fields:
-                if field not in angle_data:
-                    if field == "overskrift":
-                        angle_data[field] = "Ubenævnt vinkel"
-                        validation_fixes.append(f"Missing required field '{field}', added default value")
-                    elif field == "beskrivelse":
-                        angle_data[field] = "Ingen beskrivelse tilgængelig"
-                        validation_fixes.append(f"Missing required field '{field}', added default value")
-                    elif field == "begrundelse":
-                        angle_data[field] = "Ingen begrundelse angivet"
-                        validation_fixes.append(f"Missing required field '{field}', added default value")
-                    elif field == "nyhedskriterier":
-                        angle_data[field] = ["aktualitet"]
-                        validation_fixes.append(f"Missing required field '{field}', added default value")
-            
-            # Handle different formats of startSpørgsmål
-            if "startSpørgsmål" not in angle_data:
-                if "startspørgsmål" in angle_data:  # Common case-sensitivity issue
-                    angle_data["startSpørgsmål"] = angle_data["startspørgsmål"]
-                    validation_fixes.append("Fixed case sensitivity issue with 'startspørgsmål'")
-                elif "spørgsmål" in angle_data:  # Another common variation 
-                    angle_data["startSpørgsmål"] = angle_data["spørgsmål"]
-                    validation_fixes.append("Used 'spørgsmål' field as 'startSpørgsmål'")
-                else:
-                    # Create default questions based on the headline
-                    angle_data["startSpørgsmål"] = [
-                        f"Hvordan påvirker {angle_data['overskrift']} almindelige mennesker?",
-                        f"Hvad er de vigtigste aspekter af {angle_data['overskrift']}?",
-                        "Hvad mener eksperterne om denne problemstilling?"
-                    ]
-                    validation_fixes.append("Missing 'startSpørgsmål', created default questions")
-            
-            # Ensure nyhedskriterier is a list
-            if not isinstance(angle_data["nyhedskriterier"], list):
-                if isinstance(angle_data["nyhedskriterier"], str):
-                    # Split string by common separators
-                    angle_data["nyhedskriterier"] = [k.strip() for k in 
-                                                   angle_data["nyhedskriterier"].replace(',', ' ')
-                                                   .replace(';', ' ').split() if k.strip()]
-                    if angle_data["nyhedskriterier"]:
-                        validation_fixes.append("Converted 'nyhedskriterier' from string to list")
-                    else:
-                        angle_data["nyhedskriterier"] = ["aktualitet"]
-                        validation_fixes.append("Empty 'nyhedskriterier' string, added default value")
-                else:
-                    angle_data["nyhedskriterier"] = ["aktualitet"]
-                    validation_fixes.append(f"Incorrect type for 'nyhedskriterier' ({type(angle_data['nyhedskriterier']).__name__}), set to default")
-            
-            # Ensure startSpørgsmål is a list
-            if not isinstance(angle_data["startSpørgsmål"], list):
-                if isinstance(angle_data["startSpørgsmål"], str):
-                    angle_data["startSpørgsmål"] = [angle_data["startSpørgsmål"]]
-                    validation_fixes.append("Converted 'startSpørgsmål' from string to list")
-                else:
-                    angle_data["startSpørgsmål"] = ["Hvad er de vigtigste aspekter ved denne sag?"]
-                    validation_fixes.append(f"Incorrect type for 'startSpørgsmål' ({type(angle_data['startSpørgsmål']).__name__}), set to default")
-            
-            # Log validation fixes if any were made
-            if validation_fixes:
-                logger.info(f"[ANGLE_VALIDATION] Angle {i+1} ({angle_data.get('overskrift', 'Unnamed')}): Applied fixes: {'; '.join(validation_fixes)}")
-            else:
-                logger.info(f"[ANGLE_VALIDATION] Angle {i+1} ({angle_data.get('overskrift', 'Unnamed')}): No validation fixes needed")
-            
+        for raw_angle in raw_angles:
             try:
-                # Use Pydantic model for validation if possible
-                from models import VinkelForslag
-                validated_angle = VinkelForslag(**angle_data).dict()
+                # Validate with Pydantic model
+                validated_angle = VinkelForslag(**raw_angle).dict()
                 angles.append(validated_angle)
-                logger.info(f"[ANGLE_VALIDATION] Angle {i+1} ({validated_angle['overskrift']}): PASSED validation")
-            except Exception as validation_error:
-                validation_error_str = str(validation_error)
-                logger.warning(f"[ANGLE_VALIDATION] Angle {i+1} ({angle_data.get('overskrift', 'Unnamed')}): FAILED validation: {validation_error_str}")
-                
-                # Attempt to extract specific validation errors
-                error_details = []
-                if "overskrift" in validation_error_str.lower():
-                    error_details.append("Invalid headline")
-                if "beskrivelse" in validation_error_str.lower():
-                    error_details.append("Invalid description")
-                if "nyhedskriterier" in validation_error_str.lower():
-                    error_details.append("Invalid news criteria")
-                if "startspørgsmål" in validation_error_str.lower():
-                    error_details.append("Invalid questions")
-                if not error_details:
-                    error_details.append("Unknown validation error")
-                
-                logger.warning(f"[ANGLE_VALIDATION] Angle {i+1}: Specific errors: {', '.join(error_details)}")
-                
-                # If validation fails, just use the cleaned data directly
-                angles.append(angle_data)
-        
-        # If we couldn't parse any angles, create a default error angle
-        if not angles:
-            error_angle = {
-                "overskrift": "Fejl under generering af vinkler",
-                "beskrivelse": "Kunne ikke generere vinkler fra AI-svaret. Dette kan skyldes ændringer i formatet.",
-                "begrundelse": "Systemfejl - parsing af svar fejlede",
-                "nyhedskriterier": ["aktualitet"],
-                "startSpørgsmål": ["Hvad er de vigtigste aspekter af denne sag?"]
-            }
-            angles = [error_angle]
-            logger.warning("[ANGLE_VALIDATION] Created error angle due to parsing issues")
-        
-        logger.info(f"[ANGLE_VALIDATION] Final validation result: {len(angles)} valid angles out of {len(raw_angles)} raw angles")
+            except Exception as e:
+                # Log the raw angle that caused the issue for better debugging
+                angle_preview = str(raw_angle)[:100] + "..." if len(str(raw_angle)) > 100 else str(raw_angle)
+                logger.warning(f"Skipping invalid angle ({str(e)}): {angle_preview}")
+                continue
+
+        logger.info(f"Successfully parsed and validated {len(angles)} angles from response")
         return angles
-    
-    except json.JSONDecodeError as e:
-        logger.error(f"[ANGLE_VALIDATION] JSON decode error: {e}")
-        
-        # Try to extract JSON from code blocks
-        try:
-            import re
-            # Look for code blocks or JSON-like structures
-            json_pattern = r'```(?:json)?\s*(\[.*?\]|\{.*?\})\s*```'
-            match = re.search(json_pattern, response_text, re.DOTALL)
-            
-            if match:
-                potential_json = match.group(1).strip()
-                logger.info("[ANGLE_VALIDATION] Extracted JSON from code block, attempting to parse")
-                return parse_angles_from_response(potential_json)
-        except Exception as e2:
-            logger.error(f"[ANGLE_VALIDATION] Failed to extract JSON from code blocks: {e2}")
-        
-        # Create an error angle as fallback
-        error_angle = {
-            "overskrift": "Fejl under generering af vinkler",
-            "beskrivelse": f"JSON parsing fejl: {str(e)}",
-            "begrundelse": "Systemfejl - JSON parsing fejlede",
-            "nyhedskriterier": ["aktualitet"],
-            "startSpørgsmål": ["Hvad er de vigtigste aspekter af denne sag?"]
-        }
-        return [error_angle]
-            
+
     except Exception as e:
-        logger.error(f"[ANGLE_VALIDATION] Unexpected error parsing angles: {str(e)}")
-        
-        # Create an error angle as fallback
-        error_angle = {
-            "overskrift": "Fejl under generering af vinkler",
-            "beskrivelse": f"Uventet fejl under parsing: {str(e)}",
-            "begrundelse": "Systemfejl",
-            "nyhedskriterier": ["aktualitet"],
-            "startSpørgsmål": ["Hvad er de vigtigste aspekter af denne sag?"]
-        }
-        return [error_angle]
+        logger.error(f"Error parsing angles from response: {e}")
+        return []
+
+async def generate_missing_fields_with_llm(angle: dict, missing_fields: list) -> dict:
+    """
+    Brug Claude Haiku til at generere manglende felter ('begrundelse', 'startSpørgsmål') for en vinkel.
+    """
+    import aiohttp
+    import os
+    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+    ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+    }
+    prompt = f"""
+Du får en vinkel til et journalistisk emne. Udfyld de manglende felter:
+
+Overskrift: {angle.get('overskrift', '')}
+Beskrivelse: {angle.get('beskrivelse', '')}
+
+Returnér kun de manglende felter som gyldig JSON. Brug dansk.
+"""
+    if "begrundelse" in missing_fields:
+        prompt += "\nGenerér en kort, præcis begrundelse for hvorfor denne vinkel er relevant for målgruppen/profilen."
+    if "startSpørgsmål" in missing_fields:
+        prompt += "\nGenerér 2-3 gode, konkrete startspørgsmål til research/interview som en liste af strings."
+    payload = {
+        "model": "claude-3-haiku-20240307",
+        "max_tokens": 256,
+        "temperature": 0.2,
+        "system": "Du er en hjælpsom dansk journalistisk assistent.",
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.post(ANTHROPIC_API_URL, json=payload, headers=headers) as response:
+            if response.status != 200:
+                return {}
+            data = await response.json()
+            text = data['content'][0]['text'] if 'content' in data and data['content'] and 'text' in data['content'][0] else None
+            if not text:
+                return {}
+            try:
+                import json
+                result = json.loads(text)
+                return result if isinstance(result, dict) else {}
+            except Exception:
+                return {}
 
 class OptimizedPromptEngineering:
     """
@@ -802,47 +690,26 @@ class OptimizedPromptEngineering:
         # Ekstraher og afkort information fra profilen
         principles = profile.get("kerneprincipper", [])
         principles_str = "\n".join([f"- {p}" for p in principles[:5]])
+        principles_str_flat = principles_str.replace('\n', '; ')
         
         tone = profile.get("tone_og_stil", "")
         if len(tone) > 300:
             tone = tone[:297] + "..."
-            
+        
         focus_areas = profile.get("fokusOmrader", [])
         focus_str = "\n".join([f"- {f}" for f in focus_areas[:5]])
+        focus_str_flat = focus_str.replace('\n', '; ')
         
         criteria = profile.get("nyhedsprioritering", {})
         criteria_str = "\n".join([f"- {k}: {v}" for k, v in list(criteria.items())[:5]])
+        criteria_str_flat = criteria_str.replace('\n', '; ')
         
         nogo = profile.get("noGoOmrader", [])
         nogo_str = "\n".join([f"- {n}" for n in nogo[:3]])
+        nogo_str_flat = nogo_str.replace('\n', '; ')
         
         # Byg en kompakt prompt
-        prompt = f"""Du er en erfaren nyhedsjournalist. Generer vinkler på emnet "{topic}".
-
-BAGGRUND:
-{compressed_info}
-
-PROFIL:
-- Principper: {principles_str.replace('\n', '; ')}
-- Tone: {tone}
-- Fokus: {focus_str.replace('\n', '; ')}
-- Vigtige nyhedskriterier: {criteria_str.replace('\n', '; ')}
-- No-go: {nogo_str.replace('\n', '; ')}
-
-OPGAVE:
-Lav 5-7 vinkler som JSON-array med følgende struktur:
-[
-  {{
-    "overskrift": "Kort og præcis overskrift",
-    "beskrivelse": "2-3 sætninger om vinklen",
-    "begrundelse": "Hvorfor denne vinkel passer til profilen",
-    "nyhedskriterier": ["kriterie1", "kriterie2"],
-    "startSpørgsmål": ["Spørgsmål 1", "Spørgsmål 2"]
-  }}
-]
-
-VIGTIGT: Returner KUN et JSON-array med vinkelobjekter.
-"""
+        prompt = f"""Du er en erfaren nyhedsjournalist. Generer vinkler på emnet \"{topic}\".\n\nBAGGRUND:\n{compressed_info}\n\nPROFIL:\n- Principper: {principles_str_flat}\n- Tone: {tone}\n- Fokus: {focus_str_flat}\n- Vigtige nyhedskriterier: {criteria_str_flat}\n- No-go: {nogo_str_flat}\n\nOPGAVE:\nLav 5-7 vinkler som JSON-array med følgende struktur:\n[\n  {{\n    \"overskrift\": \"Kort og præcis overskrift\",\n    \"beskrivelse\": \"2-3 sætninger om vinklen\",\n    \"begrundelse\": \"Hvorfor denne vinkel passer til profilen\",\n    \"nyhedskriterier\": [\"kriterie1\", \"kriterie2\"],\n    \"startSpørgsmål\": [\"Spørgsmål 1\", \"Spørgsmål 2\"]\n  }}\n]\n\nVIGTIGT: Returner KUN et JSON-array med vinkelobjekter.\n"""
         
         return prompt
     

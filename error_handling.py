@@ -366,25 +366,21 @@ def safe_execute(fallback_return: Any = None, log_level: int = logging.ERROR) ->
 
 def safe_execute_async(fallback_return: Any = None, log_level: int = logging.ERROR) -> Callable[[F], F]:
     """
-    Decorator that catches exceptions in async functions and returns fallback value if something fails.
-    
-    Args:
-        fallback_return: Value to return if function fails
-        log_level: Logging level for errors
-        
-    Returns:
-        Decorated async function that handles errors gracefully
+    Decorator for async functions to handle errors gracefully and return a fallback value.
     """
     def decorator(func: F) -> F:
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             try:
-                return await func(*args, **kwargs)
+                # Filtrer kwargs så kun accepterede argumenter sendes videre
+                sig = inspect.signature(func)
+                accepted = set(sig.parameters.keys())
+                filtered_kwargs = {k: v for k, v in kwargs.items() if k in accepted}
+                return await func(*args, **filtered_kwargs)
             except Exception as e:
                 # Log the error
                 func_name = getattr(func, "__name__", "unknown")
                 logger.log(log_level, f"Error in async {func_name}: {str(e)}", exc_info=True)
-                
                 # Return fallback
                 return fallback_return
         return wrapper  # type: ignore
