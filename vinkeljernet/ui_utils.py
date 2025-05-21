@@ -547,7 +547,15 @@ def display_angles_panels(angles: List[Dict[str, Any]], verbose: bool = False, d
         criteria = angle.get('nyhedskriterier', [])
         questions = angle.get('startSpørgsmål', [])
         score = angle.get('kriterieScore', None)
-        
+        error_message = angle.get('error', None) # Hent evt. fejlbesked
+
+        if error_message:
+            # Hvis der er en fejl, udskriv en simpel fejlbesked i stedet for et panel
+            error_details = angle.get('beskrivelse', error_message) # Brug beskrivelse hvis error er generisk
+            console.print(f"[bold red]FEJL (Vinkel {i}):[/bold red] {error_details}")
+            # Spring resten af loopet over for denne vinkel
+            continue
+
         # Get the expert and source suggestions
         experts = angle.get('ekspertForslag', [])
         sources = angle.get('kildeForslag', [])
@@ -581,9 +589,8 @@ def display_angles_panels(angles: List[Dict[str, Any]], verbose: bool = False, d
 
             if experts:
                 panel_content.append(f"\n[bold cyan]Ekspertkilder:[/bold cyan]")
-                # Vis alle eksperter hvis detailed_sources er True
-                expert_limit = len(experts) if detailed_sources else (5 if verbose else 3)
-                for expert in experts[:expert_limit]:
+                # Vis alle eksperter
+                for expert in experts:
                     name = expert.get('navn', '')
                     title = expert.get('titel', '')
                     org = expert.get('organisation', '')
@@ -598,7 +605,7 @@ def display_angles_panels(angles: List[Dict[str, Any]], verbose: bool = False, d
                         expert_line += f", {org}"
                     panel_content.append(expert_line)
                     
-                    # Vis alle detaljer hvis detailed_sources er True
+                    # Vis detaljer baseret på detailed_sources
                     if detailed_sources:
                         if expertise:
                             panel_content.append(f"  [dim italic]Ekspertise:[/dim italic] [dim]{expertise}[/dim]")
@@ -611,14 +618,13 @@ def display_angles_panels(angles: List[Dict[str, Any]], verbose: bool = False, d
                         if expertise:
                             panel_content.append(f"  [dim]{expertise}[/dim]")
                 
-                if not detailed_sources and len(experts) > expert_limit:
-                    panel_content.append(f"[dim]+ {len(experts) - expert_limit} flere eksperter...[/dim]")
+                if not (experts or institutions or data_sources) and ekspert_kilder:
+                    logger.warning(f"Ekspertkilder fundet men ingen kendte nøgler (ekspertKilder): {list(ekspert_kilder.keys())}")
             
             if institutions:
                 panel_content.append(f"\n[bold cyan]Institutioner:[/bold cyan]")
-                # Vis alle institutioner hvis detailed_sources er True
-                inst_limit = len(institutions) if detailed_sources else (3 if verbose else 2)
-                for inst in institutions[:inst_limit]:
+                # Vis alle institutioner
+                for inst in institutions:
                     navn = inst.get('navn', '')
                     type_str = inst.get('type', '')
                     relevans = inst.get('relevans', '')
@@ -630,7 +636,7 @@ def display_angles_panels(angles: List[Dict[str, Any]], verbose: bool = False, d
                         inst_line += f" ({type_str})"
                     panel_content.append(inst_line)
                     
-                    # Vis alle detaljer hvis detailed_sources er True
+                    # Vis detaljer baseret på detailed_sources
                     if detailed_sources:
                         if relevans:
                             panel_content.append(f"  [dim italic]Relevans:[/dim italic] [dim]{relevans}[/dim]")
@@ -638,15 +644,11 @@ def display_angles_panels(angles: List[Dict[str, Any]], verbose: bool = False, d
                             panel_content.append(f"  [dim italic]Kontaktperson:[/dim italic] [dim]{kontaktperson}[/dim]")
                         if kontakt:
                             panel_content.append(f"  [dim italic]Kontakt:[/dim italic] [dim]{kontakt}[/dim]")
-                
-                if not detailed_sources and len(institutions) > inst_limit:
-                    panel_content.append(f"[dim]+ {len(institutions) - inst_limit} flere institutioner...[/dim]")
             
             if data_sources:
                 panel_content.append(f"\n[bold cyan]Datakilder:[/bold cyan]")
-                # Vis alle datakilder hvis detailed_sources er True
-                ds_limit = len(data_sources) if detailed_sources else (3 if verbose else 2)
-                for ds in data_sources[:ds_limit]:
+                # Vis alle datakilder
+                for ds in data_sources:
                     titel = ds.get('titel', 'N/A')
                     udgiver = ds.get('udgiver', '')
                     beskrivelse = ds.get('beskrivelse', '')
@@ -658,7 +660,7 @@ def display_angles_panels(angles: List[Dict[str, Any]], verbose: bool = False, d
                         ds_line += f" ({udgiver})"
                     panel_content.append(ds_line)
                     
-                    # Vis alle detaljer hvis detailed_sources er True
+                    # Vis detaljer baseret på detailed_sources
                     if detailed_sources:
                         if beskrivelse:
                             panel_content.append(f"  [dim italic]Beskrivelse:[/dim italic] [dim]{beskrivelse}[/dim]")
@@ -672,11 +674,8 @@ def display_angles_panels(angles: List[Dict[str, Any]], verbose: bool = False, d
                             panel_content.append(f"  [dim]{beskrivelse}[/dim]")
                         if link:
                             panel_content.append(f"  [blue underline]{link}[/blue underline]")
-                
-                if not detailed_sources and len(data_sources) > ds_limit:
-                    panel_content.append(f"[dim]+ {len(data_sources) - ds_limit} flere datakilder...[/dim]")
             
-            if not (experts or institutions or data_sources):
+            if not (experts or institutions or data_sources) and ekspert_kilder:
                 logger.warning(f"Ekspertkilder fundet men ingen kendte nøgler (ekspertKilder): {list(ekspert_kilder.keys())}")
         
         # Fall back to older expert and source formats if needed

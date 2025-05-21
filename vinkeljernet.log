@@ -1,225 +1,251 @@
-2025-05-19 03:35:09,987 - root - DEBUG - Logging initialized
-2025-05-19 03:35:09,987 - root - INFO - Vinkeljernet starting up
-2025-05-19 03:35:09,998 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
-2025-05-19 03:35:09,998 - vinkeljernet.config - INFO - OPENAI_API_KEY API Key loaded successfully
-2025-05-19 03:35:09,998 - vinkeljernet.config - INFO - PERPLEXITY_API_KEY API Key loaded successfully
-2025-05-19 03:35:09,998 - vinkeljernet.config - INFO - ANTHROPIC_API_KEY API Key loaded successfully
-2025-05-19 03:35:10,086 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-05-19 03:35:10,086 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
-2025-05-19 03:35:10,093 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
-2025-05-19 03:35:10,098 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
-2025-05-19 03:35:10,103 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
-2025-05-19 03:35:10,108 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
-2025-05-19 03:35:10,113 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
-2025-05-19 03:35:10,118 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
-2025-05-19 03:35:10,119 - vinkeljernet.api - INFO - API client initialized and ready
-2025-05-19 03:35:10,122 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: DR - Danmarks Radio
-2025-05-19 03:35:10,124 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
-2025-05-19 03:35:10,124 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function process_generation_request.<locals>.progress_callback at 0x107186ca0>}
-2025-05-19 03:35:10,129 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_topic_info
-2025-05-19 03:35:13,073 - vinkeljernet.api - INFO - Claude API request completed in 2.94 seconds
-2025-05-19 03:35:13,075 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
-2025-05-19 03:35:13,075 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': {'text': '# OVERSIGT\n\nKaffe er en af verdens mest populære drikkevarer, der fremstilles af kaffebønner fra kaffeplanten. Kaffe drikkes over hele verden og har stor økonomisk og kulturel betydning.\n\n# AKTUEL STATUS\n\nKaffesalget er steget markant de seneste år, drevet af øget efterspørgsel i vækstøkonomier som Kina og Indien. Samtidig er der stigende bekymring for kaffebøndernes levevilkår og bæredygtigheden i kaffeindustrien.\n\n# NØGLETAL\n\n- Kaffe er den næststørste handelsvare i verden efter olie.\n- Globalt drikkes der over 400 milliarder kopper kaffe om året.\n- Kaffeindustrien beskæftiger over 125 millioner mennesker på verdensplan.\n\n# PERSPEKTIVER\n\nDer er debat om kaffeindustriens bæredygtighed, herunder lave priser for bønderne, miljøpåvirkning og arbejdsforhold. Samtidig viser forskning, at moderat kaffeforbrug kan have sundhedsmæssige fordele. Kaffeindustrien arbejder på at gøre produktionen mere bæredygtig.', 'sources': {}}, 'topic': 'kaffe', 'progress_callback': <function process_generation_request.<locals>.progress_callback at 0x107186ca0>}
-2025-05-19 03:35:16,887 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
+2025-05-21 21:54:28,015 - root - DEBUG - Logging initialized
+2025-05-21 21:54:28,015 - root - INFO - Vinkeljernet starting up
+2025-05-21 21:54:28,018 - vinkeljernet.config - WARNING - Using randomly generated SECRET_KEY for development
+2025-05-21 21:54:28,018 - vinkeljernet.config - INFO - OPENAI_API_KEY API Key loaded successfully
+2025-05-21 21:54:28,018 - vinkeljernet.config - WARNING - PERPLEXITY_API_KEY not found
+2025-05-21 21:54:28,018 - vinkeljernet.config - INFO - ANTHROPIC_API_KEY API Key loaded successfully
+2025-05-21 21:54:28,120 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-05-21 21:54:28,121 - vinkeljernet.api_wrapper - INFO - Using optimized API client implementation
+2025-05-21 21:54:28,137 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic
+2025-05-21 21:54:28,151 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_sources
+2025-05-21 21:54:28,165 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_editorial
+2025-05-21 21:54:28,180 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_stream
+2025-05-21 21:54:28,194 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_knowledge
+2025-05-21 21:54:28,208 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: perplexity_experts
+2025-05-21 21:54:28,210 - vinkeljernet.api - INFO - API client initialized and ready
+2025-05-21 21:54:28,212 - vinkeljernet.config_loader - INFO - Successfully loaded and validated profile: TVflux
+2025-05-21 21:54:28,214 - vinkeljernet.api - INFO - Starting process_generation_request for topic: legalisering af cannabis i Danmark
+2025-05-21 21:54:28,214 - vinkeljernet.cache - INFO - Cache miss for fetch_topic_information, calling function
+2025-05-21 21:54:28,214 - vinkeljernet.retry - DEBUG - DEBUG - retry_manager async_wrapper kwargs: {'progress_callback': <function process_generation_request.<locals>.progress_callback at 0x103957ec0>}
+2025-05-21 21:54:28,214 - vinkeljernet.api - INFO - Starting fetch_topic_information for topic: legalisering af cannabis i Danmark
+2025-05-21 21:54:28,228 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_topic_info
+2025-05-21 21:54:32,108 - vinkeljernet.api - INFO - Claude API request completed in 3.88 seconds
+2025-05-21 21:54:32,109 - vinkeljernet.api - INFO - Total execution time for fetch_topic_information: 3.89 seconds
+2025-05-21 21:54:32,110 - vinkeljernet.api - INFO - process_generation_request: fetch_topic_information call took 3.90 seconds.
+2025-05-21 21:54:32,112 - vinkeljernet.cache - INFO - Cache miss for generate_knowledge_distillate, calling function
+2025-05-21 21:54:32,112 - vinkeljernet.retry - DEBUG - DEBUG - retry_manager async_wrapper kwargs: {'topic_info': {'text': '# OVERSIGT\nDebatten om legalisering af cannabis i Danmark handler om, hvorvidt det bør være lovligt at købe, sælge og forbruge cannabis. Emnet har været omdiskuteret i årevis, og der er forskellige holdninger til, hvorvidt en legalisering vil være hensigtsmæssig.\n\n# AKTUEL STATUS\nI Danmark er cannabis ulovligt, men debatten om legalisering har taget fart de seneste år. I 2021 nedsatte den daværende regering en kommission, der skal undersøge mulighederne for en kontrolleret legalisering. Kommissionen forventes at komme med en rapport i 2023, som kan danne grundlag for politiske beslutninger.\n\n# NØGLETAL\n- I 2020 blev der registreret 16.200 lovovertrædelser vedrørende cannabis i Danmark.\n- Ifølge en Gallup-måling fra 2021 er 45% af danskerne for en legalisering af cannabis, mens 41% er imod.\n- I 2018 blev det anslået, at et legalt cannabismarked i Danmark kunne generere op til 2 milliarder kroner i årlige skatteindtægter.\n\n# PERSPEKTIVER\nArgumenter for legalisering inkluderer, at det kan mindske kriminalitet, generere skatteindtægter og give brugerne en mere sikker adgang. Modstandere frygter, at det kan føre til øget forbrug og sundhedsmæssige problemer. Debatten handler også om, hvorvidt en legalisering bør ske under stærk regulering, eller om det bør være et frit marked.', 'sources': {}}, 'topic': 'legalisering af cannabis i Danmark', 'progress_callback': <function process_generation_request.<locals>.progress_callback at 0x103957ec0>}
+2025-05-21 21:54:32,112 - vinkeljernet.api - INFO - Starting generate_knowledge_distillate for topic: legalisering af cannabis i Danmark
+2025-05-21 21:54:36,514 - vinkeljernet.api - DEBUG - Raw knowledge distillate response: {
     "hovedpunkter": [
-        "Kaffe er en af verdens mest populære drikkevarer, der fremstilles af kaffebønner fra kaffeplanten",
-        "Kaffesalget er steget markant de seneste år, drevet af øget efterspørgsel i vækstøkonomier som Kina og Indien",
-        "Der er stigende bekymring for kaffebøndernes levevilkår og bæredygtigheden i kaffeindustrien",
-        "Kaffeindustrien beskæftiger over 125 millioner mennesker på verdensplan"
+        "Debatten om legalisering af cannabis i Danmark handler om, hvorvidt det bør være lovligt at købe, sælge og forbruge cannabis.",
+        "I Danmark er cannabis ulovligt, men debatten om legalisering har taget fart de seneste år. I 2021 nedsatte den daværende regering en kommission, der skal undersøge mulighederne for en kontrolleret legalisering.",
+        "Argumenter for legalisering inkluderer, at det kan mindske kriminalitet, generere skatteindtægter og give brugerne en mere sikker adgang.",
+        "Modstandere frygter, at det kan føre til øget forbrug og sundhedsmæssige problemer."
     ],
     "noegletal": [
         {
-            "tal": "400 milliarder",
-            "beskrivelse": "Globalt drikkes der over 400 milliarder kopper kaffe om året"
+            "tal": 16200,
+            "beskrivelse": "Antal lovovertrædelser vedrørende cannabis i Danmark i 2020",
+            "kilde": null
         },
         {
-            "tal": "2",
-            "beskrivelse": "Kaffe er den næststørste handelsvare i verden efter olie"
-        },
-        {
-            "tal": "125 millioner",
-            "beskrivelse": "Kaffeindustrien beskæftiger over 125 millioner mennesker på verdensplan"
-        }
-    ],
-    "centralePaastand": [
-        {
-            "paastand": "Der er debat om kaffeindustrie...
-2025-05-19 03:35:16,887 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
+            "tal": 45,
+            "beskrivelse": "Procent af danskerne der er for en legalisering af cannabis ifølge en Gallup-måling fra 2021",
+            "kilde": null
+   ...
+2025-05-21 21:54:36,515 - json_parser - DEBUG - Attempting to parse JSON from knowledge distillate. Preview: {
     "hovedpunkter": [
-        "Kaffe er en af verdens mest populære drikkevarer, der fremstilles a...
-2025-05-19 03:35:16,887 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-05-19 03:35:16,888 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 3.81 seconds
-2025-05-19 03:35:57,821 - vinkeljernet.api - WARNING - Claude API response_data (angles): {"id": "msg_01HBmD5KGSS69PQvUUfPNbMj", "type": "message", "role": "assistant", "model": "claude-3-opus-20240229", "content": [{"type": "text", "text": "[\n  {\n    \"overskrift\": \"Kaffebønder under pres: Lave priser truer bæredygtig produktion\",\n    \"beskrivelse\": \"En undersøgelse af de udfordringer, som kaffebønder står over for på grund af de lave priser på verdensmarkedet. Fokus på konsekvenserne for bøndernes levevilkår og muligheden for at opretholde en bæredygtig kaffeproduktion.\",\n    \"begrundelse\": \"Historien sætter fokus på et vigtigt globalt problem og appellerer til læsere, der interesserer sig for bæredygtighed, sociale forhold og etisk forbrug.\",\n    \"startSpørgsmål\": [\n      \"Hvordan har prisudviklingen på kaffe påvirket bøndernes indtjening de seneste år?\",\n      \"Hvilke konsekvenser har de lave priser for bøndernes mulighed for at investere i bæredygtig produktion?\"\n    ],\n    \"nyhedskriterier\": [\"væsentlighed\", \"konflikt\"]\n  },\n  {\n    \"overskrift\": \"Kaffe som sundhedseliksir: Ny forskning peger på overraskende fordele\",\n    \"beskrivelse\": \"En gennemgang af den seneste forskning, der viser, at moderat kaffeforbrug kan have en række positive effekter på sundheden, herunder nedsat risiko for visse kræftformer og type 2-diabetes.\",\n    \"begrundelse\": \"Historien er relevant for den brede befolkning, da kaffe er en populær hverdagsdrik. Den giver læserne ny viden om sundhed og velvære.\",\n    \"startSpørgsmål\": [\n      \"Hvilke konkrete sundhedsmæssige fordele har forskningen fundet ved kaffeforbrug?\",\n      \"Hvor meget kaffe er optimalt at drikke for at opnå sundhedsfordelene?\"\n    ],\n    \"nyhedskriterier\": [\"identifikation\", \"aktualitet\"]\n  },\n  {\n    \"overskrift\": \"Kaffekultur i forandring: Specialkaffe vinder frem hos danskerne\",\n    \"beskrivelse\": \"En udforskning af den voksende interesse for specialkaffe i Danmark, fra små lokale risterier til kaffebarer og hjemmebrygning. Hvad
-2025-05-19 03:35:57,822 - vinkeljernet.api - INFO - Claude API finish_reason: end_turn
-2025-05-19 03:35:57,822 - vinkeljernet.api - DEBUG - Raw Claude response: [
+        "Debatten om legalisering af cannabis i Danmark handler om, hvorvidt...
+2025-05-21 21:54:36,515 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-21 21:54:36,515 - vinkeljernet.api - INFO - Knowledge distillate generation completed in 4.40 seconds
+2025-05-21 21:54:36,515 - vinkeljernet.api - INFO - Total execution time for generate_knowledge_distillate: 4.40 seconds
+2025-05-21 21:55:14,690 - vinkeljernet.api - DEBUG - Claude API response_data (angles): {"id": "msg_01BoVSR4u6tV7xP5QfxAe2Vj", "type": "message", "role": "assistant", "model": "claude-3-opus-20240229", "content": [{"type": "text", "text": "[\n  {\n    \"overskrift\": \"Christianias skæve skjulte cannabismarked\",\n    \"beskrivelse\": \"En undersøgelse af den ulovlige cannabishandel på Christiania, set fra pushernes og brugernes perspektiv. Hvordan fungerer det i praksis, og hvilke konsekvenser har det for fristaden og samfundet?\",\n    \"begrundelse\": \"Giver indblik i en undergrunds-subkultur og sætter spørgsmålstegn ved den officielle narkopolitik. Relevant for læsere, der interesserer sig for alternative miljøer og frihedsidealer.\",\n    \"startSpørgsmål\": [\n      \"Hvordan er det at være cannabispusher på Christiania?\",\n      \"Hvad synes christianitter om den nuværende lovgivning?\",\n      \"Har politiets razziaer ændret noget ved handlen?\"\n    ],\n    \"nyhedskriterier\": [\"konflikt\", \"identifikation\"]\n  },\n  {\n    \"overskrift\": \"Cannabis som medicin: Patienters kamp mod systemet\",\n    \"beskrivelse\": \"Historier fra patienter, der bruger cannabis til at lindre smerter og symptomer, men kriminaliseres af lovgivningen. Sætter fokus på det etiske dilemma og argumenter for legalisering til medicinsk brug.\",\n    \"begrundelse\": \"Giver stemme til en marginaliseret gruppe og udfordrer sundhedsmyndighederne. Matcher profilens fokus på kritik af magthavere og støtte til udsatte.\",\n    \"startSpørgsmål\": [\n      \"Hvordan hjælper cannabis dig med at håndtere din sygdom?\",\n      \"Har du oplevet fordomme eller problemer med politiet?\",\n      \"Hvad synes du om reglerne for medicinsk cannabis i dag?\" \n    ],\n    \"nyhedskriterier\": [\"identifikation\", \"konflikt\", \"væsentlighed\"]\n  },\n  {\n    \"overskrift\": \"Aktivister planter cannabis i byrådets blomsterkrukker\",\n    \"beskrivelse\": \"En gruppe legaliserings-forkæmpere har i protest plantet cannabisfrø i byrådets blomsterkrukker. En kreativ, satirisk akti
+2025-05-21 21:55:14,691 - vinkeljernet.api - INFO - Claude API finish_reason: end_turn
+2025-05-21 21:55:14,691 - vinkeljernet.api - INFO - process_generation_request: Claude API call for angle generation took 42.58 seconds.
+2025-05-21 21:55:14,691 - vinkeljernet.api - DEBUG - Raw Claude response: [
   {
-    "overskrift": "Kaffebønder under pres: Lave priser truer bæredygtig produktion",
-    "beskrivelse": "En undersøgelse af de udfordringer, som kaffebønder står over for på grund af de lave priser på verdensmarkedet. Fokus på konsekvenserne for bøndernes levevilkår og muligheden for at opretholde en bæredygtig kaffeproduktion.",
-    "begrundelse": "Historien sætter fokus på et vigtigt globalt problem og appellerer til læsere, der interesserer sig for bæredygtighed, sociale forhold og etisk forbrug.",
+    "overskrift": "Christianias skæve skjulte cannabismarked",
+    "beskrivelse": "En undersøgelse af den ulovlige cannabishandel på Christiania, set fra pushernes og brugernes perspektiv. Hvordan fungerer det i praksis, og hvilke konsekvenser har det for fristaden og samfundet?",
+    "begrundelse": "Giver indblik i en undergrunds-subkultur og sætter spørgsmålstegn ved den officielle narkopolitik. Relevant for læsere, der interesserer sig for alternative miljøer og frihedsidealer.",
     "startSpørgsmål": [
-      "Hvordan har prisudviklingen på kaffe påvirket bøndernes indtjening de seneste år?",
-      "Hvilke konsekvenser har de lave priser for bøndernes mulighed for at investere i bæredygtig produktion?"
+      "Hvordan er det at være cannabispusher på Christiania?",
+      "Hvad synes christianitter om den nuværende lovgivning?",
+      "Har politiets razziaer ændret noget ved handlen?"
     ],
-    "nyhedskriterier": ["væsentlighed", "konflikt"]
+    "nyhedskriterier": ["konflikt", "identifikation"]
   },
   {
-    "overskrift": "Kaffe som sundhedseliksir: Ny forskning peger på overraskende fordele",
-    "beskrivelse": "En gennemgang af den seneste forskning, der viser, at moderat kaffeforbrug kan have en række positive effekter på sundheden, herunder nedsat risiko for visse kræftformer og type 2-diabetes.",
-    "begrundelse": "Historien er relevant for den brede befolkning, da kaffe er en populær hverdagsdrik. Den giver læserne ny viden om sundhed og velvære.",
+    "overskrift": "Cannabis som medicin: Patienters kamp mod systemet",
+    "beskrivelse": "Historier fra patienter, der bruger cannabis til at lindre smerter og symptomer, men kriminaliseres af lovgivningen. Sætter fokus på det etiske dilemma og argumenter for legalisering til medicinsk brug.",
+    "begrundelse": "Giver stemme til en marginaliseret gruppe og udfordrer sundhedsmyndighederne. Matcher profilens fokus på kritik af magthavere og støtte til udsatte.",
     "startSpørgsmål": [
-      "Hvilke konkrete sundhedsmæssige fordele har forskningen fundet ved kaffeforbrug?",
-      "Hvor meget kaffe er optimalt at drikke for at opnå sundhedsfordelene?"
+      "Hvordan hjælper cannabis dig med at håndtere din sygdom?",
+      "Har du oplevet fordomme eller problemer med politiet?",
+      "Hvad synes du om reglerne for medicinsk cannabis i dag?" 
     ],
-    "nyhedskriterier": ["identifikation", "aktualitet"]
+    "nyhedskriterier": ["identifikation", "konflikt", "væsentlighed"]
   },
   {
-    "overskrift": "Kaffekultur i forandring: Specialkaffe vinder frem hos danskerne",
-    "beskrivelse": "En udforskning af den voksende interesse for specialkaffe i Danmark, fra små lokale risterier til kaffebarer og hjemmebrygning. Hvad driver tendensen, og hvordan påvirker det danskernes forhold til kaffe?",
-    "begrundelse": "Historien tager udgangspunkt i en aktuel trend og giver indblik i en forandring i dansk kultur og forbrug. Den appellerer til læsere med interesse for livsstil og forbrugerforhold.",
+    "overskrift": "Aktivister planter cannabis i byrådets blomsterkrukker",
+    "beskrivelse": "En gruppe legaliserings-forkæmpere har i protest plantet cannabisfrø i byrådets blomsterkrukker. En kreativ, satirisk aktion der sætter fokus på det absurde i forbudspolitikken.",
+    "begrundelse": "En provokerende og humoristisk historie, der udfordrer myndighederne og støtter aktivisme for en sag. Matcher profilens undergrundsånd og opbakning til sociale bevægelser.",
     "startSpørgsmål": [
-      "Hvordan har salget af specialkaffe udviklet sig de seneste år?",
-      "Hvad motiverer forbrugerne til at vælge specialkaffe frem for almindelig kaffe?",
-      "Hvordan adskiller smagen og oplevelsen sig ved specialkaffe?"
+      "Hvad er jeres budskab med denne aktion?",
+      "Er I ikke bange for konsekvenserne?",
+      "Hvad håber I at opnå på længere sigt?"
     ],
-    "nyhedskriterier": ["aktualitet", "identifikation"]
+    "nyhedskriterier": ["konflikt", "aktualitet", "sensation"]
   },
   {
-    "overskrift": "Klimaforandringer truer kaffens fremtid",
-    "beskrivelse": "En analyse af hvordan klimaforandringer som tørke og ekstreme vejrforhold påvirker kaffeproduktionen globalt. Eksperter vurderer konsekvenserne for udbuddet og prisen på kaffe i de kommende årtier.",
-    "begrundelse": "Historien sætter fokus på et væsentligt emne med store potentielle konsekvenser for både forbrugere, industrien og bønder. Den passer med profilens fokus på klima og bæredygtighed.",
+    "overskrift": "Dansk forskning: Cannabis gavner miljøet",
+    "beskrivelse": "Ny forskning viser, at cannabisplanten har store miljømæssige fordele i forhold til andre afgrøder. Interview med forskerne bag og perspektiver for bæredygtigt landbrug.",
+    "begrundelse": "En overraskende og faktabaseret vinkel, der udfordrer fordommene. Relevant for læsere med interesse for miljø, videnskab og alternativ tænkning.",
     "startSpørgsmål": [
-      "Hvilke konkrete trusler udgør klimaforandringerne for kaffeproduktionen?",
-      "Hvad gør industrien og bønderne for at tilpasse sig de ændrede forhold?"
+      "Hvad gør cannabis særligt miljøvenligt som afgrøde?",
+      "Kunne det få betydning for debatten om legalisering?",
+      "Hvilke udfordringer er der ved dyrkning i Danmark?"
     ],
-    "nyhedskriterier": ["væsentlighed", "aktualitet"]
+    "nyhedskriterier": ["væsentlighed", "identifikation"]
   },
   {
-    "overskrift": "Kaffeindustriens skyggesider: Bønder udnyttes trods certificeringer",
-    "beskrivelse": "En dybdegående undersøgelse af arbejdsforholdene på kaffeplantager, der afslører udbredt underbetaling og udnyttelse af arbejdere, på trods af industriens bæredygtighedscertificeringer.",
-    "begrundelse": "Historien stiller skarpt på et kontroversielt emne og lever op til profilens fokus på kritisk journalistik og sociale forhold. Den giver læserne et nuanceret indblik bag certificeringerne.",
+    "overskrift": "Rådne regler: Musikere risikerer fængsel for cannabissange",
+    "beskrivelse": "Flere danske musikere er blevet anklaget for at opfordre til narko-kriminalitet med deres sangtekster om cannabis. En principiel debat om ytrings- og kunstnerisk frihed.",
+    "begrundelse": "Sagen har stor symbolsk betydning og sætter fokus på absurde konsekvenser af forbuddet. Matcher profilens kamp for frie udtryk og mod formynderi.",
     "startSpørgsmål": [
-      "Hvilke konkrete problemer findes der med arbejdsforhold og løn på kaffeplantager?",
-      "Hvordan kan det være, at problemerne eksisterer på trods af certificeringer?",
-      "Hvad siger industrien og certificeringsorganerne til kritikken?"
+      "Hvad var din hensigt med denne sang?",
+      "Hvad tænker du om anklagerne mod dig?",
+      "Hvor går grænsen mellem kunst og kriminalitet?"
     ],
-    "nyhedskriterier": ["væsentlighed", "konflikt"]
+    "nyhedskriterier": ["konflikt", "identifikation", "aktualitet"]
   }
 ]
-2025-05-19 03:35:57,822 - prompt_engineering - DEBUG - Raw LLM response: [
+2025-05-21 21:55:14,691 - prompt_engineering - DEBUG - Raw LLM response: [
   {
-    "overskrift": "Kaffebønder under pres: Lave priser truer bæredygtig produktion",
-    "beskrivelse": "En undersøgelse af de udfordringer, som kaffebønder står over for på grund af de lave priser på verdensmarkedet. Fokus på konsekvenserne for bøndernes levevilkår og muligheden for at opretholde en bæredygtig kaffeproduktion.",
-    "begrundelse": "Historien sætter fokus på et vigtigt globalt problem og appellerer til læsere, der interesserer sig for bæredygtighed, sociale forhold og etisk forbrug.",
+    "overskrift": "Christianias skæve skjulte cannabismarked",
+    "beskrivelse": "En undersøgelse af den ulovlige cannabishandel på Christiania, set fra pushernes og brugernes perspektiv. Hvordan fungerer det i praksis, og hvilke konsekvenser har det for fristaden og samfundet?",
+    "begrundelse": "Giver indblik i en undergrunds-subkultur og sætter spørgsmålstegn ved den officielle narkopolitik. Relevant for læsere, der interesserer sig for alternative miljøer og frihedsidealer.",
     "startSpørgsmål": [
-      "Hvordan har prisudviklingen på kaffe påvirket bøndernes indtjening de seneste år?",
-      "Hvilke konsekvenser har de lave priser for bøndernes mulighed for at investere i bæredygtig produktion?"
+      "Hvordan er det at være cannabispusher på Christiania?",
+      "Hvad synes christianitter om den nuværende lovgivning?",
+      "Har politiets razziaer ændret noget ved handlen?"
     ],
-    "nyhedskriterier": ["væsentlighed", "konflikt"]
+    "nyhedskriterier": ["konflikt", "identifikation"]
   },
   {
-    "overskrift": "Kaffe som sundhedseliksir: Ny forskning peger på overraskende fordele",
-    "beskrivelse": "En gennemgang af den seneste forskning, der viser, at moderat kaffeforbrug kan have en række positive effekter på sundheden, herunder nedsat risiko for visse kræftformer og type 2-diabetes.",
-    "begrundelse": "Historien er relevant for den brede befolkning, da kaffe er en populær hverdagsdrik. Den giver læserne ny viden om sundhed og velvære.",
+    "overskrift": "Cannabis som medicin: Patienters kamp mod systemet",
+    "beskrivelse": "Historier fra patienter, der bruger cannabis til at lindre smerter og symptomer, men kriminaliseres af lovgivningen. Sætter fokus på det etiske dilemma og argumenter for legalisering til medicinsk brug.",
+    "begrundelse": "Giver stemme til en marginaliseret gruppe og udfordrer sundhedsmyndighederne. Matcher profilens fokus på kritik af magthavere og støtte til udsatte.",
     "startSpørgsmål": [
-      "Hvilke konkrete sundhedsmæssige fordele har forskningen fundet ved kaffeforbrug?",
-      "Hvor meget kaffe er optimalt at drikke for at opnå sundhedsfordelene?"
+      "Hvordan hjælper cannabis dig med at håndtere din sygdom?",
+      "Har du oplevet fordomme eller problemer med politiet?",
+      "Hvad synes du om reglerne for medicinsk cannabis i dag?" 
     ],
-    "nyhedskriterier": ["identifikation", "aktualitet"]
+    "nyhedskriterier": ["identifikation", "konflikt", "væsentlighed"]
   },
   {
-    "overskrift": "Kaffekultur i forandring: Specialkaffe vinder frem hos danskerne",
-    "beskrivelse": "En udforskning af den voksende interesse for specialkaffe i Danmark, fra små lokale risterier til kaffebarer og hjemmebrygning. Hvad driver tendensen, og hvordan påvirker det danskernes forhold til kaffe?",
-    "begrundelse": "Historien tager udgangspunkt i en aktuel trend og giver indblik i en forandring i dansk kultur og forbrug. Den appellerer til læsere med interesse for livsstil og forbrugerforhold.",
+    "overskrift": "Aktivister planter cannabis i byrådets blomsterkrukker",
+    "beskrivelse": "En gruppe legaliserings-forkæmpere har i protest plantet cannabisfrø i byrådets blomsterkrukker. En kreativ, satirisk aktion der sætter fokus på det absurde i forbudspolitikken.",
+    "begrundelse": "En provokerende og humoristisk historie, der udfordrer myndighederne og støtter aktivisme for en sag. Matcher profilens undergrundsånd og opbakning til sociale bevægelser.",
     "startSpørgsmål": [
-      "Hvordan har salget af specialkaffe udviklet sig de seneste år?",
-      "Hvad motiverer forbrugerne til at vælge specialkaffe frem for almindelig kaffe?",
-      "Hvordan adskiller smagen og oplevelsen sig ved specialkaffe?"
+      "Hvad er jeres budskab med denne aktion?",
+      "Er I ikke bange for konsekvenserne?",
+      "Hvad håber I at opnå på længere sigt?"
     ],
-    "nyhedskriterier": ["aktualitet", "identifikation"]
+    "nyhedskriterier": ["konflikt", "aktualitet", "sensation"]
   },
   {
-    "overskrift": "Klimaforandringer truer kaffens fremtid",
-    "beskrivelse": "En analyse af hvordan klimaforandringer som tørke og ekstreme vejrforhold påvirker kaffeproduktionen globalt. Eksperter vurderer konsekvenserne for udbuddet og prisen på kaffe i de kommende årtier.",
-    "begrundelse": "Historien sætter fokus på et væsentligt emne med store potentielle konsekvenser for både forbrugere, industrien og bønder. Den passer med profilens fokus på klima og bæredygtighed.",
+    "overskrift": "Dansk forskning: Cannabis gavner miljøet",
+    "beskrivelse": "Ny forskning viser, at cannabisplanten har store miljømæssige fordele i forhold til andre afgrøder. Interview med forskerne bag og perspektiver for bæredygtigt landbrug.",
+    "begrundelse": "En overraskende og faktabaseret vinkel, der udfordrer fordommene. Relevant for læsere med interesse for miljø, videnskab og alternativ tænkning.",
     "startSpørgsmål": [
-      "Hvilke konkrete trusler udgør klimaforandringerne for kaffeproduktionen?",
-      "Hvad gør industrien og bønderne for at tilpasse sig de ændrede forhold?"
+      "Hvad gør cannabis særligt miljøvenligt som afgrøde?",
+      "Kunne det få betydning for debatten om legalisering?",
+      "Hvilke udfordringer er der ved dyrkning i Danmark?"
     ],
-    "nyhedskriterier": ["væsentlighed", "aktualitet"]
+    "nyhedskriterier": ["væsentlighed", "identifikation"]
   },
   {
-    "overskrift": "Kaffeindustriens skyggesider: Bønder udnyttes trods certificeringer",
-    "beskrivelse": "En dybdegående undersøgelse af arbejdsforholdene på kaffeplantager, der afslører udbredt underbetaling og udnyttelse af arbejdere, på trods af industriens bæredygtighedscertificeringer.",
-    "begrundelse": "Historien stiller skarpt på et kontroversielt emne og lever op til profilens fokus på kritisk journalistik og sociale forhold. Den giver læserne et nuanceret indblik bag certificeringerne.",
+    "overskrift": "Rådne regler: Musikere risikerer fængsel for cannabissange",
+    "beskrivelse": "Flere danske musikere er blevet anklaget for at opfordre til narko-kriminalitet med deres sangtekster om cannabis. En principiel debat om ytrings- og kunstnerisk frihed.",
+    "begrundelse": "Sagen har stor symbolsk betydning og sætter fokus på absurde konsekvenser af forbuddet. Matcher profilens kamp for frie udtryk og mod formynderi.",
     "startSpørgsmål": [
-      "Hvilke konkrete problemer findes der med arbejdsforhold og løn på kaffeplantager?",
-      "Hvordan kan det være, at problemerne eksisterer på trods af certificeringer?",
-      "Hvad siger industrien og certificeringsorganerne til kritikken?"
+      "Hvad var din hensigt med denne sang?",
+      "Hvad tænker du om anklagerne mod dig?",
+      "Hvor går grænsen mellem kunst og kriminalitet?"
     ],
-    "nyhedskriterier": ["væsentlighed", "konflikt"]
+    "nyhedskriterier": ["konflikt", "identifikation", "aktualitet"]
   }
 ]
-2025-05-19 03:35:57,822 - json_parser - DEBUG - Attempting to parse JSON from angle generation response. Preview: [
+2025-05-21 21:55:14,691 - json_parser - DEBUG - Attempting to parse JSON from angle generation response. Preview: [
   {
-    "overskrift": "Kaffebønder under pres: Lave priser truer bæredygtig produktion",
-    "besk...
-2025-05-19 03:35:57,822 - json_parser - INFO - Successfully parsed JSON directly: 5 items found
-2025-05-19 03:35:57,824 - prompt_engineering - INFO - Successfully parsed and validated 5 angles from response
-2025-05-19 03:35:57,825 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-05-19 03:35:57,825 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Klimaforandringer truer kaffens fremtid', 'angle_description': 'En analyse af hvordan klimaforandringer som tørke og ekstreme vejrforhold påvirker kaffeproduktionen globalt. Eksperter vurderer konsekvenserne for udbuddet og prisen på kaffe i de kommende årtier.', 'progress_callback': None, 'rationale': 'Historien sætter fokus på et væsentligt emne med store potentielle konsekvenser for både forbrugere, industrien og bønder. Den passer med profilens fokus på klima og bæredygtighed.'}
-2025-05-19 03:35:57,840 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_expert_sources
-2025-05-19 03:35:57,841 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-05-19 03:35:57,841 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Kaffebønder under pres: Lave priser truer bæredygtig produktion', 'angle_description': 'En undersøgelse af de udfordringer, som kaffebønder står over for på grund af de lave priser på verdensmarkedet. Fokus på konsekvenserne for bøndernes levevilkår og muligheden for at opretholde en bæredygtig kaffeproduktion.', 'progress_callback': None, 'rationale': 'Historien sætter fokus på et vigtigt globalt problem og appellerer til læsere, der interesserer sig for bæredygtighed, sociale forhold og etisk forbrug.'}
-2025-05-19 03:35:57,841 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-05-19 03:35:57,841 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Kaffeindustriens skyggesider: Bønder udnyttes trods certificeringer', 'angle_description': 'En dybdegående undersøgelse af arbejdsforholdene på kaffeplantager, der afslører udbredt underbetaling og udnyttelse af arbejdere, på trods af industriens bæredygtighedscertificeringer.', 'progress_callback': None, 'rationale': 'Historien stiller skarpt på et kontroversielt emne og lever op til profilens fokus på kritisk journalistik og sociale forhold. Den giver læserne et nuanceret indblik bag certificeringerne.'}
-2025-05-19 03:35:57,842 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-05-19 03:35:57,842 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Kaffe som sundhedseliksir: Ny forskning peger på overraskende fordele', 'angle_description': 'En gennemgang af den seneste forskning, der viser, at moderat kaffeforbrug kan have en række positive effekter på sundheden, herunder nedsat risiko for visse kræftformer og type 2-diabetes.', 'progress_callback': None, 'rationale': 'Historien er relevant for den brede befolkning, da kaffe er en populær hverdagsdrik. Den giver læserne ny viden om sundhed og velvære.'}
-2025-05-19 03:35:57,842 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
-2025-05-19 03:35:57,842 - vinkeljernet.retry - INFO - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'kaffe', 'angle_headline': 'Kaffekultur i forandring: Specialkaffe vinder frem hos danskerne', 'angle_description': 'En udforskning af den voksende interesse for specialkaffe i Danmark, fra små lokale risterier til kaffebarer og hjemmebrygning. Hvad driver tendensen, og hvordan påvirker det danskernes forhold til kaffe?', 'progress_callback': None, 'rationale': 'Historien tager udgangspunkt i en aktuel trend og giver indblik i en forandring i dansk kultur og forbrug. Den appellerer til læsere med interesse for livsstil og forbrugerforhold.'}
-2025-05-19 03:36:06,310 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01FpZwVeaKpvrhRm71kQ1YUY","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Susanne B\xc3\xb8dker\\",\\n      \\"titel\\": \\"Professor i folkesundhedsvidenskab\\",\\n      \\"organisation\\": \\"Aarhus Universitet, Institut for Folkesundhed\\",\\n      \\"ekspertise\\": \\"Forskning i sundhedseffekter af koffein og andre bioaktive stoffer i kaffe\\",\\n      \\"kontakt\\": \\"susanne.bodker@ph.au.dk\\",\\n     '...
-2025-05-19 03:36:06,312 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01FpZwVeaKpvrhRm71kQ1YUY","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Susanne Bødker\",\n      \"titel\": \"Professor i folkesundhedsvidenskab\",\n      \"organisation\": \"Aarhus Universitet, Institut for Folkesundhed\",\n      \"ekspertise\": \"Forskning i sundhedseffekter af koffein og andre bioaktive stoffer i kaffe\",\n      \"kontakt\": \"susanne.bodker@ph.au.dk\",\n      ...
-2025-05-19 03:36:06,313 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_01FpZwVeaKpvrhRm71kQ1YUY", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Susanne Bødker\",\n      \"titel\": \"Professor i folkesundhedsvidenskab\",\n      \"organisation\": \"Aarhus Universitet, Institut for Folkesundhed\",\n      \"ekspertise\": \"Forskning i sundhedseffekter af koffein og andre bioaktive stoffer i kaffe\",\n      \"kontakt\": \"susanne.bodker@ph.au.dk\",\n      \"relevans\": \"Kan kommentere på de sundhedsmæssige fordele ved moderat kaffeforbrug\"\n    },\n    {\n      \"navn\": \"Lars Ove Dragsted\",\n      \"titel\": \"Professor i human ernæring\",\n      \"organisation\": \"Københavns Universitet, Institut for Idræt og Ernæring\",\n      \"ekspertise\": \"Ekspert i bioaktive stoffer i fødevarer og deres sundhedseffekter\",\n      \"kontakt\": \"l.dragsted@nexs.ku.dk\",\n      \"relevans\": \"Kan forklare de biokemiske mekanismer bag kaffens sundhedsfordele\"\n    },\n    {\n      \"navn\": \"Mette Sørensen\",\n      \"titel\": \"Seniorforsker i epidemiologi\",\n      \"organisation\": \"Kræftens Bekæmpelse\",\n      \"ekspertise\": \"Forskning i sammenhænge mellem kost, livsstil og kræftrisiko\",\n      \"kontakt\": \"mette.soerensen@cancer.dk\",\n      \"relevans\": \"Kan kommentere på nyere studier om kaffe og nedsat kræftrisiko\"\n    },\n    {\n      \"navn\": \"Peter Astrup\",\n      \"titel\": \"Overlæge i endokrinologi\",\n      \"organisation\": \"Steno Diabetes Center Copenhagen\",\n      \"ekspertise\": \"Ekspert i diabetes og metaboliske sygdomme\",\n      \"kontakt\": \"peter.astrup@regionh.dk\",\n      \"relevans\": \"Kan belyse kaffens mulige forebyggende effekt på type 2-diabetes\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Fødevarestyrelsen\",\n      \"type\": \"Offentlig myndighed\",\n      \"relevans\": \"Myndighed med ansvar for fødevaresikkerhed og -information\",\n      \"konta
-2025-05-19 03:36:06,313 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
+    "overskrift": "Christianias skæve skjulte cannabismarked",
+    "beskrivelse": "En undersøg...
+2025-05-21 21:55:14,691 - json_parser - INFO - Successfully parsed JSON directly: 5 items found
+2025-05-21 21:55:14,692 - prompt_engineering - INFO - Successfully parsed and validated 5 angles from response
+2025-05-21 21:55:14,692 - vinkeljernet.api - INFO - process_generation_request: filter_and_rank_angles took 0.00 seconds.
+2025-05-21 21:55:14,692 - vinkeljernet.api - INFO - process_generation_request: awaiting knowledge_distillate_task took 0.00 seconds.
+2025-05-21 21:55:14,693 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-21 21:55:14,693 - vinkeljernet.retry - DEBUG - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'legalisering af cannabis i Danmark', 'angle_headline': 'Cannabis som medicin: Patienters kamp mod systemet', 'angle_description': 'Historier fra patienter, der bruger cannabis til at lindre smerter og symptomer, men kriminaliseres af lovgivningen. Sætter fokus på det etiske dilemma og argumenter for legalisering til medicinsk brug.', 'progress_callback': None, 'rationale': 'Giver stemme til en marginaliseret gruppe og udfordrer sundhedsmyndighederne. Matcher profilens fokus på kritik af magthavere og støtte til udsatte.'}
+2025-05-21 21:55:14,693 - vinkeljernet.api - INFO - Starting generate_expert_source_suggestions for angle: Cannabis som medicin: Patienters kamp mod systemet
+2025-05-21 21:55:14,728 - vinkeljernet.api - DEBUG - Created new aiohttp session for key: anthropic_expert_sources
+2025-05-21 21:55:14,729 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-21 21:55:14,729 - vinkeljernet.retry - DEBUG - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'legalisering af cannabis i Danmark', 'angle_headline': 'Rådne regler: Musikere risikerer fængsel for cannabissange', 'angle_description': 'Flere danske musikere er blevet anklaget for at opfordre til narko-kriminalitet med deres sangtekster om cannabis. En principiel debat om ytrings- og kunstnerisk frihed.', 'progress_callback': None, 'rationale': 'Sagen har stor symbolsk betydning og sætter fokus på absurde konsekvenser af forbuddet. Matcher profilens kamp for frie udtryk og mod formynderi.'}
+2025-05-21 21:55:14,729 - vinkeljernet.api - INFO - Starting generate_expert_source_suggestions for angle: Rådne regler: Musikere risikerer fængsel for cannabissange
+2025-05-21 21:55:14,729 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-21 21:55:14,729 - vinkeljernet.retry - DEBUG - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'legalisering af cannabis i Danmark', 'angle_headline': 'Christianias skæve skjulte cannabismarked', 'angle_description': 'En undersøgelse af den ulovlige cannabishandel på Christiania, set fra pushernes og brugernes perspektiv. Hvordan fungerer det i praksis, og hvilke konsekvenser har det for fristaden og samfundet?', 'progress_callback': None, 'rationale': 'Giver indblik i en undergrunds-subkultur og sætter spørgsmålstegn ved den officielle narkopolitik. Relevant for læsere, der interesserer sig for alternative miljøer og frihedsidealer.'}
+2025-05-21 21:55:14,729 - vinkeljernet.api - INFO - Starting generate_expert_source_suggestions for angle: Christianias skæve skjulte cannabismarked
+2025-05-21 21:55:14,729 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-21 21:55:14,729 - vinkeljernet.retry - DEBUG - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'legalisering af cannabis i Danmark', 'angle_headline': 'Aktivister planter cannabis i byrådets blomsterkrukker', 'angle_description': 'En gruppe legaliserings-forkæmpere har i protest plantet cannabisfrø i byrådets blomsterkrukker. En kreativ, satirisk aktion der sætter fokus på det absurde i forbudspolitikken.', 'progress_callback': None, 'rationale': 'En provokerende og humoristisk historie, der udfordrer myndighederne og støtter aktivisme for en sag. Matcher profilens undergrundsånd og opbakning til sociale bevægelser.'}
+2025-05-21 21:55:14,729 - vinkeljernet.api - INFO - Starting generate_expert_source_suggestions for angle: Aktivister planter cannabis i byrådets blomsterkrukker
+2025-05-21 21:55:14,729 - vinkeljernet.cache - INFO - Cache miss for generate_expert_source_suggestions, calling function
+2025-05-21 21:55:14,729 - vinkeljernet.retry - DEBUG - DEBUG - retry_manager async_wrapper kwargs: {'topic': 'legalisering af cannabis i Danmark', 'angle_headline': 'Dansk forskning: Cannabis gavner miljøet', 'angle_description': 'Ny forskning viser, at cannabisplanten har store miljømæssige fordele i forhold til andre afgrøder. Interview med forskerne bag og perspektiver for bæredygtigt landbrug.', 'progress_callback': None, 'rationale': 'En overraskende og faktabaseret vinkel, der udfordrer fordommene. Relevant for læsere med interesse for miljø, videnskab og alternativ tænkning.'}
+2025-05-21 21:55:14,729 - vinkeljernet.api - INFO - Starting generate_expert_source_suggestions for angle: Dansk forskning: Cannabis gavner miljøet
+2025-05-21 21:55:22,753 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01RQaAmrpGLR69Vx1fo3ZQTW","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Mikkel Pedersen\\",\\n      \\"titel\\": \\"Lektor i kriminologi\\",\\n      \\"organisation\\": \\"K\xc3\xb8benhavns Universitet, Institut for Retssociologi\\",\\n      \\"ekspertise\\": \\"Forskning i narkotikapolitik, kriminalisering og social kontrol\\",\\n      \\"kontakt\\": \\"mikkel.pedersen@jur.ku.dk\\",\\n      \\"relevans\\": \\"'...
+2025-05-21 21:55:22,753 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01RQaAmrpGLR69Vx1fo3ZQTW","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mikkel Pedersen\",\n      \"titel\": \"Lektor i kriminologi\",\n      \"organisation\": \"Københavns Universitet, Institut for Retssociologi\",\n      \"ekspertise\": \"Forskning i narkotikapolitik, kriminalisering og social kontrol\",\n      \"kontakt\": \"mikkel.pedersen@jur.ku.dk\",\n      \"relevans\": \"K...
+2025-05-21 21:55:22,753 - vinkeljernet.api - DEBUG - Claude API response_data (expert sources): {"id": "msg_01RQaAmrpGLR69Vx1fo3ZQTW", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mikkel Pedersen\",\n      \"titel\": \"Lektor i kriminologi\",\n      \"organisation\": \"Københavns Universitet, Institut for Retssociologi\",\n      \"ekspertise\": \"Forskning i narkotikapolitik, kriminalisering og social kontrol\",\n      \"kontakt\": \"mikkel.pedersen@jur.ku.dk\",\n      \"relevans\": \"Kan belyse de kriminologiske og retspolitiske aspekter af cannabislovgivning\"\n    },\n    {\n      \"navn\": \"Rikke Hansen\",\n      \"titel\": \"Sundhedsøkonom\",\n      \"organisation\": \"VIVE - Det Nationale Forsknings- og Analysecenter for Velfærd\",\n      \"ekspertise\": \"Analyse af sundhedsøkonomiske konsekvenser af narkotikapolitik\",\n      \"kontakt\": \"rih@vive.dk\",\n      \"relevans\": \"Kan vurdere de samfundsøkonomiske effekter af en legalisering\"\n    },\n    {\n      \"navn\": \"Jens Holm\",\n      \"titel\": \"Overlæge i psykiatri\",\n      \"organisation\": \"Psykiatrisk Center København\",\n      \"ekspertise\": \"Forskning i rusmidlers indvirkning på mental sundhed\",\n      \"kontakt\": \"jens.holm@regionh.dk\",\n      \"relevans\": \"Kan belyse de sundhedsmæssige konsekvenser af cannabis-brug\"\n    },\n    {\n      \"navn\": \"Sofie Andersen\",\n      \"titel\": \"Lektor i sociologi\",\n      \"organisation\": \"Roskilde Universitet, Institut for Samfundsvidenskab og Erhverv\",\n      \"ekspertise\": \"Studier af sociale bevægelser og aktivisme omkring narkotikapolitik\",\n      \"kontakt\": \"sofiea@ruc.dk\",\n      \"relevans\": \"Kan analysere den sociale og kulturelle kontekst for cannabisaktivisme\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Sundhedsstyrelsen\",\n      \"type\": \"Offentlig myndighed\",\n      \"relevans\": \"Ansvarlig for regulering af narkotika og rådgivning om sundhedsaspekter\",\n      \"k
+2025-05-21 21:55:22,753 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
   "eksperter": [
     {
-      "navn": "Susanne Bødker",
-      "titel": "Professor i folkesundhedsvi...
-2025-05-19 03:36:06,313 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-05-19 03:36:06,347 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_018XpPwgQGyzRFYNzw4fD1K3","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Maja Grann\\",\\n      \\"titel\\": \\"Lektor i b\xc3\xa6redygtig f\xc3\xb8devareproduktion\\",\\n      \\"organisation\\": \\"K\xc3\xb8benhavns Universitet, Institut for F\xc3\xb8devare- og Ressource\xc3\xb8konomi\\",\\n      \\"ekspertise\\": \\"Forskning i udfordringer for sm\xc3\xa5skala kaffeb\xc3\xb8nder i udviklingslande\\",\\n      \\"kontakt\\": \\"maja.grann@if'...
-2025-05-19 03:36:06,347 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_018XpPwgQGyzRFYNzw4fD1K3","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Maja Grann\",\n      \"titel\": \"Lektor i bæredygtig fødevareproduktion\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevare- og Ressourceøkonomi\",\n      \"ekspertise\": \"Forskning i udfordringer for småskala kaffebønder i udviklingslande\",\n      \"kontakt\": \"maja.grann@ifro.ku.d...
-2025-05-19 03:36:06,348 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_018XpPwgQGyzRFYNzw4fD1K3", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Maja Grann\",\n      \"titel\": \"Lektor i bæredygtig fødevareproduktion\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevare- og Ressourceøkonomi\",\n      \"ekspertise\": \"Forskning i udfordringer for småskala kaffebønder i udviklingslande\",\n      \"kontakt\": \"maja.grann@ifro.ku.dk\",\n      \"relevans\": \"Kan belyse de økonomiske og sociale konsekvenser af lave kaffepriser for bønderne\"\n    },\n    {\n      \"navn\": \"Juan Valdez\",\n      \"titel\": \"Direktør for Fairtrade International, Latin Amerika\",\n      \"organisation\": \"Fairtrade International\",\n      \"ekspertise\": \"Erfaring med at støtte bæredygtig kaffeproduktion og retfærdig handel\",\n      \"kontakt\": \"juan.valdez@fairtrade.net\",\n      \"relevans\": \"Kan forklare, hvordan Fairtrade-certificering kan hjælpe kaffebønder\"\n    },\n    {\n      \"navn\": \"Maria Pereira\",\n      \"titel\": \"Seniorforsker i klimatilpasning i landbruget\",\n      \"organisation\": \"FN's Fødevare- og Landbrugsorganisation (FAO)\",\n      \"ekspertise\": \"Forskning i bæredygtige dyrkningsmetoder og klimarisici for kaffebønder\",\n      \"kontakt\": \"maria.pereira@fao.org\",\n      \"relevans\": \"Kan belyse, hvordan klimaforandringer påvirker kaffeproduktionen\"\n    },\n    {\n      \"navn\": \"Ahmed Khalid\",\n      \"titel\": \"Programkoordinator, Kaffebøndernes Interesseorganisation\",\n      \"organisation\": \"Kaffebøndernes Interesseorganisation, Kenya\",\n      \"ekspertise\": \"Direkte erfaring med udfordringer for kaffebønder i udviklingslande\",\n      \"kontakt\": \"ahmed.khalid@kaffebonder.ke\",\n      \"relevans\": \"Kan give førstehåndsviden om kaffebøndernes levevilkår og behov\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"International Kaff
-2025-05-19 03:36:06,348 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
+      "navn": "Mikkel Pedersen",
+      "titel": "Lektor i kriminologi",
+   ...
+2025-05-21 21:55:22,754 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-21 21:55:22,754 - vinkeljernet.api - INFO - Total execution time for generate_expert_source_suggestions: 8.02 seconds
+2025-05-21 21:55:23,386 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01DF7aRGFwsT3j8U9YuS9zJi","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Birgitte Ahlgren\\",\\n      \\"titel\\": \\"Lektor i kriminologi\\",\\n      \\"organisation\\": \\"K\xc3\xb8benhavns Universitet, Juridisk Fakultet\\",\\n      \\"ekspertise\\": \\"Forskning i narkotikalovgivning, strafferetlige konsekvenser og ytrings- og kunstnerisk frihed\\",\\n      \\"kontakt\\": \\"birgitte.ahlgren@jur.ku.dk\\",'...
+2025-05-21 21:55:23,386 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01DF7aRGFwsT3j8U9YuS9zJi","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Birgitte Ahlgren\",\n      \"titel\": \"Lektor i kriminologi\",\n      \"organisation\": \"Københavns Universitet, Juridisk Fakultet\",\n      \"ekspertise\": \"Forskning i narkotikalovgivning, strafferetlige konsekvenser og ytrings- og kunstnerisk frihed\",\n      \"kontakt\": \"birgitte.ahlgren@jur.ku.dk\",\...
+2025-05-21 21:55:23,386 - vinkeljernet.api - DEBUG - Claude API response_data (expert sources): {"id": "msg_01DF7aRGFwsT3j8U9YuS9zJi", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Birgitte Ahlgren\",\n      \"titel\": \"Lektor i kriminologi\",\n      \"organisation\": \"Københavns Universitet, Juridisk Fakultet\",\n      \"ekspertise\": \"Forskning i narkotikalovgivning, strafferetlige konsekvenser og ytrings- og kunstnerisk frihed\",\n      \"kontakt\": \"birgitte.ahlgren@jur.ku.dk\",\n      \"relevans\": \"Kan belyse de juridiske og kriminologiske aspekter af at kriminalisere kunstneriske ytringer om cannabis\"\n    },\n    {\n      \"navn\": \"Mads Uffe Pedersen\",\n      \"titel\": \"Professor i psykologi\",\n      \"organisation\": \"Aarhus Universitet, Institut for Psykologi\",\n      \"ekspertise\": \"Forskning i afhængighed, rusmidler og forebyggelse\",\n      \"kontakt\": \"mup@psy.au.dk\",\n      \"relevans\": \"Kan bidrage med viden om de psykologiske og sundhedsmæssige aspekter af cannabis-forbrug\"\n    },\n    {\n      \"navn\": \"Katrine Winkel Holm\",\n      \"titel\": \"Direktør\",\n      \"organisation\": \"Foreningen for Cannabisoplysning\",\n      \"ekspertise\": \"Advocacy og politisk rådgivning om cannabis-legalisering\",\n      \"kontakt\": \"kwh@cannabisoplysning.dk\",\n      \"relevans\": \"Kan repræsentere synspunkter fra organisationer, der arbejder for legalisering af cannabis\"\n    },\n    {\n      \"navn\": \"Jørgen Ramskov\",\n      \"titel\": \"Chefredaktør\",\n      \"organisation\": \"Musikmagasinet GAFFA\",\n      \"ekspertise\": \"Kendskab til musikbranchen og kunstneriske ytringer om narkotika\",\n      \"kontakt\": \"jr@gaffa.dk\",\n      \"relevans\": \"Kan belyse musikbranchens perspektiver på sagen og kunstnerisk frihed\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Justitsministeriet\",\n      \"type\": \"Offentlig myndighed\",\n      \"relevans\": \"Ansvarlig for lovgivning om narkoti
+2025-05-21 21:55:23,386 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
   "eksperter": [
     {
-      "navn": "Maja Grann",
-      "titel": "Lektor i bæredygtig fødevarepro...
-2025-05-19 03:36:06,348 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-05-19 03:36:06,373 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01VPTEf2EzSSuJrQeyobRAft","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Mette Lykke Nielsen\\",\\n      \\"titel\\": \\"Lektor i f\xc3\xb8devarevidenskab\\",\\n      \\"organisation\\": \\"K\xc3\xb8benhavns Universitet, Institut for F\xc3\xb8devarevidenskab\\",\\n      \\"ekspertise\\": \\"Specialiseret i forbrugeradf\xc3\xa6rd og trends inden for kaffe og specialkaffe\\",\\n      \\"kontakt\\": \\"mette.lykke@food.ku.dk\\",'...
-2025-05-19 03:36:06,373 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01VPTEf2EzSSuJrQeyobRAft","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mette Lykke Nielsen\",\n      \"titel\": \"Lektor i fødevarevidenskab\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevarevidenskab\",\n      \"ekspertise\": \"Specialiseret i forbrugeradfærd og trends inden for kaffe og specialkaffe\",\n      \"kontakt\": \"mette.lykke@food.ku.dk\",\n  ...
-2025-05-19 03:36:06,373 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_01VPTEf2EzSSuJrQeyobRAft", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mette Lykke Nielsen\",\n      \"titel\": \"Lektor i fødevarevidenskab\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevarevidenskab\",\n      \"ekspertise\": \"Specialiseret i forbrugeradfærd og trends inden for kaffe og specialkaffe\",\n      \"kontakt\": \"mette.lykke@food.ku.dk\",\n      \"relevans\": \"Kan belyse de kulturelle og adfærdsmæssige ændringer i danskernes kaffeforbrug\"\n    },\n    {\n      \"navn\": \"Jesper Bruun\",\n      \"titel\": \"Direktør\",\n      \"organisation\": \"Kafferisteriet ApS\",\n      \"ekspertise\": \"Erfaren kaffeiværksætter med indsigt i udviklingen af specialkaffemarkedet i Danmark\",\n      \"kontakt\": \"jesper@kafferisteriet.dk\",\n      \"relevans\": \"Kan give et praktisk perspektiv på fremvæksten af små lokale kaffeirosterier\"\n    },\n    {\n      \"navn\": \"Rikke Draborg\",\n      \"titel\": \"Sensorisk ekspert og kaffedommer\",\n      \"organisation\": \"Dansk Kaffeinstitut\",\n      \"ekspertise\": \"Specialiseret i sensorisk analyse og bedømmelse af specialkaffe\",\n      \"kontakt\": \"rikke@kaffeinstitut.dk\",\n      \"relevans\": \"Kan forklare, hvad der kendetegner specialkaffe og hvordan smag og kvalitet vurderes\"\n    },\n    {\n      \"navn\": \"Søren Espersen\",\n      \"titel\": \"Forbrugeranalytiker\",\n      \"organisation\": \"Retail Institute Scandinavia\",\n      \"ekspertise\": \"Ekspert i forbrugertrends og ændringer i detailhandlen, herunder kaffesegmentet\",\n      \"kontakt\": \"soe@retail-institute.dk\",\n      \"relevans\": \"Kan analysere de overordnede forbrugertrends og ændringer i kaffekulturen\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Dansk Kaffeinformation\",\n      \"type\": \"Brancheorganisation\",\n      \"relevans\": \"Repræsenterer kaffeb
-2025-05-19 03:36:06,374 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
+      "navn": "Birgitte Ahlgren",
+      "titel": "Lektor i kriminologi",
+  ...
+2025-05-21 21:55:23,387 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-21 21:55:23,387 - vinkeljernet.api - INFO - Total execution time for generate_expert_source_suggestions: 8.66 seconds
+2025-05-21 21:55:24,027 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01ANKd9x11UACqJreD3spYa8","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Mette Fog Olesen\\",\\n      \\"titel\\": \\"Lektor i farmakologi\\",\\n      \\"organisation\\": \\"K\xc3\xb8benhavns Universitet, Institut for Farmakologi\\",\\n      \\"ekspertise\\": \\"Forskning i medicinsk cannabis og dens terapeutiske anvendelser\\",\\n      \\"kontakt\\": \\"mette.fog.olesen@sund.ku.dk\\",\\n      \\"relevans\\": \\'...
+2025-05-21 21:55:24,027 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01ANKd9x11UACqJreD3spYa8","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mette Fog Olesen\",\n      \"titel\": \"Lektor i farmakologi\",\n      \"organisation\": \"Københavns Universitet, Institut for Farmakologi\",\n      \"ekspertise\": \"Forskning i medicinsk cannabis og dens terapeutiske anvendelser\",\n      \"kontakt\": \"mette.fog.olesen@sund.ku.dk\",\n      \"relevans\": \"...
+2025-05-21 21:55:24,028 - vinkeljernet.api - DEBUG - Claude API response_data (expert sources): {"id": "msg_01ANKd9x11UACqJreD3spYa8", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mette Fog Olesen\",\n      \"titel\": \"Lektor i farmakologi\",\n      \"organisation\": \"Københavns Universitet, Institut for Farmakologi\",\n      \"ekspertise\": \"Forskning i medicinsk cannabis og dens terapeutiske anvendelser\",\n      \"kontakt\": \"mette.fog.olesen@sund.ku.dk\",\n      \"relevans\": \"Kan belyse de farmakologiske aspekter af medicinsk cannabis og patienternes erfaringer\"\n    },\n    {\n      \"navn\": \"Jørgen Schøler Kristensen\",\n      \"titel\": \"Overlæge i anæstesiologi\",\n      \"organisation\": \"Rigshospitalet, Smerteklinikken\",\n      \"ekspertise\": \"Behandling af kroniske smerter med alternative metoder, herunder medicinsk cannabis\",\n      \"kontakt\": \"jorgen.scholer.kristensen@regionh.dk\",\n      \"relevans\": \"Kan dele kliniske erfaringer med brug af cannabis til smertelindring\"\n    },\n    {\n      \"navn\": \"Rikke Holm\",\n      \"titel\": \"Patientrepræsentant, formand\",\n      \"organisation\": \"Foreningen for Medicinsk Cannabis\",\n      \"ekspertise\": \"Patientperspektiv på adgang til medicinsk cannabis og udfordringer i det nuværende system\",\n      \"kontakt\": \"rikke@medicinalcannabis.dk\",\n      \"relevans\": \"Kan give stemme til patienter, der bruger cannabis medicinsk\"\n    },\n    {\n      \"navn\": \"Rasmus Kjeldahl\",\n      \"titel\": \"Seniorforsker i sundhedspolitik\",\n      \"organisation\": \"VIVE - Det Nationale Forsknings- og Analysecenter for Velfærd\",\n      \"ekspertise\": \"Forskning i regulering af medicinsk cannabis og etiske dilemmaer\",\n      \"kontakt\": \"rkj@vive.dk\",\n      \"relevans\": \"Kan analysere de sundhedspolitiske og etiske aspekter af medicinsk cannabis\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Sundhedsstyrelsen\",\n      \"type\": \"Offe
+2025-05-21 21:55:24,028 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
   "eksperter": [
     {
-      "navn": "Mette Lykke Nielsen",
-      "titel": "Lektor i fødevareviden...
-2025-05-19 03:36:06,374 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-05-19 03:36:07,343 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01WpQNSzGNQfAYoFaaXQWJTh","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Jannie Vestergaard\\",\\n      \\"titel\\": \\"Professor i klimaforandringer og landbrugsproduktion\\",\\n      \\"organisation\\": \\"Aarhus Universitet, Institut for Agro\xc3\xb8kologi\\",\\n      \\"ekspertise\\": \\"Forsker i effekter af t\xc3\xb8rke og ekstreme vejrforhold p\xc3\xa5 afgr\xc3\xb8deproduktion, herunder kaffe\\",\\n      \\"kontakt\\'...
-2025-05-19 03:36:07,344 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01WpQNSzGNQfAYoFaaXQWJTh","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Jannie Vestergaard\",\n      \"titel\": \"Professor i klimaforandringer og landbrugsproduktion\",\n      \"organisation\": \"Aarhus Universitet, Institut for Agroøkologi\",\n      \"ekspertise\": \"Forsker i effekter af tørke og ekstreme vejrforhold på afgrødeproduktion, herunder kaffe\",\n      \"kontakt\": \...
-2025-05-19 03:36:07,344 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_01WpQNSzGNQfAYoFaaXQWJTh", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Jannie Vestergaard\",\n      \"titel\": \"Professor i klimaforandringer og landbrugsproduktion\",\n      \"organisation\": \"Aarhus Universitet, Institut for Agroøkologi\",\n      \"ekspertise\": \"Forsker i effekter af tørke og ekstreme vejrforhold på afgrødeproduktion, herunder kaffe\",\n      \"kontakt\": \"jannie.vestergaard@agro.au.dk\",\n      \"relevans\": \"Kan vurdere de konkrete klimarelaterede trusler mod kaffedyrkning globalt\"\n    },\n    {\n      \"navn\": \"Mads Sørensen\",\n      \"titel\": \"Seniorforsker i international handel og fødevaremarkeder\",\n      \"organisation\": \"Københavns Universitet, Institut for Fødevare- og Ressourceøkonomi\",\n      \"ekspertise\": \"Specialiseret i prisdannelse og udbudssituationen for globale landbrugsvarer som kaffe\",\n      \"kontakt\": \"mads.soerensen@ifro.ku.dk\",\n      \"relevans\": \"Kan analysere de økonomiske konsekvenser af faldende kaffeproduktion for forbrugere og industri\"\n    },\n    {\n      \"navn\": \"Fatima Aziz\",\n      \"titel\": \"Leder af bæredygtighedsprogrammet, Fairtrade International\",\n      \"organisation\": \"Fairtrade International\",\n      \"ekspertise\": \"Ekspert i bæredygtig kaffedyrkning og udfordringer for småskala kaffeproducenter\",\n      \"kontakt\": \"fatima.aziz@fairtrade.net\",\n      \"relevans\": \"Kan belyse de sociale og økonomiske konsekvenser af klimaforandringer for kaffeproducenter i udviklingslandene\"\n    },\n    {\n      \"navn\": \"Lisbeth Grønbæk\",\n      \"titel\": \"Seniorrådgiver, Verdensnaturfonden (WWF)\",\n      \"organisation\": \"Verdensnaturfonden (WWF), Afdeling for Fødevarer og Landbrug\",\n      \"ekspertise\": \"Specialiseret i bæredygtig fødevareproduktion og klimatilpasning i landbruget\",\n      \"kontakt\": \"lisbeth.gronbaek@wwf.dk
-2025-05-19 03:36:07,344 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
+      "navn": "Mette Fog Olesen",
+      "titel": "Lektor i farmakologi",
+  ...
+2025-05-21 21:55:24,028 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-21 21:55:24,028 - vinkeljernet.api - INFO - Total execution time for generate_expert_source_suggestions: 9.33 seconds
+2025-05-21 21:55:24,104 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_016KMnD1WJ5ZVuSy99XzsAXn","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Mette Ravn\\",\\n      \\"titel\\": \\"Lektor i kriminologi\\",\\n      \\"organisation\\": \\"K\xc3\xb8benhavns Universitet, Institut for Sociologi\\",\\n      \\"ekspertise\\": \\"Forsker i ulovlig narkotikahandel, subkulturer og afkriminalisering\\",\\n      \\"kontakt\\": \\"mette.ravn@soc.ku.dk\\",\\n      \\"relevans\\": \\"Kan belyse'...
+2025-05-21 21:55:24,104 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_016KMnD1WJ5ZVuSy99XzsAXn","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mette Ravn\",\n      \"titel\": \"Lektor i kriminologi\",\n      \"organisation\": \"Københavns Universitet, Institut for Sociologi\",\n      \"ekspertise\": \"Forsker i ulovlig narkotikahandel, subkulturer og afkriminalisering\",\n      \"kontakt\": \"mette.ravn@soc.ku.dk\",\n      \"relevans\": \"Kan belyse ...
+2025-05-21 21:55:24,105 - vinkeljernet.api - DEBUG - Claude API response_data (expert sources): {"id": "msg_016KMnD1WJ5ZVuSy99XzsAXn", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Mette Ravn\",\n      \"titel\": \"Lektor i kriminologi\",\n      \"organisation\": \"Københavns Universitet, Institut for Sociologi\",\n      \"ekspertise\": \"Forsker i ulovlig narkotikahandel, subkulturer og afkriminalisering\",\n      \"kontakt\": \"mette.ravn@soc.ku.dk\",\n      \"relevans\": \"Kan belyse de kriminologiske aspekter af Christianias cannabismarked og konsekvenser af nuværende narkopolitik\"\n    },\n    {\n      \"navn\": \"Jørgen Laursen\",\n      \"titel\": \"Socialrådgiver, Christiania\",\n      \"organisation\": \"Christianias Sociale Kontor\",\n      \"ekspertise\": \"Førstehåndskendskab til Christianias sociale miljø og udfordringer relateret til narkotika\",\n      \"kontakt\": \"jorgen@christiania.org\",\n      \"relevans\": \"Kan give indblik i pushernes og brugernes perspektiver og Christianias håndtering af cannabishandlen\"\n    },\n    {\n      \"navn\": \"Katrine Winther\",\n      \"titel\": \"Overlæge, Rusmiddelcenter\",\n      \"organisation\": \"Region Hovedstaden\",\n      \"ekspertise\": \"Klinisk erfaring med behandling af stofmisbrug og afhængighed\",\n      \"kontakt\": \"katrine.winther@regionh.dk\",\n      \"relevans\": \"Kan vurdere sundhedsmæssige konsekvenser af ureguleret cannabisforbrug\"\n    },\n    {\n      \"navn\": \"Rasmus Kjeldahl\",\n      \"titel\": \"Direktør\",\n      \"organisation\": \"Dansk Ungdoms Fællesråd\",\n      \"ekspertise\": \"Interesseorganisation for unges rettigheder og velfærd\",\n      \"kontakt\": \"rasmus@duf.dk\",\n      \"relevans\": \"Kan diskutere unge brugeres perspektiver og konsekvenser af nuværende narkopolitik\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Christiania\",\n      \"type\": \"Alternativt bolig- og kulturmiljø\",\n      \"relevans\": \"Centrum for den u
+2025-05-21 21:55:24,105 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
   "eksperter": [
     {
-      "navn": "Jannie Vestergaard",
-      "titel": "Professor i klimaforand...
-2025-05-19 03:36:07,344 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-05-19 03:36:07,857 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01BhznCYn3yDfp7vNbKa21Bi","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Sonia Guajajara\\",\\n      \\"titel\\": \\"Leder af Den Brasilianske Urfolksalliance\\",\\n      \\"organisation\\": \\"Den Brasilianske Urfolksalliance\\",\\n      \\"ekspertise\\": \\"Specialiseret i urfolks rettigheder og b\xc3\xa6redygtig udvikling i kaffeindustrien\\",\\n      \\"kontakt\\": \\"sonia.guajajara@apib.info\\",\\n     '...
-2025-05-19 03:36:07,857 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01BhznCYn3yDfp7vNbKa21Bi","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Sonia Guajajara\",\n      \"titel\": \"Leder af Den Brasilianske Urfolksalliance\",\n      \"organisation\": \"Den Brasilianske Urfolksalliance\",\n      \"ekspertise\": \"Specialiseret i urfolks rettigheder og bæredygtig udvikling i kaffeindustrien\",\n      \"kontakt\": \"sonia.guajajara@apib.info\",\n      ...
-2025-05-19 03:36:07,857 - vinkeljernet.api - WARNING - Claude API response_data (expert sources): {"id": "msg_01BhznCYn3yDfp7vNbKa21Bi", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Sonia Guajajara\",\n      \"titel\": \"Leder af Den Brasilianske Urfolksalliance\",\n      \"organisation\": \"Den Brasilianske Urfolksalliance\",\n      \"ekspertise\": \"Specialiseret i urfolks rettigheder og bæredygtig udvikling i kaffeindustrien\",\n      \"kontakt\": \"sonia.guajajara@apib.info\",\n      \"relevans\": \"Kan belyse udnyttelsen af urfolksarbejdere på kaffeplantager i Brasilien\"\n    },\n    {\n      \"navn\": \"Fatima Ismael\",\n      \"titel\": \"Generalsekretær, SOPPEXCCA Kaffebøndekooperativ\",\n      \"organisation\": \"SOPPEXCCA Kaffebøndekooperativ, Nicaragua\",\n      \"ekspertise\": \"Erfaring med fair handel og bæredygtige kaffepraksisser\",\n      \"kontakt\": \"fatima.ismael@soppexcca.org\",\n      \"relevans\": \"Kan give indsigt i udfordringer for småskala kaffebønder i udviklingslande\"\n    },\n    {\n      \"navn\": \"Ximena Warnaars\",\n      \"titel\": \"Seniorforsker, Oxfam International\",\n      \"organisation\": \"Oxfam International\",\n      \"ekspertise\": \"Forskning i social ulighed og arbejdsrettigheder i landbrugseksport\",\n      \"kontakt\": \"ximena.warnaars@oxfam.org\",\n      \"relevans\": \"Kan bidrage med viden om udnyttelse af arbejdere i globale forsyningskæder\"\n    },\n    {\n      \"navn\": \"Marcos Pimenta\",\n      \"titel\": \"Leder af Arbejderkomitéen for Kaffeplantager\",\n      \"organisation\": \"Arbejderkomitéen for Kaffeplantager, Brasilien\",\n      \"ekspertise\": \"Førstehåndsviden om arbejdsforhold og organisering på kaffeplantager\",\n      \"kontakt\": \"marcos.pimenta@cafetrabalhador.org.br\",\n      \"relevans\": \"Kan give direkte indsigt i udfordringer for kaffeplantagearbejdere\"\n    }\n  ],\n  \"institutioner\": [\n    {\n      \"navn\": \"Rainforest Alliance\",\n      \"type\": \"Cert
-2025-05-19 03:36:07,857 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
+      "navn": "Mette Ravn",
+      "titel": "Lektor i kriminologi",
+      "o...
+2025-05-21 21:55:24,105 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-21 21:55:24,105 - vinkeljernet.api - INFO - Total execution time for generate_expert_source_suggestions: 9.38 seconds
+2025-05-21 21:55:25,272 - vinkeljernet.api - DEBUG - Raw Claude API response bytes: b'{"id":"msg_01Me9FnzRAR2s2EqWxEX2vBF","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\\n  \\"eksperter\\": [\\n    {\\n      \\"navn\\": \\"Lotte Holm\\",\\n      \\"titel\\": \\"Professor i milj\xc3\xb8videnskab\\",\\n      \\"organisation\\": \\"K\xc3\xb8benhavns Universitet, Institut for Geovidenskab og Naturforvaltning\\",\\n      \\"ekspertise\\": \\"Specialiseret i b\xc3\xa6redygtig landbrugsproduktion og milj\xc3\xb8p\xc3\xa5virkning af afgr\xc3\xb8der\\",\\n      \\"kontakt\\": \\"lotte.holm@ig'...
+2025-05-21 21:55:25,273 - vinkeljernet.api - DEBUG - Raw Claude API response text: {"id":"msg_01Me9FnzRAR2s2EqWxEX2vBF","type":"message","role":"assistant","model":"claude-3-haiku-20240307","content":[{"type":"text","text":"{\n  \"eksperter\": [\n    {\n      \"navn\": \"Lotte Holm\",\n      \"titel\": \"Professor i miljøvidenskab\",\n      \"organisation\": \"Københavns Universitet, Institut for Geovidenskab og Naturforvaltning\",\n      \"ekspertise\": \"Specialiseret i bæredygtig landbrugsproduktion og miljøpåvirkning af afgrøder\",\n      \"kontakt\": \"lotte.holm@ign.ku.d...
+2025-05-21 21:55:25,273 - vinkeljernet.api - DEBUG - Claude API response_data (expert sources): {"id": "msg_01Me9FnzRAR2s2EqWxEX2vBF", "type": "message", "role": "assistant", "model": "claude-3-haiku-20240307", "content": [{"type": "text", "text": "{\n  \"eksperter\": [\n    {\n      \"navn\": \"Lotte Holm\",\n      \"titel\": \"Professor i miljøvidenskab\",\n      \"organisation\": \"Københavns Universitet, Institut for Geovidenskab og Naturforvaltning\",\n      \"ekspertise\": \"Specialiseret i bæredygtig landbrugsproduktion og miljøpåvirkning af afgrøder\",\n      \"kontakt\": \"lotte.holm@ign.ku.dk\",\n      \"relevans\": \"Kan belyse de miljømæssige fordele ved cannabisproduktion sammenlignet med andre afgrøder\"\n    },\n    {\n      \"navn\": \"Søren Breiting\",\n      \"titel\": \"Lektor i miljøkommunikation\",\n      \"organisation\": \"Aarhus Universitet, Institut for Miljøvidenskab\",\n      \"ekspertise\": \"Forsker i formidling af miljøvidenskabelig viden til offentligheden\",\n      \"kontakt\": \"sb@envs.au.dk\",\n      \"relevans\": \"Kan bidrage med perspektiver på, hvordan forskningsresultater om cannabis og miljø kan kommunikeres effektivt\"\n    },\n    {\n      \"navn\": \"Mette Olesen\",\n      \"titel\": \"Seniorforsker i bæredygtigt landbrug\",\n      \"organisation\": \"SEGES, Videncenter for Landbrug\",\n      \"ekspertise\": \"Ekspert i økologisk og regenerativt landbrug, herunder alternative afgrøder\",\n      \"kontakt\": \"mette.olesen@seges.dk\",\n      \"relevans\": \"Kan bidrage med viden om cannabisproduktionens potentiale i et bæredygtigt landbrugssystem\"\n    },\n    {\n      \"navn\": \"Jens Streibig\",\n      \"titel\": \"Professor i plantebiologi\",\n      \"organisation\": \"Københavns Universitet, Institut for Plante- og Miljøvidenskab\",\n      \"ekspertise\": \"Forsker i plantekemi og -fysiologi, herunder cannabisplantens egenskaber\",\n      \"kontakt\": \"jcs@plen.ku.dk\",\n      \"relevans\": \"Kan bidrage med viden om cannabisplantens miljømæssige fordele sammenlignet med andre afgrøder\"\n    }\n  ],\n  \"instit
+2025-05-21 21:55:25,273 - json_parser - DEBUG - Attempting to parse JSON from expert source suggestions. Preview: {
   "eksperter": [
     {
-      "navn": "Sonia Guajajara",
-      "titel": "Leder af Den Brasilianske ...
-2025-05-19 03:36:07,857 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
-2025-05-19 03:36:07,898 - vinkeljernet.api - INFO - API client shut down successfully
-2025-05-19 03:36:07,898 - vinkeljernet.api - INFO - API client shut down successfully
+      "navn": "Lotte Holm",
+      "titel": "Professor i miljøvidenskab",
+  ...
+2025-05-21 21:55:25,273 - json_parser - INFO - Successfully parsed JSON directly: 1 items found
+2025-05-21 21:55:25,274 - vinkeljernet.api - INFO - Total execution time for generate_expert_source_suggestions: 10.54 seconds
+2025-05-21 21:55:25,276 - vinkeljernet.api - INFO - process_generation_request: Overall generation of expert sources (tasks awaited) took 10.58 seconds.
+2025-05-21 21:55:25,276 - vinkeljernet.api - INFO - Total execution time for process_generation_request (successful): 57.06 seconds.
+2025-05-21 21:55:25,322 - vinkeljernet.api - INFO - API client shut down successfully
+2025-05-21 21:55:25,322 - vinkeljernet.api - INFO - API client shut down successfully

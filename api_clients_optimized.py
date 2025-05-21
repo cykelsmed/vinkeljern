@@ -12,6 +12,7 @@ import time
 import logging
 import requests
 import re
+import os
 from typing import Optional, Dict, Any, List, Callable, Tuple, Union
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
@@ -188,6 +189,9 @@ async def fetch_topic_information(
     Returns:
         Optional[dict]: The information retrieved or None if failed
     """
+    func_start_time = time.time()
+    logger.info(f"Starting fetch_topic_information for topic: {topic}")
+
     if not ANTHROPIC_API_KEY:
         raise APIKeyMissingError("Claude (Anthropic) API nøgle mangler. Sørg for at have en ANTHROPIC_API_KEY i din .env fil.")
     
@@ -270,6 +274,9 @@ async def fetch_topic_information(
             logger.info(f"Claude API request completed in {latency:.2f} seconds")
             if progress_callback:
                 await progress_callback(100)
+            
+            func_duration = time.time() - func_start_time
+            logger.info(f"Total execution time for fetch_topic_information: {func_duration:.2f} seconds")
             return {"text": content, "sources": {}}
     except Exception as e:
         logger.error(f"Error fetching topic information: {str(e)}")
@@ -279,6 +286,8 @@ async def fetch_topic_information(
                 del _session_pool["anthropic_topic_info"]
         except:
             pass
+        func_duration = time.time() - func_start_time
+        logger.error(f"Execution of fetch_topic_information failed after {func_duration:.2f} seconds.")
         raise
 
 async def generate_editorial_considerations(
@@ -439,19 +448,69 @@ async def process_generation_request(
     include_knowledge_distillate: bool = True,
 ) -> List[Dict[str, Any]]:
     """
-    Process a generation request with the given args using the optimized API client.
+    Process an angle generation request with optimized API calls.
     
     Args:
         topic: The topic to generate angles for
         profile: The editorial DNA profile
-        bypass_cache: If True, bypass the cache
-        progress_callback: Optional callback for progress updates
-        include_expert_sources: If True, include expert sources
-        include_knowledge_distillate: If True, include knowledge distillate
+        bypass_cache: If True, ignore the cache
+        progress_callback: Function to report progress
+        include_expert_sources: Whether to generate expert sources
+        include_knowledge_distillate: Whether to generate knowledge distillate
         
     Returns:
-        List[Dict[str, Any]]: The generated angles
+        List of angle dictionaries
     """
+    overall_start_time = time.time()
+    logger.info(f"Starting process_generation_request for topic: {topic}")
+
+    # DEBUG_MODE for testing without valid API keys
+    DEBUG_MODE = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
+    
+    # If in DEBUG_MODE and we have invalid keys, return mock data
+    if DEBUG_MODE and (not ANTHROPIC_API_KEY or ANTHROPIC_API_KEY.startswith("dummy_")):
+        logger.warning("Running in DEBUG_MODE with invalid API keys - returning mock data")
+        
+        # Update progress if callback provided
+        if progress_callback and callable(progress_callback):
+            # Simulate progress
+            for progress in [10, 25, 50, 75, 100]:
+                await progress_callback(progress)
+                await asyncio.sleep(0.2)  # Small delay for visual effect
+        
+        # Return mock angles
+        return [
+            {
+                "overskrift": f"Vinkel 1: Hvordan {topic} påvirker lokale samfund",
+                "beskrivelse": f"En dybdegående analyse af hvordan {topic} har direkte konsekvenser for lokalsamfund i Danmark, med fokus på økonomiske og sociale aspekter.",
+                "nyhedskriterier": ["aktualitet", "væsentlighed", "identifikation"],
+                "begrundelse": "Dette er en mockup vinkler for demonstration uden API-nøgler",
+                "perplexityInfo": f"Dette er demo-information om {topic} genereret i DEBUG_MODE da der ikke er gyldige API-nøgler.",
+                "harVidenDistillat": True,
+                "videnDistillat": {
+                    "hovedpunkter": [
+                        f"{topic} er et vigtigt emne i den aktuelle debat",
+                        "Eksperter er uenige om de langsigtede konsekvenser",
+                        "Nye undersøgelser viser overraskende resultater",
+                        "Politikere har fremlagt forskellige løsningsforslag"
+                    ],
+                    "noegletal": [
+                        {"tal": "42%", "beskrivelse": "af danskerne er bekymrede", "kilde": "Danmarks Statistik"}
+                    ],
+                    "centralePaastand": [
+                        {"paastand": f"{topic} vil være afgørende for fremtiden", "kilde": "Ekspert i feltet"}
+                    ]
+                }
+            },
+            {
+                "overskrift": f"Vinkel 2: De økonomiske konsekvenser af {topic}",
+                "beskrivelse": f"En analyse af de økonomiske implikationer af {topic} for danske virksomheder og forbrugere.",
+                "nyhedskriterier": ["væsentlighed", "aktualitet", "sensation"],
+                "begrundelse": "Dette er en mockup vinkler for demonstration uden API-nøgler",
+                "perplexityInfo": f"Dette er demo-information om {topic} genereret i DEBUG_MODE da der ikke er gyldige API-nøgler."
+            }
+        ]
+    
     try:
         # Update progress - check if progress_callback is callable
         if progress_callback and callable(progress_callback):
@@ -467,11 +526,13 @@ async def process_generation_request(
         if progress_callback and callable(progress_callback):
             await progress_callback(10)
             
+        topic_info_start_time = time.time()
         topic_info = await fetch_topic_information(
             topic, 
             bypass_cache=bypass_cache, 
             progress_callback=progress_callback if callable(progress_callback) else None
         )
+        logger.info(f"process_generation_request: fetch_topic_information call took {time.time() - topic_info_start_time:.2f} seconds.")
         
         if not topic_info:
             topic_info = f"Emnet handler om {topic}. Ingen yderligere baggrundsinformation tilgængelig."
@@ -488,6 +549,7 @@ async def process_generation_request(
                 if progress_callback and callable(progress_callback):
                     await progress_callback(30)
                     
+                # knowledge_distillate_start_time = time.time() # Start time logged inside the function
                 knowledge_distillate_task = asyncio.create_task(generate_knowledge_distillate(
                     topic_info=topic_info,
                     topic=topic,
@@ -559,6 +621,7 @@ async def process_generation_request(
         # 4. Generate angles with Claude API
         response_text = None
         session = None
+        angle_generation_api_call_start_time = time.time()
         try:
             if USE_STREAMING:
                 response_text = await _stream_claude_response(prompt)
@@ -566,9 +629,15 @@ async def process_generation_request(
                 # Non-streaming version
                 headers = {
                     "Content-Type": "application/json",
-                    "x-api-key": ANTHROPIC_API_KEY,
-                    "anthropic-version": "2023-06-01"
                 }
+                # Only add API key to headers if it's not None
+                if ANTHROPIC_API_KEY is not None:
+                    headers["x-api-key"] = ANTHROPIC_API_KEY
+                    headers["anthropic-version"] = "2023-06-01"
+                else:
+                    logger.error("ANTHROPIC_API_KEY is None - cannot make API request")
+                    raise APIKeyMissingError("Claude (Anthropic) API nøgle mangler. Sørg for at have en ANTHROPIC_API_KEY i din .env fil.")
+                
                 payload = {
                     "model": "claude-3-opus-20240229",
                     "max_tokens": 4096,
@@ -582,9 +651,14 @@ async def process_generation_request(
                         if response.status != 200:
                             error_text = await response.text()
                             logger.error(f"Claude API error: {response.status}, {error_text}")
+                            
+                            # Special handling for 401 Unauthorized (likely invalid API key)
+                            if response.status == 401:
+                                raise APIKeyMissingError(f"Claude API fejl: Uautoriseret adgang (401). Din API-nøgle er sandsynligvis ugyldig. Kontroller din ANTHROPIC_API_KEY i .env filen.")
+                            
                             raise APIConnectionError(f"Claude API fejl: {response.status}")
                         response_data = await response.json()
-                        logger.warning(f"Claude API response_data (angles): {json.dumps(response_data, ensure_ascii=False)[:2000]}")
+                        logger.debug(f"Claude API response_data (angles): {json.dumps(response_data, ensure_ascii=False)[:2000]}")
                         # Log finish_reason hvis tilgængelig
                         finish_reason = None
                         if 'stop_reason' in response_data:
@@ -610,6 +684,7 @@ async def process_generation_request(
                     except Exception:
                         pass
                     raise
+            logger.info(f"process_generation_request: Claude API call for angle generation took {time.time() - angle_generation_api_call_start_time:.2f} seconds.")
 
             # Log hele Claude-svaret før parsing
             logger.debug(f"Raw Claude response: {response_text}")
@@ -660,8 +735,10 @@ async def process_generation_request(
                 await progress_callback(70)
             
             # Filter and rank angles
+            filter_rank_start_time = time.time()
             from angle_processor import filter_and_rank_angles
             ranked_angles = filter_and_rank_angles(angles, profile, 5)
+            logger.info(f"process_generation_request: filter_and_rank_angles took {time.time() - filter_rank_start_time:.2f} seconds.")
 
             # Hvis alle vinkler filtreres væk, returnér fejl-vinklerne hvis de findes
             if (not ranked_angles or len(ranked_angles) == 0):
@@ -678,8 +755,10 @@ async def process_generation_request(
             # Get knowledge distillate result if the task was started
             knowledge_distillate = None
             if knowledge_distillate_task:
+                knowledge_distillate_await_start_time = time.time()
                 try:
                     knowledge_distillate = await knowledge_distillate_task
+                    logger.info(f"process_generation_request: awaiting knowledge_distillate_task took {time.time() - knowledge_distillate_await_start_time:.2f} seconds.")
                     # Add knowledge distillate to each angle
                     if knowledge_distillate:
                         # Check if the result has an error field, and log it but still attach the partial result
@@ -716,6 +795,7 @@ async def process_generation_request(
             
             # Generate expert source suggestions for each angle if requested
             if include_expert_sources:
+                expert_sources_overall_start_time = time.time()
                 expert_sources_tasks = []
                 # Start expert source suggestions tasks for each angle (ingen begrænsning på antal)
                 for i, angle in enumerate(ranked_angles):
@@ -762,6 +842,7 @@ async def process_generation_request(
                         if i < len(ranked_angles):
                             ranked_angles[i]['ekspertKilder'] = fallback_sources
                             ranked_angles[i]['harEkspertKilder'] = True
+                logger.info(f"process_generation_request: Overall generation of expert sources (tasks awaited) took {time.time() - expert_sources_overall_start_time:.2f} seconds.")
             
             # Add metadata to angles about which features were included
             for angle in ranked_angles:
@@ -773,10 +854,12 @@ async def process_generation_request(
             if progress_callback and callable(progress_callback):
                 await progress_callback(100)
                 
+            logger.info(f"Total execution time for process_generation_request (successful): {time.time() - overall_start_time:.2f} seconds.")
             return ranked_angles
             
         except Exception as e:
-            logger.error(f"Error generating angles: {str(e)}")
+            logger.error(f"Error generating angles in process_generation_request: {str(e)}")
+            logger.error(f"process_generation_request execution failed after {time.time() - overall_start_time:.2f} seconds.")
             # Return a minimal result with error information instead of raising
             return [{
                 "overskrift": f"Fejl under vinkelgenerering: {str(e)}",
@@ -786,6 +869,13 @@ async def process_generation_request(
             }]
     except Exception as e:
         logger.error(f"Unexpected error in process_generation_request: {str(e)}")
+        # Ensure overall_start_time is defined in this scope, or log without it if it's not.
+        # For simplicity, we'll assume overall_start_time might not be set if an error occurs very early.
+        current_time = time.time()
+        if 'overall_start_time' in locals() or 'overall_start_time' in globals():
+            logger.error(f"process_generation_request failed unexpectedly after {current_time - overall_start_time:.2f} seconds.")
+        else:
+            logger.error(f"process_generation_request failed unexpectedly. overall_start_time was not defined at this point.")
         # Return a minimal result with error information
         return [{
             "overskrift": f"Uventet fejl: {str(e)}",
@@ -923,6 +1013,9 @@ async def generate_knowledge_distillate(
     Returns:
         Optional[Dict]: Structured knowledge distillate or None if failed
     """
+    func_start_time = time.time()
+    logger.info(f"Starting generate_knowledge_distillate for topic: {topic}")
+
     if not ANTHROPIC_API_KEY:
         raise APIKeyMissingError("Anthropic API nøgle mangler. Sørg for at have en ANTHROPIC_API_KEY i din .env fil.")
     
@@ -988,9 +1081,14 @@ Vær yderst præcis og faktuel, brug kun information der er direkte nævnt i tek
     
     headers = {
         "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
     }
+    # Only add API key to headers if it's not None
+    if ANTHROPIC_API_KEY is not None:
+        headers["x-api-key"] = ANTHROPIC_API_KEY
+        headers["anthropic-version"] = "2023-06-01"
+    else:
+        logger.error("ANTHROPIC_API_KEY is None - cannot make API request")
+        raise APIKeyMissingError("Claude (Anthropic) API nøgle mangler. Sørg for at have en ANTHROPIC_API_KEY i din .env fil.")
     
     # Use the smaller, faster Haiku model instead of Opus for knowledge distillation
     payload = {
@@ -1013,6 +1111,11 @@ Vær yderst præcis og faktuel, brug kun information der er direkte nævnt i tek
             if response.status != 200:
                 error_text = await response.text()
                 logger.error(f"Anthropic API error (knowledge distillate): status={response.status}, response={error_text}")
+                
+                # Special handling for 401 Unauthorized (likely invalid API key)
+                if response.status == 401:
+                    raise APIKeyMissingError(f"Claude API fejl: Uautoriseret adgang (401). Din API-nøgle er sandsynligvis ugyldig. Kontroller din ANTHROPIC_API_KEY i .env filen.")
+                
                 return {
                     "hovedpunkter": [],
                     "noegletal": [],
@@ -1122,7 +1225,9 @@ Vær yderst præcis og faktuel, brug kun information der er direkte nævnt i tek
             # Final progress update - check if progress_callback is callable
             if progress_callback and callable(progress_callback):
                 await progress_callback(100)
-                
+            
+            func_duration = time.time() - func_start_time
+            logger.info(f"Total execution time for generate_knowledge_distillate: {func_duration:.2f} seconds")
             return distillate
     except Exception as e:
         logger.error(f"Error generating knowledge distillate: {str(e)}")
@@ -1134,6 +1239,8 @@ Vær yderst præcis og faktuel, brug kun information der er direkte nævnt i tek
         except:
             pass
         
+        func_duration = time.time() - func_start_time
+        logger.error(f"Execution of generate_knowledge_distillate failed after {func_duration:.2f} seconds.")
         # Return a valid fallback structure
         return {
             "hovedpunkter": [],
@@ -1162,6 +1269,9 @@ async def generate_expert_source_suggestions(
     """
     Generate detailed suggestions for expert sources and institutions for a specific news angle using Claude API.
     """
+    func_start_time = time.time()
+    logger.info(f"Starting generate_expert_source_suggestions for angle: {angle_headline}")
+
     # Definer system_prompt i starten af funktionen for at sikre, at den altid er tilgængelig
     system_prompt = """Du er en erfaren journalist med specialviden om ekspertkilder, organisationer og datakilder i Danmark. 
 Din opgave er at identificere de mest relevante og pålidelige eksperter og institutioner til specifikke journalistiske vinkler.
@@ -1286,7 +1396,7 @@ Fokuser på at finde reelle personer med relevant ekspertise, faktiske instituti
             except Exception as e:
                 logger.error(f"Invalid JSON in Claude API response: {e}. Preview: {raw_text[:500]}{'...' if len(raw_text) > 500 else ''}")
                 return "Fejl: Modtog ikke gyldigt svar fra API'et"
-            logger.warning(f"Claude API response_data (expert sources): {json.dumps(response_data, ensure_ascii=False)[:2000]}")
+            logger.debug(f"Claude API response_data (expert sources): {json.dumps(response_data, ensure_ascii=False)[:2000]}")
             content = response_data['content'][0]['text'] if 'content' in response_data and response_data['content'] and 'text' in response_data['content'][0] else None
             if not content:
                 logger.error(f"Anthropic API response_data (no text found): {json.dumps(response_data, ensure_ascii=False)[:1000]}")
@@ -1321,9 +1431,14 @@ Fokuser på at finde reelle personer med relevant ekspertise, faktiske instituti
                     expert_suggestions[field] = []
             if progress_callback:
                 await progress_callback(100)
+            
+            func_duration = time.time() - func_start_time
+            logger.info(f"Total execution time for generate_expert_source_suggestions: {func_duration:.2f} seconds")
             return expert_suggestions
     except Exception as e:
         logger.error(f"Error generating expert source suggestions: {str(e)}")
+        func_duration = time.time() - func_start_time
+        logger.error(f"Execution of generate_expert_source_suggestions failed after {func_duration:.2f} seconds.")
         return {
             "eksperter": [],
             "institutioner": [],

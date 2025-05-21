@@ -455,7 +455,17 @@ async def main_async() -> None:
         console.print("[yellow]Prøv et andet emne eller kontrollér API-nøglen.[/yellow]")
         sys.exit(1)
     
-    console.print(f"[green]✓[/green] Genereret {len(angles)} vinkler")
+    # Tæl succesfulde vinkler og fejl
+    successful_angles = [angle for angle in angles if not angle.get('error')]
+    error_angles_count = len(angles) - len(successful_angles)
+
+    if successful_angles:
+        console.print(f"[green]✓[/green] Genereret {len(successful_angles)} vinkler succesfuldt")
+    else:
+        console.print("[bold red]Ingen vinkler blev genereret succesfuldt.[/bold red]")
+
+    if error_angles_count > 0:
+        console.print(f"[yellow]![/yellow] {error_angles_count} vinkel(er) kunne ikke genereres pga. fejl.")
     
     # Videndistillat vises allerede i display_angles_panels
     console.print("\n[bold green]Viser genererede vinkler:[/bold green]")
@@ -925,7 +935,17 @@ async def process_generation_request(args) -> None:
         console.print("  - Profilen er for restriktiv")
         return
     
-    console.print(f"[green]✓[/green] Genereret {len(angles)} vinkler")
+    # Tæl succesfulde vinkler og fejl
+    successful_angles = [angle for angle in angles if not angle.get('error')]
+    error_angles_count = len(angles) - len(successful_angles)
+
+    if successful_angles:
+        console.print(f"[green]✓[/green] Genereret {len(successful_angles)} vinkler succesfuldt")
+    else:
+        console.print("[bold red]Ingen vinkler blev genereret succesfuldt.[/bold red]")
+
+    if error_angles_count > 0:
+        console.print(f"[yellow]![/yellow] {error_angles_count} vinkel(er) kunne ikke genereres pga. fejl.")
     
     # Videndistillat vises allerede i display_angles_panels
     console.print("\n[bold green]Viser genererede vinkler:[/bold green]")

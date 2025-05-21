@@ -509,10 +509,19 @@ async def generate_angles_async(args: Namespace) -> None:
             # Calculate processing time
             processing_time = time.time() - start_time
             
+            # Tæl succesfulde vinkler og fejl
+            successful_angles = [angle for angle in angles if not angle.get('error')]
+            error_angles_count = len(angles) - len(successful_angles)
+
             # Display results based on format
             if format_type == 'text':
-                display_angles_panels(angles, topic, profile)
-                console.print(f"\n[green]Genererede {len(angles)} vinkler på [bold]{processing_time:.2f}[/bold] sekunder.[/green]")
+                display_angles_panels(angles, verbose=args.detailed, detailed_sources=args.detailed)
+                if successful_angles:
+                    console.print(f"\n[green]✓[/green] Genereret {len(successful_angles)} vinkler succesfuldt på [bold]{processing_time:.2f}[/bold] sekunder.")
+                else:
+                    console.print(f"\n[bold red]Ingen vinkler blev genereret succesfuldt.[/bold red]")
+                if error_angles_count > 0:
+                    console.print(f"[yellow]![/yellow] {error_angles_count} vinkel(er) kunne ikke genereres pga. fejl.")
             elif format_type == 'markdown':
                 # Display as markdown
                 from formatters import format_angles_markdown
@@ -520,7 +529,12 @@ async def generate_angles_async(args: Namespace) -> None:
                 console.print(Markdown(markdown_output))
             else:
                 # Just show summary for other formats
-                console.print(f"[green]Genererede {len(angles)} vinkler i {format_type} format på {processing_time:.2f} sekunder.[/green]")
+                if successful_angles:
+                    console.print(f"[green]✓[/green] Genereret {len(successful_angles)} vinkler i {format_type} format på {processing_time:.2f} sekunder.")
+                else:
+                    console.print(f"[bold red]Ingen vinkler blev genereret succesfuldt i {format_type} format.[/bold red]")
+                if error_angles_count > 0:
+                    console.print(f"[yellow]![/yellow] {error_angles_count} vinkel(er) i {format_type} format kunne ikke genereres pga. fejl.")
                 
                 if args.output:
                     console.print(f"[green]Resultat gemt i: [bold]{args.output}[/bold][/green]")

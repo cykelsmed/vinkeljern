@@ -348,8 +348,9 @@ def retry_with_circuit_breaker(
                     raise CircuitOpenError(error_msg)
                 
                 try:
-                    # DEBUG: Log the kwargs before calling the function
-                    logger.info(f"DEBUG - retry_manager async_wrapper kwargs: {kwargs}")
+                    # Log kwargs if they exist and are not empty, for debugging purposes
+                    if kwargs:
+                        logger.debug(f"DEBUG - retry_manager async_wrapper kwargs: {kwargs}")
                     
                     # Ensure 'proxies' parameter is not in kwargs
                     if 'proxies' in kwargs:
